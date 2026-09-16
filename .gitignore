@@ -12,6 +12,7 @@ data/*.parquet
 data/*.csv
 data/*.db
 data/*.duckdb
+data/chroma_db/
 dataset/*.parquet
 dataset/*.csv
 dataset/*.db
