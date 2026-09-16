@@ -1,0 +1,43 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+
+# Datasets (Large files)
+data/vietnam-real-estates/*.parquet
+data/vietnam-real-estates/.cache/
+dataset/vietnam-real-estates/*.parquet
+dataset/vietnam-real-estates/.cache/
+data/*.parquet
+data/*.csv
+data/*.db
+data/*.duckdb
+dataset/*.parquet
+dataset/*.csv
+dataset/*.db
+dataset/*.duckdb
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Environment variables
+.env
+.env.local
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

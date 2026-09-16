@@ -1,0 +1,34 @@
+services:
+  doris:
+    image: apache/doris:all-in-one-4.1.3
+    container_name: doris-warehouse
+    restart: unless-stopped
+    ports:
+      - "9030:9030" # MySQL Protocol Query Port (FastAPI / DBeaver connects here)
+      - "8030:8030" # Frontend Web UI & HTTP Stream Load API
+      - "8040:8040" # Backend Web UI
+    environment:
+      - FE_JAVA_OPTS=-Xmx1024m -Xms512m -XX:+UseG1GC
+      - BE_CONFIG_EXTRA=mem_limit = 70%
+    deploy:
+      resources:
+        limits:
+          memory: 3500M # 3.5GB RAM trần cho container (FE 1GB + BE 2.4GB)
+        reservations:
+          memory: 1024M
+    volumes:
+      - doris_fe_meta:/opt/apache-doris/fe/doris-meta
+      - doris_be_storage:/opt/apache-doris/be/storage
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8030/api/bootstrap || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  doris_fe_meta:
+    name: doris_fe_meta
+  doris_be_storage:
+    name: doris_be_storage
