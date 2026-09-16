@@ -10,6 +10,7 @@ services:
     environment:
       - FE_JAVA_OPTS=-Xmx1024m -Xms512m -XX:+UseG1GC
       - BE_CONFIG_EXTRA=mem_limit = 70%
+      - FE_CONFIG_EXTRA=sys_log_level = ERROR
     deploy:
       resources:
         limits:
