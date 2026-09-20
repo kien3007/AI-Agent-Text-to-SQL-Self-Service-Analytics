@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: fct_real_estate_analytics
+    description: "Bảng dữ liệu phân tích chi tiết bất động sản kèm phân khúc giá và diện tích."
+    columns:
+      - name: listing_title
+        description: "Tiêu đề tin đăng"
+      - name: property_type_name
+        description: "Loại hình bất động sản"
+      - name: province_name
+        description: "Tỉnh hoặc thành phố"
+      - name: district_name
+        description: "Quận / Huyện / Thị xã"
+      - name: price_vnd
+        description: "Giá bán niêm yết (VNĐ)"
+      - name: area_sqm
+        description: "Diện tích sử dụng (m2)"
+      - name: price_per_sqm
+        description: "Đơn giá trên mét vuông (VNĐ/m2)"
+      - name: price_segment
+        description: "Phân khúc giá: Bình dân (< 2 tỷ), Trung cấp (2 - 5 tỷ), Cao cấp (5 - 15 tỷ), Siêu cao cấp (> 15 tỷ)"
+      - name: area_segment
+        description: "Phân khúc diện tích: Nhỏ (< 50m2), Tiêu chuẩn (50 - 100m2), Rộng (100 - 200m2), Biệt lập (> 200m2)"
+      - name: published_year_month
+        description: "Tháng xuất bản định dạng YYYY-MM"
+
+  - name: fct_district_monthly_summary
+    description: "Bảng tổng hợp thị trường theo Tháng, Tỉnh/Thành, Quận/Huyện và Loại hình BĐS. Dùng cho truy vấn phân tích xu hướng siêu tốc."
+    columns:
+      - name: province_name
+        description: "Tỉnh / Thành phố"
+      - name: district_name
+        description: "Quận / Huyện"
+      - name: property_type_name
+        description: "Loại hình BĐS"
+      - name: published_year_month
+        description: "Tháng tổng hợp (YYYY-MM)"
+      - name: total_listings
+        description: "Tổng số lượng tin đăng trong kỳ"
+      - name: avg_price_vnd
+        description: "Giá bán trung bình (VNĐ)"
+      - name: avg_area_sqm
+        description: "Diện tích trung bình (m2)"
+      - name: avg_price_per_sqm
+        description: "Đơn giá trung bình trên mét vuông (VNĐ/m2)"
+      - name: min_price_vnd
+        description: "Giá bán thấp nhất (VNĐ)"
+      - name: max_price_vnd
+        description: "Giá bán cao nhất (VNĐ)"
+      - name: stddev_price_per_sqm
+        description: "Độ lệch chuẩn đơn giá/m2 (thước đo độ biến động giá)"
+
+# Khai báo Semantic Metrics chuẩn hóa doanh nghiệp
+metrics:
+  - name: avg_price_per_sqm
+    label: "Đơn giá trung bình / m²"
+    model: ref('fct_district_monthly_summary')
+    description: "Đơn giá trung bình tính trên 1 mét vuông (VNĐ/m2)"
+    type: average
+    sql: avg_price_per_sqm
+    vn_terms: ["đơn giá trung bình", "giá mét vuông", "giá trung bình m2", "đơn giá m2", "giá mỗi m2"]
+
+  - name: total_listings
+    label: "Tổng số tin đăng"
+    model: ref('fct_district_monthly_summary')
+    description: "Tổng số lượng tin đăng bất động sản trên thị trường"
+    type: sum
+    sql: total_listings
+    vn_terms: ["số lượng tin đăng", "tổng tin đăng", "số căn", "nguồn cung", "tổng số tin"]
+
+  - name: avg_property_price
+    label: "Giá bán trung bình"
+    model: ref('fct_district_monthly_summary')
+    description: "Giá bán bất động sản trung bình (VNĐ)"
+    type: average
+    sql: avg_price_vnd
+    vn_terms: ["giá bán trung bình", "giá trung bình", "mức giá bình quân", "giá trung vị"]
+
+  - name: avg_property_area
+    label: "Diện tích trung bình"
+    model: ref('fct_district_monthly_summary')
+    description: "Diện tích mặt sàn bất động sản trung bình (m2)"
+    type: average
+    sql: avg_area_sqm
+    vn_terms: ["diện tích trung bình", "diện tích bình quân", "quy mô căn hộ trung bình"]

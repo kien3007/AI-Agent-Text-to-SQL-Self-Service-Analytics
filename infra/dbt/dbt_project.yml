@@ -1,0 +1,26 @@
+name: 'real_estate_analytics'
+version: '1.0.0'
+config-version: 2
+
+# Chỉ định profile kết nối CSDL Doris
+profile: 'doris_profile'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  real_estate_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: analytics

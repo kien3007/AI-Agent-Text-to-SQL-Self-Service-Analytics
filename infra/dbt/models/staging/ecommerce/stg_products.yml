@@ -1,0 +1,14 @@
+version: 2
+models:
+- name: stg_products
+  description: Bảng staging làm sạch dữ liệu từ bảng nguồn products.
+  columns:
+  - name: id
+    description: Cột id đã được chuẩn hóa.
+    tests:
+    - unique
+    - not_null
+  - name: product_name
+    description: Cột product_name đã được chuẩn hóa.
+  - name: category_name
+    description: Cột category_name đã được chuẩn hóa.

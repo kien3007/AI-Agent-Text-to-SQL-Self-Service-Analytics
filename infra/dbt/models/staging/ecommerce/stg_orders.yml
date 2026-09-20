@@ -1,0 +1,18 @@
+version: 2
+models:
+- name: stg_orders
+  description: Bảng staging làm sạch dữ liệu từ bảng nguồn orders.
+  columns:
+  - name: id
+    description: Cột id đã được chuẩn hóa.
+    tests:
+    - unique
+    - not_null
+  - name: customer_id
+    description: Cột customer_id đã được chuẩn hóa.
+  - name: status
+    description: Cột status đã được chuẩn hóa.
+  - name: total_amount
+    description: Cột total_amount đã được chuẩn hóa.
+  - name: created_at
+    description: Cột created_at đã được chuẩn hóa.

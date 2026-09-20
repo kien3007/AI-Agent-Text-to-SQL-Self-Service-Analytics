@@ -1,0 +1,28 @@
+version: 2
+metrics:
+- name: total_total_amount_orders
+  label: Tổng total_amount (Đơn hàng)
+  model: ref('orders')
+  description: Chỉ số Tổng total_amount (Đơn hàng) được tự động tạo bởi AutoDbtGenerator.
+  calculation_method: derived
+  expression: SUM(total_amount)
+  timestamp: report_month
+  time_grains:
+  - month
+  meta:
+    vn_terms:
+    - Tổng total_amount (Đơn hàng)
+    - total_total_amount_orders
+- name: avg_total_amount_orders
+  label: Trung Bình total_amount (Đơn hàng)
+  model: ref('orders')
+  description: Chỉ số Trung Bình total_amount (Đơn hàng) được tự động tạo bởi AutoDbtGenerator.
+  calculation_method: derived
+  expression: AVG(total_amount)
+  timestamp: report_month
+  time_grains:
+  - month
+  meta:
+    vn_terms:
+    - Trung Bình total_amount (Đơn hàng)
+    - avg_total_amount_orders

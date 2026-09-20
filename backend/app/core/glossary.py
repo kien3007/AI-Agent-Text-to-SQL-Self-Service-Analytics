@@ -11,16 +11,17 @@ if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 from app.schemas.intent import NormalizedIntent, GlossaryResult
+from app.core.normalizer import GenericVietnameseNormalizer
+from app.core.domain_manager import DomainManager
+
 
 class VietnameseBusinessGlossary:
     """
     Bộ tiền xử lý chuẩn hóa câu hỏi Bất động sản Tiếng Việt (Business Glossary & Normalizer).
-    Chức năng:
-    1. Chuẩn hóa từ lóng, viết tắt ngành BĐS: 2PN, 3PN, 2WC, duplex, penthouse, chung cư mini, đất thổ cư...
-    2. Quy đổi các mốc thời gian tương đối: 'quý này', 'tháng trước', 'năm ngoái', 'quý 3'... thành dải ngày cụ thể.
-    3. Trích xuất khoảng giá (tỷ, triệu, tr, củ, tỷ rưỡi) và diện tích (m2).
-    4. Suy luận quan hệ địa lý (Quận -> Tỉnh).
-    5. Cung cấp metadata có cấu trúc (NormalizedIntent) cho Query Planner & SQL Generator.
+    Được tái cấu trúc theo mô hình Adapter kết hợp GenericVietnameseNormalizer và DomainManager:
+    1. Tận dụng GenericVietnameseNormalizer để chuẩn hóa thời gian, tiền tệ và định lượng.
+    2. Tận dụng DomainManager để truy xuất cấu hình YAML của domain 'real_estate'.
+    3. Bảo đảm tương thích ngược 100% với toàn bộ unit test và pipeline hiện tại.
     """
 
     # Danh mục Loại hình BĐS chuẩn trong Database (Apache Doris)
@@ -90,9 +91,16 @@ class VietnameseBusinessGlossary:
         "Nha Trang": "Khánh Hòa", "Cam Ranh": "Khánh Hòa", "Ninh Hòa": "Khánh Hòa"
     }
 
-    def __init__(self, reference_date: Optional[datetime.date] = None):
+    def __init__(
+        self,
+        reference_date: Optional[datetime.date] = None,
+        domain_manager: Optional[DomainManager] = None
+    ):
         # Mốc thời gian tham chiếu (theo dữ liệu gần nhất: 2026-03-01)
         self.ref_date = reference_date or datetime.date(2026, 3, 1)
+        self.normalizer = GenericVietnameseNormalizer(reference_date=self.ref_date)
+        self.domain_manager = domain_manager or DomainManager()
+        self.domain = self.domain_manager.get_domain("real_estate")
 
     def normalize(self, query: str) -> GlossaryResult:
         """
@@ -137,7 +145,6 @@ class VietnameseBusinessGlossary:
                 break
 
         # 3. Trích xuất Quận / Huyện (bao gồm cả dạng viết tắt q1, q2, q7...)
-        # Regex cho dạng quận viết tắt: q1, q2, q.7, quan 7...
         q_short_match = re.search(r"\b(?:q|quận|quan)\.?\s*([0-9]{1,2})\b", cleaned_text)
         if q_short_match:
             q_num = int(q_short_match.group(1))
@@ -184,61 +191,19 @@ class VietnameseBusinessGlossary:
                 mapped_terms.append((match.group(0), f"house_direction LIKE '%{dir_name}%'"))
                 break
 
-        # 7. Trích xuất Giá tiền (dưới 3 tỷ, từ 2 đến 3 tỷ rưỡi, trên 800tr...)
-        # Case A: từ X đến Y tỷ / triệu
-        range_match = re.search(r"từ\s*([\d\.,]+)\s*(?:đến|-)\s*([\d\.,]+)\s*(tỷ|tỉ|triệu|tr|ty|củ)", cleaned_text)
-        if range_match:
-            v1 = float(range_match.group(1).replace(",", "."))
-            v2 = float(range_match.group(2).replace(",", "."))
-            unit = range_match.group(3)
-            multiplier = 1_000_000_000 if unit in ["tỷ", "tỉ", "ty"] else 1_000_000
-            min_price = v1 * multiplier
-            max_price = v2 * multiplier
-            mapped_terms.append((range_match.group(0), f"price BETWEEN {min_price} AND {max_price}"))
-        else:
-            # Case B: xử lý 'X tỷ rưỡi' -> X.5 tỷ
-            ruoi_match = re.search(r"(dưới|<|<=)?\s*(\d+)\s*(?:tỷ|tỉ)\s*rưỡi", cleaned_text)
-            if ruoi_match:
-                base_ty = float(ruoi_match.group(2)) + 0.5
-                max_price = base_ty * 1_000_000_000
-                mapped_terms.append((ruoi_match.group(0), f"price <= {max_price}"))
-            else:
-                # Case C: dưới / < / <= X tỷ/triệu
-                under_match = re.search(r"(dưới|<|<=|tối đa|không quá)\s*([\d\.,]+)\s*(tỷ|tỉ|triệu|tr|ty|củ)", cleaned_text)
-                if under_match:
-                    v = float(under_match.group(2).replace(",", "."))
-                    unit = under_match.group(3)
-                    multiplier = 1_000_000_000 if unit in ["tỷ", "tỉ", "ty"] else 1_000_000
-                    max_price = v * multiplier
-                    mapped_terms.append((under_match.group(0), f"price <= {max_price}"))
+        # 7. Trích xuất Giá tiền (dùng GenericVietnameseNormalizer)
+        c_min, c_max, c_str, c_filt = self.normalizer.extract_currency_range(cleaned_text)
+        if c_str:
+            min_price, max_price = c_min, c_max
+            mapped_terms.append((c_str, f"price {c_filt}"))
 
-                # Case D: trên / > / >= X tỷ/triệu
-                above_match = re.search(r"(trên|>|>=|tối thiểu|hơn)\s*([\d\.,]+)\s*(tỷ|tỉ|triệu|tr|ty|củ)", cleaned_text)
-                if above_match:
-                    v = float(above_match.group(2).replace(",", "."))
-                    unit = above_match.group(3)
-                    multiplier = 1_000_000_000 if unit in ["tỷ", "tỉ", "ty"] else 1_000_000
-                    min_price = v * multiplier
-                    mapped_terms.append((above_match.group(0), f"price >= {min_price}"))
+        # 8. Trích xuất Diện tích (m2) (dùng GenericVietnameseNormalizer)
+        a_min, a_max, a_str, a_filt = self.normalizer.extract_numeric_range(cleaned_text, r"m2|mét vuông")
+        if a_str:
+            min_area, max_area = a_min, a_max
+            mapped_terms.append((a_str, f"area {a_filt}"))
 
-        # 8. Trích xuất Diện tích (m2)
-        area_range = re.search(r"từ\s*([\d\.,]+)\s*(?:đến|-)\s*([\d\.,]+)\s*(m2|mét vuông)", cleaned_text)
-        if area_range:
-            min_area = float(area_range.group(1).replace(",", "."))
-            max_area = float(area_range.group(2).replace(",", "."))
-            mapped_terms.append((area_range.group(0), f"area BETWEEN {min_area} AND {max_area}"))
-        else:
-            area_under = re.search(r"(dưới|<|<=)\s*([\d\.,]+)\s*(m2|mét vuông)", cleaned_text)
-            if area_under:
-                max_area = float(area_under.group(2).replace(",", "."))
-                mapped_terms.append((area_under.group(0), f"area <= {max_area}"))
-
-            area_above = re.search(r"(trên|>|>=)\s*([\d\.,]+)\s*(m2|mét vuông)", cleaned_text)
-            if area_above:
-                min_area = float(area_above.group(2).replace(",", "."))
-                mapped_terms.append((area_above.group(0), f"area >= {min_area}"))
-
-        # 9. Quy đổi mốc thời gian tương đối
+        # 9. Quy đổi mốc thời gian tương đối (dùng GenericVietnameseNormalizer)
         time_res = self._extract_relative_time(cleaned_text)
         if time_res:
             time_range = time_res
@@ -258,14 +223,11 @@ class VietnameseBusinessGlossary:
             order_by = "published_at DESC"
             mapped_terms.append(("mới nhất", "ORDER BY published_at DESC"))
 
-        # 11. Trích xuất Giới hạn (LIMIT: 'top 5', 'top 10', 'lấy 5 căn'...)
-        top_match = re.search(r"\b(?:top|lấy)\s*(\d+)\b|\b(\d+)\s*(?:căn|bản ghi|tin|lô đất)\b", cleaned_text)
-        if top_match:
-            cand_limit = int(top_match.group(1) or top_match.group(2))
-            if 1 <= cand_limit <= 500:
-                limit = cand_limit
-                matched_str = top_match.group(0).strip()
-                mapped_terms.append((matched_str, f"LIMIT {limit}"))
+        # 11. Trích xuất Giới hạn (LIMIT) (dùng GenericVietnameseNormalizer)
+        l_res = self.normalizer.extract_limit(cleaned_text, ["căn", "bản ghi", "tin", "lô đất"])
+        if l_res:
+            limit, matched_str = l_res
+            mapped_terms.append((matched_str, f"LIMIT {limit}"))
 
         # Tạo chuỗi gợi ý ngữ nghĩa (Enriched Hints)
         hints_list = [f"[{t} -> {m}]" for t, m in mapped_terms]
@@ -302,61 +264,9 @@ class VietnameseBusinessGlossary:
         )
 
     def _extract_relative_time(self, text: str) -> Optional[Tuple[str, str, str]]:
-        """Quy đổi các mốc thời gian tiếng Việt sang (Nhãn, Start Date, End Date)."""
-        year = self.ref_date.year
-        month = self.ref_date.month
+        """Quy đổi mốc thời gian qua GenericVietnameseNormalizer."""
+        return self.normalizer.extract_relative_time(text, ref_date=self.ref_date)
 
-        if "tháng này" in text:
-            start = datetime.date(year, month, 1)
-            end = datetime.date(year, month, 28) + datetime.timedelta(days=4)
-            end = datetime.date(end.year, end.month, 1) - datetime.timedelta(days=1)
-            return ("tháng này", start.strftime("%Y-%m-%d 00:00:00"), end.strftime("%Y-%m-%d 23:59:59"))
-
-        if "tháng trước" in text:
-            first_this_month = datetime.date(year, month, 1)
-            last_month_end = first_this_month - datetime.timedelta(days=1)
-            last_month_start = datetime.date(last_month_end.year, last_month_end.month, 1)
-            return ("tháng trước", last_month_start.strftime("%Y-%m-%d 00:00:00"), last_month_end.strftime("%Y-%m-%d 23:59:59"))
-
-        # Quý tương đối
-        current_quarter = (month - 1) // 3 + 1
-        if "quý này" in text:
-            q_start_month = (current_quarter - 1) * 3 + 1
-            q_end_month = current_quarter * 3
-            start = datetime.date(year, q_start_month, 1)
-            end = datetime.date(year, q_end_month, 28) + datetime.timedelta(days=4)
-            end = datetime.date(end.year, end.month, 1) - datetime.timedelta(days=1)
-            return ("quý này", start.strftime("%Y-%m-%d 00:00:00"), end.strftime("%Y-%m-%d 23:59:59"))
-
-        if "quý trước" in text:
-            prev_quarter = current_quarter - 1
-            prev_year = year
-            if prev_quarter == 0:
-                prev_quarter = 4
-                prev_year -= 1
-            q_start_month = (prev_quarter - 1) * 3 + 1
-            q_end_month = prev_quarter * 3
-            start = datetime.date(prev_year, q_start_month, 1)
-            end = datetime.date(prev_year, q_end_month, 28) + datetime.timedelta(days=4)
-            end = datetime.date(end.year, end.month, 1) - datetime.timedelta(days=1)
-            return ("quý trước", start.strftime("%Y-%m-%d 00:00:00"), end.strftime("%Y-%m-%d 23:59:59"))
-
-        # Quý chỉ định
-        if "quý 1" in text or "quý một" in text:
-            return ("quý 1", f"{year}-01-01 00:00:00", f"{year}-03-31 23:59:59")
-        if "quý 2" in text or "quý hai" in text:
-            return ("quý 2", f"{year}-04-01 00:00:00", f"{year}-06-30 23:59:59")
-        if "quý 3" in text or "quý ba" in text:
-            return ("quý 3", f"{year}-07-01 00:00:00", f"{year}-09-30 23:59:59")
-        if "quý 4" in text or "quý bốn" in text:
-            return ("quý 4", f"{year}-10-01 00:00:00", f"{year}-12-31 23:59:59")
-
-        if "năm ngoái" in text:
-            return ("năm ngoái", f"{year - 1}-01-01 00:00:00", f"{year - 1}-12-31 23:59:59")
-        if "năm nay" in text:
-            return ("năm nay", f"{year}-01-01 00:00:00", f"{year}-12-31 23:59:59")
-
-        return None
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")

@@ -1,0 +1,226 @@
+tables:
+  patients:
+    table_name: "patients"
+    vn_name: "Bệnh nhân"
+    description: "Hồ sơ thông tin cá nhân của bệnh nhân"
+    primary_key: ["id"]
+    columns:
+      id:
+        name: "id"
+        vn_name: "Mã bệnh nhân"
+        en_name: "Patient ID"
+        data_type: "BIGINT"
+        description: "Khóa chính định danh bệnh nhân"
+        is_primary_key: true
+        synonyms: ["mã bệnh nhân", "mã bn", "id bệnh nhân"]
+      full_name:
+        name: "full_name"
+        vn_name: "Họ tên bệnh nhân"
+        en_name: "Patient Full Name"
+        data_type: "VARCHAR(100)"
+        description: "Họ và tên đầy đủ"
+        synonyms: ["họ tên", "tên bệnh nhân"]
+      gender:
+        name: "gender"
+        vn_name: "Giới tính"
+        en_name: "Gender"
+        data_type: "VARCHAR(10)"
+        description: "Giới tính: Nam, Nữ, Khác"
+        synonyms: ["giới tính", "nam hay nữ"]
+        sample_values: ["Nam", "Nữ"]
+      birth_date:
+        name: "birth_date"
+        vn_name: "Ngày sinh"
+        en_name: "Birth Date"
+        data_type: "DATE"
+        description: "Ngày tháng năm sinh của bệnh nhân"
+        synonyms: ["ngày sinh", "năm sinh", "tuổi"]
+
+  encounters:
+    table_name: "encounters"
+    vn_name: "Lượt khám chữa bệnh"
+    description: "Bảng lưu thông tin các lượt khám, đợt điều trị nội trú / ngoại trú"
+    primary_key: ["id"]
+    partition_key: "admit_date"
+    columns:
+      id:
+        name: "id"
+        vn_name: "Mã lượt khám"
+        en_name: "Encounter ID"
+        data_type: "BIGINT"
+        description: "Khóa chính lượt khám bệnh"
+        is_primary_key: true
+        synonyms: ["mã lượt khám", "lượt khám", "đợt điều trị"]
+      patient_id:
+        name: "patient_id"
+        vn_name: "Mã bệnh nhân"
+        en_name: "Patient ID"
+        data_type: "BIGINT"
+        description: "Khóa ngoại liên kết tới bảng patients"
+        foreign_key: "patients.id"
+      encounter_type:
+        name: "encounter_type"
+        vn_name: "Loại hình khám"
+        en_name: "Encounter Type"
+        data_type: "VARCHAR(50)"
+        description: "Phân loại lượt khám: NOITRU (Nội trú), NGOAITRU (Ngoại trú), CAPCUU (Cấp cứu)"
+        synonyms: ["loại hình khám", "nội trú", "ngoại trú", "cấp cứu"]
+        sample_values: ["NOITRU", "NGOAITRU", "CAPCUU"]
+      admit_date:
+        name: "admit_date"
+        vn_name: "Thời điểm tiếp nhận / nhập viện"
+        en_name: "Admission Datetime"
+        data_type: "DATETIME"
+        description: "Thời gian bắt đầu khám hoặc nhập viện"
+        is_partition_or_dist: true
+        synonyms: ["ngày nhập viện", "ngày khám", "thời gian vào viện"]
+      discharge_date:
+        name: "discharge_date"
+        vn_name: "Thời điểm xuất viện"
+        en_name: "Discharge Datetime"
+        data_type: "DATETIME"
+        description: "Thời gian kết thúc đợt điều trị và ra viện"
+        synonyms: ["ngày ra viện", "ngày xuất viện"]
+      department:
+        name: "department"
+        vn_name: "Khoa phòng điều trị"
+        en_name: "Department"
+        data_type: "VARCHAR(100)"
+        description: "Tên khoa tiếp nhận (Khoa Tim mạch, Khoa Nhi, Khoa Nội...)"
+        synonyms: ["khoa", "phòng khám", "chuyên khoa"]
+
+  diagnoses:
+    table_name: "diagnoses"
+    vn_name: "Chẩn đoán bệnh"
+    description: "Bảng ghi nhận mã bệnh ICD-10 và kết luận chẩn đoán của bác sĩ"
+    primary_key: ["id"]
+    columns:
+      id:
+        name: "id"
+        vn_name: "Mã chẩn đoán"
+        en_name: "Diagnosis ID"
+        data_type: "BIGINT"
+        description: "Khóa chính dòng chẩn đoán"
+        is_primary_key: true
+      encounter_id:
+        name: "encounter_id"
+        vn_name: "Mã lượt khám"
+        en_name: "Encounter ID"
+        data_type: "BIGINT"
+        description: "Khóa ngoại tới encounters"
+        foreign_key: "encounters.id"
+      icd10_code:
+        name: "icd10_code"
+        vn_name: "Mã bệnh ICD-10"
+        en_name: "ICD-10 Code"
+        data_type: "VARCHAR(20)"
+        description: "Mã chuẩn quốc tế phân loại bệnh tật"
+        synonyms: ["mã icd", "mã bệnh", "icd10"]
+      diagnosis_description:
+        name: "diagnosis_description"
+        vn_name: "Tên bệnh chẩn đoán"
+        en_name: "Diagnosis Description"
+        data_type: "VARCHAR(255)"
+        description: "Mô tả bệnh lý kết luận (Viêm phổi, Cao huyết áp, Sốt xuất huyết...)"
+        synonyms: ["tên bệnh", "bệnh gì", "chẩn đoán"]
+
+  prescriptions:
+    table_name: "prescriptions"
+    vn_name: "Đơn thuốc"
+    description: "Bảng chi tiết các loại thuốc được kê cho bệnh nhân"
+    primary_key: ["id"]
+    columns:
+      id:
+        name: "id"
+        vn_name: "Mã dòng thuốc"
+        en_name: "Prescription Item ID"
+        data_type: "BIGINT"
+        description: "Khóa chính dòng thuốc"
+        is_primary_key: true
+      encounter_id:
+        name: "encounter_id"
+        vn_name: "Mã lượt khám"
+        en_name: "Encounter ID"
+        data_type: "BIGINT"
+        description: "Khóa ngoại tới encounters"
+        foreign_key: "encounters.id"
+      medication_name:
+        name: "medication_name"
+        vn_name: "Tên thuốc"
+        en_name: "Medication Name"
+        data_type: "VARCHAR(200)"
+        description: "Tên biệt dược hoặc hoạt chất"
+        synonyms: ["thuốc", "tên thuốc", "loại thuốc"]
+      dosage:
+        name: "dosage"
+        vn_name: "Liều dùng"
+        en_name: "Dosage"
+        data_type: "VARCHAR(100)"
+        description: "Hướng dẫn liều lượng sử dụng (VD: 500mg x 2 lần/ngày)"
+
+  lab_tests:
+    table_name: "lab_tests"
+    vn_name: "Xét nghiệm cận lâm sàng"
+    description: "Bảng kết quả xét nghiệm máu, nước tiểu, chẩn đoán hình ảnh"
+    primary_key: ["id"]
+    columns:
+      id:
+        name: "id"
+        vn_name: "Mã xét nghiệm"
+        en_name: "Lab Test ID"
+        data_type: "BIGINT"
+        description: "Khóa chính dòng xét nghiệm"
+        is_primary_key: true
+      encounter_id:
+        name: "encounter_id"
+        vn_name: "Mã lượt khám"
+        en_name: "Encounter ID"
+        data_type: "BIGINT"
+        description: "Khóa ngoại tới encounters"
+        foreign_key: "encounters.id"
+      test_name:
+        name: "test_name"
+        vn_name: "Tên xét nghiệm"
+        en_name: "Lab Test Name"
+        data_type: "VARCHAR(200)"
+        description: "Tên chỉ định xét nghiệm (Tổng phân tích tế bào máu, Sinh hóa máu...)"
+        synonyms: ["xét nghiệm", "tên xét nghiệm"]
+      result_value:
+        name: "result_value"
+        vn_name: "Kết quả xét nghiệm"
+        en_name: "Result Value"
+        data_type: "VARCHAR(100)"
+        description: "Giá trị định lượng hoặc định tính thu được"
+
+relationships:
+  - from_table: "encounters"
+    from_column: "patient_id"
+    to_table: "patients"
+    to_column: "id"
+    cardinality: "N:1"
+    join_type: "LEFT"
+    weight: 1.0
+
+  - from_table: "diagnoses"
+    from_column: "encounter_id"
+    to_table: "encounters"
+    to_column: "id"
+    cardinality: "N:1"
+    join_type: "INNER"
+    weight: 1.0
+
+  - from_table: "prescriptions"
+    from_column: "encounter_id"
+    to_table: "encounters"
+    to_column: "id"
+    cardinality: "N:1"
+    join_type: "INNER"
+    weight: 1.0
+
+  - from_table: "lab_tests"
+    from_column: "encounter_id"
+    to_table: "encounters"
+    to_column: "id"
+    cardinality: "N:1"
+    join_type: "INNER"
+    weight: 1.0

@@ -1,0 +1,62 @@
+metrics:
+  gmv:
+    metric_id: "gmv"
+    vn_terms:
+      - "tổng giá trị giao dịch"
+      - "gmv"
+      - "tổng doanh thu"
+      - "doanh thu bán hàng"
+      - "tổng tiền hàng"
+    en_terms:
+      - "gross merchandise value"
+      - "gmv"
+      - "total revenue"
+    sql_expression: "SUM(orders.total_amount)"
+    description: "Tổng giá trị giao dịch lũy kế của toàn bộ đơn hàng"
+    depends_on_tables: ["orders"]
+    depends_on_columns: ["total_amount"]
+
+  aov:
+    metric_id: "aov"
+    vn_terms:
+      - "giá trị đơn trung bình"
+      - "aov"
+      - "trung bình mỗi đơn"
+      - "giá trị bình quân một đơn"
+    en_terms:
+      - "average order value"
+      - "aov"
+    sql_expression: "ROUND(AVG(orders.total_amount), 0)"
+    description: "Giá trị tiền trung bình trên một đơn hàng"
+    depends_on_tables: ["orders"]
+    depends_on_columns: ["total_amount"]
+
+  total_orders:
+    metric_id: "total_orders"
+    vn_terms:
+      - "tổng số đơn hàng"
+      - "số lượng đơn"
+      - "bao nhiêu đơn"
+      - "tổng đơn"
+    en_terms:
+      - "total orders count"
+      - "order count"
+    sql_expression: "COUNT(orders.id)"
+    description: "Tổng số lượng đơn hàng ghi nhận trong hệ thống"
+    depends_on_tables: ["orders"]
+    depends_on_columns: ["id"]
+
+  cancel_rate:
+    metric_id: "cancel_rate"
+    vn_terms:
+      - "tỷ lệ hủy đơn"
+      - "tỷ lệ đơn hủy"
+      - "phần trăm hủy"
+    en_terms:
+      - "cancellation rate"
+    sql_expression: "ROUND(COUNT(CASE WHEN orders.status = 'CANCELLED' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0), 2)"
+    description: "Tỷ lệ phần trăm số đơn hàng bị hủy trên tổng số đơn"
+    depends_on_tables: ["orders"]
+    depends_on_columns: ["status", "id"]
+
+segments: {}

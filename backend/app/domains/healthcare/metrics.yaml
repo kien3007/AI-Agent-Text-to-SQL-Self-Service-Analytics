@@ -1,0 +1,42 @@
+metrics:
+  total_patients:
+    metric_id: "total_patients"
+    vn_terms:
+      - "tổng số bệnh nhân"
+      - "số lượng bệnh nhân"
+      - "bao nhiêu người bệnh"
+    en_terms:
+      - "total patients"
+    sql_expression: "COUNT(DISTINCT patients.id)"
+    description: "Tổng số lượng bệnh nhân duy nhất từng tiếp nhận khám"
+    depends_on_tables: ["patients"]
+    depends_on_columns: ["id"]
+
+  total_encounters:
+    metric_id: "total_encounters"
+    vn_terms:
+      - "tổng số lượt khám"
+      - "số lượt khám bệnh"
+      - "lưu lượng bệnh nhân"
+    en_terms:
+      - "total encounters"
+    sql_expression: "COUNT(encounters.id)"
+    description: "Tổng số lượt khám chữa bệnh được ghi nhận"
+    depends_on_tables: ["encounters"]
+    depends_on_columns: ["id"]
+
+  avg_length_of_stay:
+    metric_id: "avg_length_of_stay"
+    vn_terms:
+      - "thời gian nằm viện trung bình"
+      - "số ngày điều trị trung bình"
+      - "ngày nằm viện bình quân"
+    en_terms:
+      - "average length of stay"
+      - "alos"
+    sql_expression: "ROUND(AVG(DATEDIFF(encounters.discharge_date, encounters.admit_date)), 1)"
+    description: "Số ngày nằm viện trung bình của các đợt điều trị nội trú"
+    depends_on_tables: ["encounters"]
+    depends_on_columns: ["admit_date", "discharge_date"]
+
+segments: {}

@@ -1,0 +1,16 @@
+version: 2
+models:
+- name: stg_payments
+  description: Bảng staging làm sạch dữ liệu từ bảng nguồn payments.
+  columns:
+  - name: id
+    description: Cột id đã được chuẩn hóa.
+    tests:
+    - unique
+    - not_null
+  - name: order_id
+    description: Cột order_id đã được chuẩn hóa.
+  - name: payment_method
+    description: Cột payment_method đã được chuẩn hóa.
+  - name: amount
+    description: Cột amount đã được chuẩn hóa.

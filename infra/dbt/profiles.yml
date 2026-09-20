@@ -1,0 +1,11 @@
+doris_profile:
+  target: dev
+  outputs:
+    dev:
+      type: doris
+      server: "{{ env_var('DORIS_HOST', 'localhost') }}"
+      port: "{{ env_var('DORIS_PORT', '9030') | int }}"
+      schema: ecommerce
+      username: "{{ env_var('DORIS_USER', 'root') }}"
+      password: "{{ env_var('DORIS_PASSWORD', '') }}"
+      threads: 4

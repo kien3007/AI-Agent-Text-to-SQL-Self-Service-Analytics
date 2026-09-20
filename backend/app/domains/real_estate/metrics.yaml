@@ -1,0 +1,118 @@
+metrics:
+  avg_price_per_sqm:
+    metric_id: "avg_price_per_sqm"
+    vn_terms:
+      - "giá trung bình m2"
+      - "đơn giá m2"
+      - "giá mỗi mét vuông"
+      - "đơn giá trung bình"
+      - "m2 bao nhiêu tiền"
+    en_terms:
+      - "average price per sqm"
+      - "unit price per sqm"
+      - "price per square meter"
+    sql_expression: "ROUND(AVG(price / NULLIF(area, 0)), 0)"
+    description: "Đơn giá trung bình mỗi mét vuông diện tích"
+    depends_on_tables: ["real_estate_listings"]
+    depends_on_columns: ["price", "area"]
+
+  avg_total_price:
+    metric_id: "avg_total_price"
+    vn_terms:
+      - "giá trung bình"
+      - "giá bán bình quân"
+      - "giá căn hộ trung bình"
+    en_terms:
+      - "average price"
+      - "mean listing price"
+    sql_expression: "ROUND(AVG(price), 0)"
+    description: "Tổng giá trị bình quân của các bất động sản"
+    depends_on_tables: ["real_estate_listings"]
+    depends_on_columns: ["price"]
+
+  listing_count:
+    metric_id: "listing_count"
+    vn_terms:
+      - "số lượng tin đăng"
+      - "tổng số bất động sản"
+      - "nguồn cung"
+      - "số lượng căn"
+      - "mật độ tin"
+      - "thanh khoản nguồn cung"
+    en_terms:
+      - "listing count"
+      - "total listings"
+      - "supply volume"
+      - "number of properties"
+    sql_expression: "COUNT(*)"
+    description: "Tổng số lượng tin đăng / bất động sản ghi nhận trong CSDL"
+    depends_on_tables: ["real_estate_listings"]
+    depends_on_columns: []
+
+  total_market_value:
+    metric_id: "total_market_value"
+    vn_terms:
+      - "tổng giá trị thị trường"
+      - "tổng giá trị niêm yết"
+      - "tổng tiền"
+    en_terms:
+      - "total market value"
+      - "total gross value"
+    sql_expression: "SUM(price)"
+    description: "Tổng giá trị niêm yết lũy kế của tất cả bất động sản"
+    depends_on_tables: ["real_estate_listings"]
+    depends_on_columns: ["price"]
+
+  price_per_sqm_column:
+    metric_id: "price_per_sqm_column"
+    vn_terms:
+      - "đơn giá m2 của từng căn"
+      - "tính theo m2"
+    en_terms:
+      - "price per sqm"
+    sql_expression: "ROUND(price / NULLIF(area, 0), 0) AS price_per_sqm"
+    description: "Cột tính đơn giá trên từng dòng bất động sản"
+    depends_on_tables: ["real_estate_listings"]
+    depends_on_columns: ["price", "area"]
+
+segments:
+  luxury:
+    segment_id: "luxury"
+    vn_terms:
+      - "phân khúc cao cấp"
+      - "hạng sang"
+      - "bất động sản cao cấp"
+      - "bất động sản triệu đô"
+      - "nhà giàu"
+    en_terms:
+      - "luxury segment"
+      - "high-end properties"
+    condition: "price >= 10000000000"
+    description: "Bất động sản có giá từ 10 tỷ VNĐ trở lên"
+
+  mid_tier:
+    segment_id: "mid_tier"
+    vn_terms:
+      - "phân khúc trung cấp"
+      - "giá tầm trung"
+      - "vừa túi tiền"
+    en_terms:
+      - "mid-tier segment"
+      - "middle class"
+    condition: "price BETWEEN 3000000000 AND 10000000000"
+    description: "Bất động sản có giá từ 3 tỷ đến 10 tỷ VNĐ"
+
+  affordable:
+    segment_id: "affordable"
+    vn_terms:
+      - "phân khúc bình dân"
+      - "giá rẻ"
+      - "nhà ở xã hội"
+      - "giá rẻ nhất"
+      - "vốn ít"
+    en_terms:
+      - "affordable segment"
+      - "low cost"
+      - "budget friendly"
+    condition: "price < 3000000000"
+    description: "Bất động sản có giá dưới 3 tỷ VNĐ"

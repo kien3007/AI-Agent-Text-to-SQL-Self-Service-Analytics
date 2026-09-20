@@ -1,0 +1,14 @@
+version: 2
+models:
+- name: stg_customers
+  description: Bảng staging làm sạch dữ liệu từ bảng nguồn customers.
+  columns:
+  - name: id
+    description: Cột id đã được chuẩn hóa.
+    tests:
+    - unique
+    - not_null
+  - name: name
+    description: Cột name đã được chuẩn hóa.
+  - name: province
+    description: Cột province đã được chuẩn hóa.

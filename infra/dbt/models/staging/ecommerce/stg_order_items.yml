@@ -1,0 +1,18 @@
+version: 2
+models:
+- name: stg_order_items
+  description: Bảng staging làm sạch dữ liệu từ bảng nguồn order_items.
+  columns:
+  - name: id
+    description: Cột id đã được chuẩn hóa.
+    tests:
+    - unique
+    - not_null
+  - name: order_id
+    description: Cột order_id đã được chuẩn hóa.
+  - name: product_id
+    description: Cột product_id đã được chuẩn hóa.
+  - name: quantity
+    description: Cột quantity đã được chuẩn hóa.
+  - name: unit_price
+    description: Cột unit_price đã được chuẩn hóa.
