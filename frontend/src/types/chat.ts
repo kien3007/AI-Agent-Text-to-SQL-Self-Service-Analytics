@@ -70,19 +70,36 @@ export interface DomainItem {
 }
 
 export interface MetricItem {
-  name: string;
+  metric_id?: string;
+  name?: string;
+  label?: string;
   description?: string;
   sql_expression?: string;
+  vn_terms?: string[];
+}
+
+export interface ColumnItem {
+  name: string;
+  vn_name?: string;
+  data_type?: string;
+  description?: string;
+  is_pk?: boolean;
+  is_fk?: boolean;
 }
 
 export interface TableItem {
-  name: string;
-  columns?: { name: string; data_type?: string }[];
+  name?: string;
+  table_name?: string;
+  vn_name?: string;
+  description?: string;
+  columns_count?: number;
+  columns?: ColumnItem[];
 }
 
 export interface DomainDetails {
   domain_id: string;
-  domain_name: string;
+  display_name?: string;
+  domain_name?: string;
   description: string;
   metrics: MetricItem[];
   tables: TableItem[];

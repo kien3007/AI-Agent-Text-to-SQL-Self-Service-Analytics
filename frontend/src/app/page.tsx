@@ -1,28 +1,27 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Sidebar } from '@/components/Sidebar';
+import { Sidebar, SidebarTab } from '@/components/Sidebar';
 import { Topbar } from '@/components/Topbar';
 import { WelcomeHero } from '@/components/WelcomeHero';
 import ChatViewport from '@/components/ChatViewport';
 import { FloatingPrompt } from '@/components/FloatingPrompt';
 import LoginModal from '@/components/Modals/LoginModal';
 import HitlModal from '@/components/Modals/HitlModal';
-import CatalogModal from '@/components/Modals/CatalogModal';
-import LineageModal from '@/components/Modals/LineageModal';
-import BenchmarkModal from '@/components/Modals/BenchmarkModal';
+import CatalogView from '@/components/Views/CatalogView';
+import LineageView from '@/components/Views/LineageView';
+import BenchmarkView from '@/components/Views/BenchmarkView';
 import { useChatStream } from '@/hooks/useChatStream';
 import { DomainItem } from '@/types/chat';
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<SidebarTab>('chat');
   const [activeDomain, setActiveDomain] = useState<string>('real_estate');
   const [domains, setDomains] = useState<DomainItem[]>([]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [inputQuery, setInputQuery] = useState<string>('');
   const [useStream, setUseStream] = useState<boolean>(true);
-  const [activeModal, setActiveModal] = useState<
-    'login' | 'catalog' | 'lineage' | 'benchmark' | null
-  >(null);
+  const [activeModal, setActiveModal] = useState<'login' | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
 
   const {
@@ -104,15 +103,20 @@ export default function Home() {
       <Sidebar
         collapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleSidebar}
-        onNewChat={newChat}
-        onOpenCatalog={() => setActiveModal('catalog')}
-        onOpenLineage={() => setActiveModal('lineage')}
-        onOpenBenchmark={() => setActiveModal('benchmark')}
+        onNewChat={() => {
+          newChat();
+          setActiveTab('chat');
+        }}
         onLogout={handleLogout}
         activeDomain={activeDomain}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
         sessions={sessions}
         currentSessionId={sessionId}
-        onSelectSession={switchSession}
+        onSelectSession={(id) => {
+          switchSession(id);
+          setActiveTab('chat');
+        }}
         onDeleteSession={deleteSession}
         onClearAllSessions={clearAllSessions}
       />
@@ -124,35 +128,63 @@ export default function Home() {
           domains={domains}
           activeDomain={activeDomain}
           onSelectDomain={setActiveDomain}
-          onClearChat={newChat}
+          onClearChat={() => {
+            newChat();
+            setActiveTab('chat');
+          }}
         />
 
-        {/* Central Content Area */}
-        <div className="flex-1 overflow-y-auto relative pb-32 flex flex-col">
-          {messages.length === 0 ? (
-            <WelcomeHero />
-          ) : (
-            <ChatViewport
-              messages={messages}
-              isStreaming={isStreaming}
-              onOpenSources={() => setActiveModal('catalog')}
+        {/* Central Content Area with Dedicated Views & Smooth Transitions */}
+        <div className="flex-1 relative flex flex-col min-h-0 overflow-hidden">
+          {activeTab === 'chat' && (
+            <div className="flex-1 overflow-y-auto relative pb-32 flex flex-col animate-in fade-in duration-200">
+              {messages.length === 0 ? (
+                <WelcomeHero />
+              ) : (
+                <ChatViewport
+                  messages={messages}
+                  isStreaming={isStreaming}
+                  onOpenSources={() => setActiveTab('catalog')}
+                />
+              )}
+            </div>
+          )}
+
+          {activeTab === 'catalog' && (
+            <CatalogView
+              domainId={activeDomain}
+              onSelectMetric={(metricName) => {
+                handleSelectMetric(metricName);
+                setActiveTab('chat');
+              }}
+              onSwitchToChat={() => setActiveTab('chat')}
+            />
+          )}
+
+          {activeTab === 'lineage' && (
+            <LineageView domainId={activeDomain} />
+          )}
+
+          {activeTab === 'benchmark' && (
+            <BenchmarkView />
+          )}
+
+          {/* Floating Bottom Prompt Bar (Only shown in Chat & Explore tab) */}
+          {activeTab === 'chat' && (
+            <FloatingPrompt
+              query={inputQuery}
+              onChangeQuery={setInputQuery}
+              onSend={() => handleSend()}
+              disabled={isStreaming || !isAuthenticated}
+              isStreaming={useStream}
+              onToggleStreaming={setUseStream}
+              onOpenSources={() => setActiveTab('catalog')}
             />
           )}
         </div>
-
-        {/* Floating Bottom Prompt Bar */}
-        <FloatingPrompt
-          query={inputQuery}
-          onChangeQuery={setInputQuery}
-          onSend={() => handleSend()}
-          disabled={isStreaming || !isAuthenticated}
-          isStreaming={useStream}
-          onToggleStreaming={setUseStream}
-          onOpenSources={() => setActiveModal('catalog')}
-        />
       </div>
 
-      {/* 3. Enterprise Modals */}
+      {/* 3. Enterprise Auth & Human-in-the-Loop Modals */}
       <LoginModal
         isOpen={!isAuthenticated || activeModal === 'login'}
         onSuccess={handleLoginSuccess}
@@ -164,24 +196,6 @@ export default function Home() {
         sqlQuery={pendingHitl?.sqlQuery || null}
         warningText={pendingHitl?.warning || null}
         onDecision={submitHitl}
-      />
-
-      <CatalogModal
-        isOpen={activeModal === 'catalog'}
-        domainId={activeDomain}
-        onClose={() => setActiveModal(null)}
-        onSelectMetric={handleSelectMetric}
-      />
-
-      <LineageModal
-        isOpen={activeModal === 'lineage'}
-        domainId={activeDomain}
-        onClose={() => setActiveModal(null)}
-      />
-
-      <BenchmarkModal
-        isOpen={activeModal === 'benchmark'}
-        onClose={() => setActiveModal(null)}
       />
     </div>
   );

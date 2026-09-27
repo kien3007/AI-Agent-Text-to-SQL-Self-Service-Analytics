@@ -117,12 +117,12 @@ export default function CatalogModal({
                   {data.metrics?.map((m, idx) => (
                     <button
                       key={idx}
-                      onClick={() => onSelectMetric(m.name)}
+                      onClick={() => onSelectMetric(m.name || m.label || m.metric_id || '')}
                       className="text-left p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-blue-500/40 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group flex flex-col gap-1"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                          {m.name}
+                          {m.name || m.label || m.metric_id}
                         </span>
                         <Sparkles size={12} className="text-zinc-400 group-hover:text-blue-500" />
                       </div>
@@ -151,7 +151,7 @@ export default function CatalogModal({
                     >
                       <div className="flex items-center gap-2 mb-2 font-mono text-xs font-semibold text-zinc-800 dark:text-zinc-200">
                         <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        {t.name}
+                        {t.table_name || t.name}
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {t.columns?.map((c, cIdx) => (
