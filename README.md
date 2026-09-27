@@ -1,19 +1,81 @@
 # AI-Agent Text-to-SQL Self-Service Analytics
 
-> Hệ thống trợ lý ảo thông minh chuyển đổi ngôn ngữ tự nhiên (Tiếng Việt) thành truy vấn SQL phục vụ phân tích dữ liệu tự phục vụ (Self-Service Analytics) cho doanh nghiệp Bất động sản / Xe hơi.
+> Hệ thống trợ lý ảo thông minh chuyển đổi ngôn ngữ tự nhiên (Tiếng Việt) thành truy vấn SQL phục vụ phân tích dữ liệu tự phục vụ (Self-Service Analytics). Hỗ trợ kiến trúc Data Mesh, Data Governance, và Data Lineage với khả năng chạy trên Apache Doris OLAP.
 
 ---
 
-## 📌 Tài liệu Kiến trúc & Phân tích Chi tiết
-Xem toàn bộ phân tích chi tiết về bài toán, kiến trúc hệ thống, tech stack và luồng Agent tại:
-👉 **[Tài liệu Phân tích Đề bài & Tech Stack (ANALYSIS_AND_TECH_STACK.md)](./ANALYSIS_AND_TECH_STACK.md)**
+## 📌 Các tính năng chính
+
+* **Kiến trúc Data Mesh**: Hỗ trợ nhiều Domain (e.g. Bất động sản, E-commerce, Healthcare) với Metadata phân loại (Owner, Data Steward, Slack Channel) và Data Contracts qua `domain.yaml`.
+* **Multi-Agent với LangGraph**: Workflow AI chặt chẽ: `Intent $\rightarrow$ Schema RAG $\rightarrow$ SQL Gen $\rightarrow$ HITL Gate $\rightarrow$ Execution $\rightarrow$ Visualizer`.
+* **Mô hình kép (Dual Model)**: 
+  * Qwen-2.5-Coder: Chuyên sinh mã SQL chính xác, tối ưu cho DAIL-SQL.
+  * Qwen-3: Suy luận ngữ cảnh, tư duy phân tích (CoT) và diễn giải kết quả bằng Tiếng Việt.
+* **Human-In-The-Loop (HITL) Gate**: Dừng truy vấn có chi phí lớn, cảnh báo rủi ro quét dữ liệu và yêu cầu người dùng (Admin) phê duyệt trước khi thực thi.
+* **Data Governance & Audit**: Quản lý hạn mức (Query Budget), gắn nhãn dữ liệu nhạy cảm (PII), và Audit log chi tiết (lưu trữ JSONL/Doris).
+* **Data Lineage**: Theo dõi luồng dữ liệu thông qua dbt `manifest.json` và log nạp dữ liệu (Ingestion Log).
+* **Self-Healing API**: Agent có khả năng tự sửa lỗi khi truy vấn thất bại (Retry logic qua Validator).
 
 ---
 
-## 🚀 Các Tính năng Nổi bật
-* **Tiếng Việt tự nhiên & Ngữ cảnh**: Tự động nhận diện thuật ngữ ngành Bất động sản/Ô tô, xử lý câu hỏi nhiều bước (multi-turn context).
-* **LangGraph Stateful Workflow**: Điều phối Agent theo luồng khép kín (*Planner $\rightarrow$ Schema RAG $\rightarrow$ SQL Generator $\rightarrow$ Validator & Dry-run $\rightarrow$ HITL Gate $\rightarrow$ Executor $\rightarrow$ Visualizer*).
-* **Human-In-The-Loop (HITL)**: Người dùng xem trước SQL và dự toán chi phí quét dữ liệu (Bytes Scanned) trước khi phê duyệt chạy truy vấn trên bảng lớn.
-* **Semantic Layer**: Tích hợp dbt semantic model làm chuẩn mực thống nhất cho các chỉ số kinh doanh.
-* **Trực quan hóa Đa dạng**: Xuất bảng dữ liệu chi tiết, biểu đồ trực quan (Recharts) và báo cáo diễn giải tự động.
-* **Bảo mật & Phân quyền**: Supabase Auth hỗ trợ RBAC (Role-based Access Control) giữa Analyst và Data Admin.
+## 🚀 Cài đặt & Khởi động nhanh (Quick Start)
+
+### 1. Khởi động bằng Docker Compose
+Dự án được cấu hình đầy đủ qua Docker Compose (Backend, Apache Doris FE/BE):
+```bash
+# Build và chạy ngầm toàn bộ dịch vụ
+make up
+
+# Xem logs backend
+make logs
+```
+
+### 2. Phát triển cục bộ (Local Development)
+```bash
+# 1. Cài đặt thư viện
+cd backend
+python -m venv .venv
+source .venv/bin/activate  # Hoặc .venv\Scripts\activate trên Windows
+pip install -r requirements.txt
+
+# 2. Cấu hình biến môi trường
+cp .env.example .env
+# Chỉnh sửa file .env với API Key (Qwen-3, Qwen-2.5-Coder) và kết nối Doris
+
+# 3. Chạy Backend server (FastAPI)
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+> **Lưu ý:** Giao diện frontend sẽ chạy trực tiếp trên cổng `:8000/app` nhờ cơ chế static mounting của FastAPI.
+
+---
+
+## 🏗️ Kiến trúc & Tổ chức thư mục
+
+* `/backend/app/agent/`: Chứa các node LangGraph (Schema, SQL, HITL, Validator) và Graph chính.
+* `/backend/app/api/routers/`: API Endpoints (Chat SSE, Domains, Health Benchmark).
+* `/backend/domains/`: Định nghĩa Data Mesh Config (`domain.yaml`) cho từng nghiệp vụ.
+* `/frontend/public/`: Mã nguồn Vanilla JS/HTML/CSS của giao diện người dùng. Hỗ trợ Chart.js và luồng Chat SSE.
+* `/scripts/`: Script tiện ích (Nạp Parquet vào Doris, Benchmark).
+* `/dbt_project/`: Mô hình semantic (Data lineage qua `manifest.json`).
+
+---
+
+## 📊 Benchmark Hệ thống
+
+Chạy script benchmark hệ thống tự động đánh giá độ chính xác (Accuracy), thời gian trễ (Latency), và độ phủ của các truy vấn:
+```bash
+make benchmark
+```
+Hoặc xem trực tiếp qua nút **Benchmark** trên giao diện Frontend Web.
+
+---
+
+## 🛡️ Data Governance & SLA
+
+Hệ thống cung cấp API cho phép Data Stewards kiểm soát chất lượng dữ liệu:
+* `/api/domains/{id}/contract`: Xem cấu trúc cam kết bảng/metric và thông tin Owner.
+* `/api/domains/{id}/freshness`: Theo dõi trạng thái nạp dữ liệu mới nhất (Ingestion Lineage).
+* **Schema Filter**: Tự động lọc các cột nhạy cảm (`is_sensitive: true`) nếu role người dùng không phải admin.
+
+## 📌 Tài liệu Chi tiết
+Xem toàn bộ phân tích về bài toán, kiến trúc, tech stack: 👉 **[ANALYSIS_AND_TECH_STACK.md](./ANALYSIS_AND_TECH_STACK.md)**

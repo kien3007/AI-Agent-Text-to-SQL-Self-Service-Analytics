@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agent_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - API_KEY_QWEN_3=your_qwen3_api_key
+      - API_KEY_QWEN_2_5_CODER=your_qwen25_coder_api_key
+      - DORIS_HOST=doris-fe
+      - DORIS_PORT=9030
+      - DORIS_USER=root
+      - DORIS_PASSWORD=
+      - CHROMA_PERSIST_DIR=/app/data/chroma
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app/backend
+      - ./dbt_project:/app/dbt_project
+      - ./frontend:/app/frontend
+    depends_on:
+      - doris-fe
+    networks:
+      - ai_data_net
+
+  doris-fe:
+    image: selectdb/doris.fe-ubuntu:2.0.2
+    container_name: doris_fe
+    environment:
+      - FE_SERVERS=fe1:127.0.0.1:9010
+      - FE_ID=1
+    ports:
+      - "8030:8030"
+      - "9030:9030"
+    volumes:
+      - doris_fe_meta:/opt/apache-doris/fe/doris-meta
+      - doris_fe_log:/opt/apache-doris/fe/log
+    networks:
+      - ai_data_net
+
+  doris-be:
+    image: selectdb/doris.be-ubuntu:2.0.2
+    container_name: doris_be
+    environment:
+      - FE_SERVERS=fe1:doris-fe:9010
+      - BE_ADDR=doris-be:9050
+    ports:
+      - "8040:8040"
+    depends_on:
+      - doris-fe
+    volumes:
+      - doris_be_storage:/opt/apache-doris/be/storage
+      - doris_be_log:/opt/apache-doris/be/log
+    networks:
+      - ai_data_net
+
+volumes:
+  doris_fe_meta:
+  doris_fe_log:
+  doris_be_storage:
+  doris_be_log:
+
+networks:
+  ai_data_net:
+    driver: bridge

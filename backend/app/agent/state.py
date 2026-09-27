@@ -22,6 +22,14 @@ class AgentState(BaseModel):
     normalized_query: Optional[str] = Field(None, description="Câu hỏi sau khi chuẩn hóa mốc thời gian và từ lóng")
     extracted_entities: Dict[str, Any] = Field(default_factory=dict, description="Các tham số lọc đã trích xuất")
     
+    # Multi-turn & RBAC Context
+    conversation_history: List[Dict[str, str]] = Field(
+        default_factory=list,
+        description="Lịch sử hội thoại: [{role: user|assistant, content: ...}]"
+    )
+    user_id: Optional[str] = Field(None, description="ID người dùng (audit)")
+    user_role: Optional[str] = Field(None, description="Vai trò: analyst | admin")
+    
     # Vòng lặp hỏi lại (Clarification Loop)
     clarification_needed: bool = Field(False, description="Cờ xác định câu hỏi có bị mơ hồ cần hỏi lại người dùng không")
     clarification_question: Optional[str] = Field(None, description="Câu hỏi làm rõ gửi lại cho người dùng")

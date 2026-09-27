@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Agent Text-to-SQL Self-Service Analytics</title>
+  <meta name="description" content="Nền tảng phân tích dữ liệu tự phục vụ thông minh với kiến trúc Multi-Agent LangGraph, DAIL-SQL, DIN-SQL và Apache Doris OLAP." />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for High-performance Data Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-wrapper">
+        <div class="logo-icon-pulse">
+          <i data-lucide="sparkles"></i>
+        </div>
+        <div>
+          <h1 class="logo-title">AI Text-to-SQL <span class="badge-tag">Self-Service</span></h1>
+          <p class="logo-subtitle">Enterprise Data Intelligence & Autonomous dbt Adapter</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="domain-selector-box">
+        <span class="selector-label"><i data-lucide="database"></i> Domain:</span>
+        <select id="domainSelect" class="domain-select" title="Chọn nghiệp vụ dữ liệu">
+          <option value="real_estate" selected>🏢 Bất động sản (Real Estate)</option>
+        </select>
+        <span id="domainStatusPill" class="status-pill online">
+          <span class="status-dot"></span> Ready
+        </span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button id="btnOpenSchema" class="btn btn-secondary btn-sm" title="Khám phá cấu trúc bảng & chỉ số nghiệp vụ">
+        <i data-lucide="layers"></i> Data Catalog
+      </button>
+      <button id="btnOpenLineage" class="btn btn-secondary btn-sm" title="Xem nguồn gốc dữ liệu">
+        <i data-lucide="git-merge"></i> Lineage
+      </button>
+      <button id="btnOpenBenchmark" class="btn btn-secondary btn-sm" title="Đánh giá chất lượng hệ thống">
+        <i data-lucide="bar-chart-2"></i> Benchmark
+      </button>
+      <button id="btnClearChat" class="btn btn-icon btn-sm" title="Xóa lịch sử hội thoại">
+        <i data-lucide="trash-2"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="app-container">
+    <!-- Left Sidebar: Quick Prompts & Architecture Status -->
+    <aside class="app-sidebar">
+      <div class="sidebar-section">
+        <div class="section-header">
+          <i data-lucide="compass"></i>
+          <span>Khám Phá Nhanh</span>
+        </div>
+        <div class="quick-prompts-list" id="quickPromptsList">
+          <button class="quick-prompt-btn" data-query="Giá bán trung bình của bất động sản là bao nhiêu?">
+            <i data-lucide="chevron-right"></i>
+            <span>Giá bán trung bình toàn quốc?</span>
+          </button>
+          <button class="quick-prompt-btn" data-query="Top 5 quận có số lượng tin đăng bán nhà nhiều nhất?">
+            <i data-lucide="chevron-right"></i>
+            <span>Top 5 quận có nhiều tin đăng nhất?</span>
+          </button>
+          <button class="quick-prompt-btn" data-query="Đơn giá trung bình (triệu/m2) theo từng loại hình nhà ở?">
+            <i data-lucide="chevron-right"></i>
+            <span>Đơn giá theo loại hình nhà ở?</span>
+          </button>
+          <button class="quick-prompt-btn" data-query="Phân bố số lượng tin đăng theo phân khúc giá (price_tier)?">
+            <i data-lucide="chevron-right"></i>
+            <span>Phân bố theo phân khúc giá?</span>
+          </button>
+          <button class="quick-prompt-btn" data-query="Top 10 bất động sản có giá bán cao nhất kèm thông tin quận?">
+            <i data-lucide="chevron-right"></i>
+            <span>Top 10 BĐS giá trị cao nhất?</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-header">
+          <i data-lucide="cpu"></i>
+          <span>Kiến Trúc Multi-Agent</span>
+        </div>
+        <div class="system-stats-card">
+          <div class="stat-row">
+            <span class="stat-name">Orchestrator:</span>
+            <span class="stat-value highlight">LangGraph 7-Node</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Few-Shot Engine:</span>
+            <span class="stat-value">DAIL-SQL Dynamic</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Semantic Embedding:</span>
+            <span class="stat-value">BAAI/bge-m3 (1024d)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">OLAP Database:</span>
+            <span class="stat-value highlight">Apache Doris 2.0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Guardrail:</span>
+            <span class="stat-value status-good">5-Tier Zero-Blindness</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Workspace: Chat Stream & Interactive Analytics Canvas -->
+    <section class="app-workspace">
+      <!-- Chat Conversation Stream -->
+      <div class="chat-viewport" id="chatViewport">
+        <!-- Welcome Hero Banner -->
+        <div class="welcome-card" id="welcomeHero">
+          <div class="welcome-icon">
+            <i data-lucide="bot"></i>
+          </div>
+          <h2>Hệ Thống Phân Tích Dữ Liệu Tự Phục Vụ</h2>
+          <p>
+            Hỏi bất kỳ câu hỏi phân tích kinh doanh nào bằng ngôn ngữ tự nhiên tiếng Việt hoặc tiếng Anh. 
+            Hệ thống Multi-Agent sẽ tự động ánh xạ Semantic Metadata, lập trình truy vấn Doris SQL tối ưu, 
+            kiểm duyệt an toàn và biểu diễn đồ họa trực quan.
+          </p>
+          <div class="features-pill-row">
+            <span class="pill"><i data-lucide="check-circle"></i> Chuẩn hóa Tiếng Việt (VNĐ, tỷ, m²)</span>
+            <span class="pill"><i data-lucide="shield-alert"></i> Cảnh báo HITL chi phí quét</span>
+            <span class="pill"><i data-lucide="zap"></i> Phản hồi Realtime SSE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Thought Step Indicator (Float Banner) -->
+      <div class="thought-stream-banner" id="thoughtStreamBanner" style="display: none;">
+        <div class="thought-spinner"></div>
+        <div class="thought-info">
+          <span class="thought-step-name" id="currentThoughtStep">Khởi tạo truy vấn...</span>
+          <span class="thought-detail" id="currentThoughtDetail">Đang liên kết ngữ nghĩa câu hỏi</span>
+        </div>
+      </div>
+
+      <!-- Bottom Chat Input Bar -->
+      <div class="chat-input-container">
+        <div class="input-actions-bar">
+          <div class="stream-toggle-box">
+            <label class="switch">
+              <input type="checkbox" id="streamToggle" checked>
+              <span class="slider round"></span>
+            </label>
+            <span class="toggle-label">Realtime Streaming (SSE)</span>
+          </div>
+          <div class="input-hints">
+            <span>Shift + Enter để xuống dòng</span>
+          </div>
+        </div>
+        <div class="chat-input-box">
+          <textarea 
+            id="userQueryInput" 
+            placeholder="Hỏi về doanh thu, giá bán trung bình, top quận, phân khúc giá... (VD: Giá bán trung bình của bất động sản là bao nhiêu?)" 
+            rows="2"
+          ></textarea>
+          <button id="btnSend" class="btn btn-primary" title="Gửi câu hỏi">
+            <i data-lucide="send"></i>
+            <span>Gửi</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: Human-In-The-Loop (HITL) Gate -->
+  <div class="modal-overlay" id="hitlModal" style="display: none;">
+    <div class="modal-card modal-danger">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon warning">
+            <i data-lucide="alert-triangle"></i>
+          </div>
+          <div>
+            <h3>Cảnh Báo Phê Duyệt Truy Vấn (HITL Gate)</h3>
+            <p class="modal-subtitle">Truy vấn có quy mô quét lớn hoặc độ phức tạp cao cần sự xác nhận của bạn trước khi thực thi.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="alert-box alert-warning" id="hitlWarningText">
+          <i data-lucide="shield-alert"></i>
+          <span>Chi phí ước tính: Số lượng partition/tablets quét vượt ngưỡng an toàn mặc định.</span>
+        </div>
+        <div class="risk-details" style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 8px; padding: 12px; margin-top: 12px; margin-bottom: 16px;">
+          <h4 style="color: #f43f5e; font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="activity" style="width: 16px; height: 16px;"></i> Phân Tích Rủi Ro (Risk Assessment)
+          </h4>
+          <ul style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 18px; margin-bottom: 0;">
+            <li>Truy vấn có thể gây quá tải (OOM) trên các node Compute của Apache Doris.</li>
+            <li>Ảnh hưởng đến performance của các truy vấn đang chạy khác trong cùng hệ thống.</li>
+            <li>Khuyến nghị: Thêm các điều kiện lọc (WHERE) về thời gian hoặc phân khúc cụ thể trước khi tiếp tục.</li>
+          </ul>
+        </div>
+        <div class="sql-preview-box">
+          <div class="sql-preview-header">
+            <span><i data-lucide="code"></i> Câu lệnh SQL đề xuất thực thi:</span>
+            <button class="btn-copy-sm" id="btnCopyHitlSql" title="Sao chép SQL"><i data-lucide="copy"></i> Copy</button>
+          </div>
+          <pre><code id="hitlSqlCode" class="language-sql">-- Pending SQL Query</code></pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnRejectHitl" class="btn btn-danger">
+          <i data-lucide="x-circle"></i> Từ Chối & Hủy Bỏ
+        </button>
+        <button id="btnApproveHitl" class="btn btn-success">
+          <i data-lucide="check-circle-2"></i> Phê Duyệt & Thực Thi Doris
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Data Catalog / Schema Explorer -->
+  <div class="modal-overlay" id="schemaModal" style="display: none;">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon info">
+            <i data-lucide="database"></i>
+          </div>
+          <div>
+            <h3>Data Catalog & Semantic Metrics</h3>
+            <p class="modal-subtitle">Từ điển chỉ số nghiệp vụ và cấu trúc bảng OLAP của miền dữ liệu hiện tại.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseSchemaModal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" id="schemaModalContent">
+        <div class="loading-state"><i data-lucide="loader-2" class="spin"></i> Đang nạp danh mục dữ liệu...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Data Lineage & Governance -->
+  <div class="modal-overlay" id="lineageModal" style="display: none;">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon info">
+            <i data-lucide="git-merge"></i>
+          </div>
+          <div>
+            <h3>Data Lineage & Contract</h3>
+            <p class="modal-subtitle">Nguồn gốc dữ liệu, metadata sở hữu và cam kết SLA của domain.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseLineageModal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" id="lineageModalContent">
+        <div class="loading-state"><i data-lucide="loader-2" class="spin"></i> Đang nạp thông tin lineage...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Benchmark Runner -->
+  <div class="modal-overlay" id="benchmarkModal" style="display: none;">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon success">
+            <i data-lucide="award"></i>
+          </div>
+          <div>
+            <h3>Đánh Giá & Benchmark Hệ Thống</h3>
+            <p class="modal-subtitle">Bộ 30 câu hỏi vàng đo lường độ chính xác thực thi (EX Accuracy), An toàn & Độ trễ.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseBenchmarkModal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" id="benchmarkModalContent">
+        <div class="benchmark-summary-panel">
+          <div class="benchmark-stat-badge">
+            <span class="stat-number" id="bmValidRate">93.3%</span>
+            <span class="stat-label">Valid SQL Rate</span>
+          </div>
+          <div class="benchmark-stat-badge">
+            <span class="stat-number" id="bmSafetyRate">100%</span>
+            <span class="stat-label">Guardrail Safety</span>
+          </div>
+          <div class="benchmark-stat-badge">
+            <span class="stat-number" id="bmClarifyRate">100%</span>
+            <span class="stat-label">Clarification Rate</span>
+          </div>
+          <div class="benchmark-stat-badge">
+            <span class="stat-number" id="bmLatency">1.85s</span>
+            <span class="stat-label">Avg Response Time</span>
+          </div>
+        </div>
+        <div class="benchmark-actions">
+          <button id="btnRunBenchmarkSuite" class="btn btn-primary btn-sm">
+            <i data-lucide="play"></i> Chạy Lại Benchmark Toàn Diện
+          </button>
+          <span id="bmStatusText" class="bm-status-text">Đã kiểm thử sẵn sàng 30/30 câu hỏi</span>
+        </div>
+        <div class="benchmark-table-container">
+          <table class="data-table" id="benchmarkTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Câu hỏi kiểm thử</th>
+                <th>Độ phức tạp</th>
+                <th>Kết quả</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core JavaScript Application -->
+  <script src="app.js"></script>
+</body>
+</html>

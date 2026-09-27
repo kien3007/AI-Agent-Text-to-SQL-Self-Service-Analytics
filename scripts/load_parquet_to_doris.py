@@ -6,6 +6,7 @@ import argparse
 import requests
 import pandas as pd
 import pymysql
+import pyarrow.parquet as pq
 from tqdm import tqdm
 
 # Cấu hình in UTF-8 trên Windows console
@@ -172,28 +173,35 @@ def load_data(max_shards=None, chunk_size=25000, start_shard=0, truncate=False):
     for i, file_path in enumerate(parquet_files, 1):
         file_name = os.path.basename(file_path)
         print(f"\n[{i}/{len(parquet_files)}] Đang đọc file {file_name}...", flush=True)
-        df = pd.read_parquet(file_path, columns=target_columns)
         
-        # Làm sạch các giá trị text tránh ký tự tab làm lệch cột
-        df["name"] = df["name"].fillna("").astype(str).str.replace("\t", " ").str.replace("\n", " ")
-        df["description"] = df["description"].fillna("").astype(str).str.replace("\t", " ").str.replace("\n", " ")
-        
-        # Đảm bảo published_at đúng định dạng datetime string YYYY-MM-DD HH:MM:SS
-        df["published_at"] = pd.to_datetime(df["published_at"], errors="coerce").dt.strftime("%Y-%m-%d %H:%M:%S")
-        df["published_at"] = df["published_at"].fillna("2025-06-01 00:00:00")
-        
-        num_chunks = (len(df) + chunk_size - 1) // chunk_size
-        shard_loaded = 0
-        
-        with tqdm(total=len(df), desc=f"Shard {file_name}", unit="rows") as pbar:
-            for c_idx in range(num_chunks):
-                chunk = df.iloc[c_idx * chunk_size : (c_idx + 1) * chunk_size]
-                loaded = stream_load_chunk(chunk, f"{i}_{c_idx}")
-                shard_loaded += loaded
-                pbar.update(len(chunk))
-                
-        total_loaded += shard_loaded
-        print(f" -> Hoàn tất {file_name}: Nạp thành công {shard_loaded:,} dòng.", flush=True)
+        try:
+            parquet_file = pq.ParquetFile(file_path)
+            num_rows = parquet_file.metadata.num_rows
+            shard_loaded = 0
+            
+            with tqdm(total=num_rows, desc=f"Shard {file_name}", unit="rows") as pbar:
+                for batch in parquet_file.iter_batches(batch_size=chunk_size, columns=target_columns):
+                    df_chunk = batch.to_pandas()
+                    
+                    # Làm sạch các giá trị text tránh ký tự tab làm lệch cột
+                    if "name" in df_chunk.columns:
+                        df_chunk["name"] = df_chunk["name"].fillna("").astype(str).str.replace("\t", " ").str.replace("\n", " ")
+                    if "description" in df_chunk.columns:
+                        df_chunk["description"] = df_chunk["description"].fillna("").astype(str).str.replace("\t", " ").str.replace("\n", " ")
+                    
+                    # Đảm bảo published_at đúng định dạng datetime string YYYY-MM-DD HH:MM:SS
+                    if "published_at" in df_chunk.columns:
+                        df_chunk["published_at"] = pd.to_datetime(df_chunk["published_at"], errors="coerce").dt.strftime("%Y-%m-%d %H:%M:%S")
+                        df_chunk["published_at"] = df_chunk["published_at"].fillna("2025-06-01 00:00:00")
+                        
+                    loaded = stream_load_chunk(df_chunk, f"{i}_{shard_loaded // chunk_size}")
+                    shard_loaded += loaded
+                    pbar.update(len(df_chunk))
+                    
+            total_loaded += shard_loaded
+            print(f" -> Hoàn tất {file_name}: Nạp thành công {shard_loaded:,} dòng.", flush=True)
+        except Exception as e:
+            print(f" -> Lỗi đọc file {file_name}: {e}", flush=True)
         
     elapsed = time.time() - start_time
     print(f"\n🎉 HOÀN TẤT NẠP DỮ LIỆU!", flush=True)
@@ -206,7 +214,11 @@ def load_data(max_shards=None, chunk_size=25000, start_shard=0, truncate=False):
 def verify_count():
     """Kiểm tra đếm số dòng thực tế trong bảng Doris."""
     try:
+        import json
+        from datetime import datetime
+        
         conn = get_mysql_connection(db=DB_NAME)
+        count = 0
         with conn.cursor() as cursor:
             cursor.execute(f"SELECT COUNT(*) FROM {TABLE_NAME};")
             count = cursor.fetchone()[0]
@@ -219,6 +231,19 @@ def verify_count():
             for p, cnt in rows:
                 print(f" - {p}: {cnt:,} tin")
         conn.close()
+        
+        # Ghi Ingestion Lineage Log
+        lineage_log = {
+            "source": "Parquet files",
+            "destination": f"Doris ({DB_NAME}.{TABLE_NAME})",
+            "ingestion_time": datetime.utcnow().isoformat() + "Z",
+            "total_records": count,
+            "status": "SUCCESS"
+        }
+        os.makedirs("data", exist_ok=True)
+        with open("data/ingestion_lineage.json", "w", encoding="utf-8") as f:
+            json.dump(lineage_log, f, ensure_ascii=False, indent=2)
+            
     except Exception as e:
         print(f"Lỗi kiểm tra count: {e}")
 

@@ -31,7 +31,8 @@ class DbtManifestLoader:
     """
 
     def __init__(self, dbt_project_dir: Optional[str] = None):
-        base_dir = os.getcwd()
+        from pathlib import Path
+        base_dir = str(Path(backend_dir).parent)
         self.dbt_dir = dbt_project_dir or os.path.join(base_dir, "infra", "dbt")
         self.manifest_path = os.path.join(self.dbt_dir, "target", "manifest.json")
         self.models_dir = os.path.join(self.dbt_dir, "models")

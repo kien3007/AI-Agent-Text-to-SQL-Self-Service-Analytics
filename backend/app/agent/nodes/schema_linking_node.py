@@ -34,5 +34,13 @@ class SchemaLinkingNode:
 
         query = state.normalized_query or state.user_query
         schema_context = graph.link_schema(query)
+        
+        # Lọc cột nhạy cảm theo role
+        if state.user_role != "admin":
+            schema_context.columns = [
+                c for c in schema_context.columns 
+                if not getattr(c, "is_sensitive", False)
+            ]
+            
         state.schema_context = schema_context
         return state

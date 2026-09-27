@@ -70,12 +70,20 @@ class AgentOrchestrator:
         """
         Thực thi toàn bộ đồ thị theo cơ chế đồng bộ (blocking) và trả về AgentState cuối cùng.
         """
+        from app.core.logger import log_audit_event
         state = self._prepare_state(input_val, domain_id)
         start_time = time.time()
+        
+        log_audit_event(
+            user_id=getattr(state, "user_id", None),
+            action="EXECUTE_QUERY_SYNC",
+            domain_id=state.domain_id,
+            details={"query": state.user_query}
+        )
 
         # BƯỚC 1: Phân tích Ý định & Làm rõ (Intent & Clarification)
         state = self.intent_node(state)
-        if state.clarification_needed:
+        if state.clarification_needed or (state.validation_result and not state.validation_result.is_valid):
             state.execution_time_ms = (time.time() - start_time) * 1000
             return state
 
@@ -126,8 +134,16 @@ class AgentOrchestrator:
         Thực thi đồ thị theo dạng streaming (phù hợp cho Server-Sent Events SSE).
         Phát ra từng cặp (tên_bước, trạng_thái_hiện_tại) sau mỗi node.
         """
+        from app.core.logger import log_audit_event
         state = self._prepare_state(input_val, domain_id)
         start_time = time.time()
+        
+        log_audit_event(
+            user_id=getattr(state, "user_id", None),
+            action="EXECUTE_QUERY_STREAM",
+            domain_id=state.domain_id,
+            details={"query": state.user_query}
+        )
 
         # Bước 1
         state = self.intent_node(state)
@@ -176,10 +192,17 @@ class AgentOrchestrator:
         yield ("response_formatter", state)
 
     def resume_hitl(self, state: AgentState, approved: bool) -> AgentState:
-        """
-        Tiếp tục thực thi phiên đang bị tạm dừng tại HITL Gate sau khi người dùng bấm Duyệt/Từ chối.
-        """
+        """Tiếp tục quy trình sau khi HITL duyệt."""
+        from app.core.logger import log_audit_event
         start_time = time.time()
+        
+        log_audit_event(
+            user_id=getattr(state, "user_id", None),
+            action="HITL_APPROVE" if approved else "HITL_REJECT",
+            domain_id=state.domain_id,
+            sql_query=state.sql_query
+        )
+        
         state.hitl_approved = approved
 
         state = self.hitl_node(state)

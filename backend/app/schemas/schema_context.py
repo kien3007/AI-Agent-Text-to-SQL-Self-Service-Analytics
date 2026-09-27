@@ -9,6 +9,7 @@ class ColumnContext(BaseModel):
     vn_name: str = Field(..., description="Tên tiếng Việt")
     description: str = Field(..., description="Mô tả nghiệp vụ")
     is_partition_or_dist: bool = Field(False, description="Có phải cột phân vùng hoặc phân tán không")
+    is_sensitive: bool = Field(False, description="Dữ liệu nhạy cảm (ẩn đối với analyst thông thường)")
     sample_values: List[Any] = Field(default_factory=list, description="Giá trị mẫu")
 
 

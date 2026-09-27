@@ -35,7 +35,7 @@ class DomainManager:
         if getattr(self, "_initialized", False):
             return
 
-        base_backend = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        base_backend = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         self.domains_dir = domains_dir or os.path.join(base_backend, "domains")
         self._domains: Dict[str, DomainConfig] = {}
         self._active_domain_id: str = "real_estate"

@@ -10,6 +10,7 @@ from app.agent.llm_client import DualModelLLM
 from app.core.domain_manager import DomainManager
 from app.core.normalizer import GenericVietnameseNormalizer
 from app.core.glossary import VietnameseBusinessGlossary
+from app.schemas.validation import ValidationResult
 
 
 class IntentClarifierNode:
@@ -31,6 +32,30 @@ class IntentClarifierNode:
     def execute(self, state: AgentState) -> AgentState:
         state.log_step("intent_clarifier")
         raw_query = state.user_query.strip()
+        
+        # Inject conversation history if available
+        if state.conversation_history:
+            last_turns = state.conversation_history[-6:]
+            history_ctx = "\n".join(
+                f"[{h['role'].upper()}]: {h['content']}" for h in last_turns
+            )
+            raw_query = (
+                f"[Ngữ cảnh hội thoại trước đó:]\n{history_ctx}\n\n"
+                f"[Câu hỏi mới của người dùng]: {raw_query}"
+            )
+        # 0. Kiểm tra an toàn bảo mật ngay từ câu hỏi thô (Pre-Execution Guardrail)
+        malicious_patterns = [
+            r"\bDROP\s+TABLE\b", r"\bDELETE\s+FROM\b", r"\bTRUNCATE\s+TABLE\b",
+            r"\bALTER\s+TABLE\b", r"\bUPDATE\s+\w+\s+SET\b", r"\bINSERT\s+INTO\b"
+        ]
+        if any(re.search(pat, raw_query, re.IGNORECASE) for pat in malicious_patterns):
+            state.validation_result = ValidationResult(
+                is_valid=False,
+                risk_level="BLOCKED",
+                errors=["Cảnh báo bảo mật: Phát hiện câu lệnh thay đổi cấu trúc hoặc xóa dữ liệu (DDL/DML vi phạm chính sách an toàn)."]
+            )
+            state.final_response = "Truy vấn bị từ chối: Hệ thống chỉ hỗ trợ phân tích dữ liệu đọc (Read-only SELECT). Các câu lệnh xóa hoặc thay đổi dữ liệu bị nghiêm cấm."
+            return state
 
         # 1. Định tuyến Domain nếu chưa được chỉ định
         if not state.domain_id:
@@ -176,10 +201,15 @@ class IntentClarifierNode:
 
         vague_phrases = [
             "xem giá", "tính tiền", "thống kê", "tìm kiếm", "cho tôi xem",
-            "dữ liệu", "báo cáo", "phân tích", "chi tiết"
+            "dữ liệu", "báo cáo", "phân tích", "chi tiết", "thị trường thế nào",
+            "thị trường", "tình hình", "xem dữ liệu", "báo cáo chi tiết",
+            "thông tin", "xem số liệu"
         ]
-        q_clean = query.lower().strip()
-        if q_clean in vague_phrases and not entities:
+        q_clean = query.lower().strip().rstrip("?").rstrip(".").strip()
+        if any(q_clean == phrase or q_clean.startswith(phrase) for phrase in vague_phrases) and not entities:
             return True
+        if q_clean.endswith("thế nào") or q_clean.endswith("sao") or q_clean.endswith("như thế nào"):
+            if not entities:
+                return True
 
         return False

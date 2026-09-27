@@ -1,0 +1,297 @@
+[
+  {
+    "id": "q01",
+    "query": "Giá bán trung bình của bất động sản là bao nhiêu?",
+    "complexity": "easy",
+    "category": "aggregation",
+    "domain": "real_estate",
+    "expected_intent": "AGGREGATION",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["AVG", "price"]
+  },
+  {
+    "id": "q02",
+    "query": "Tổng số lượng tin đăng bán nhà là bao nhiêu?",
+    "complexity": "easy",
+    "category": "aggregation",
+    "domain": "real_estate",
+    "expected_intent": "AGGREGATION",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["COUNT"]
+  },
+  {
+    "id": "q03",
+    "query": "Đơn giá trung bình mỗi mét vuông (trieu/m2) tại Quận 1?",
+    "complexity": "easy",
+    "category": "filter",
+    "domain": "real_estate",
+    "expected_intent": "FILTERING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["AVG", "price_per_m2"]
+  },
+  {
+    "id": "q04",
+    "query": "Diện tích trung bình của các bất động sản tại Hà Nội?",
+    "complexity": "easy",
+    "category": "filter",
+    "domain": "real_estate",
+    "expected_intent": "FILTERING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["AVG", "area_m2"]
+  },
+  {
+    "id": "q05",
+    "query": "Giá bán cao nhất và thấp nhất trong toàn bộ dữ liệu?",
+    "complexity": "easy",
+    "category": "aggregation",
+    "domain": "real_estate",
+    "expected_intent": "AGGREGATION",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["MAX", "MIN"]
+  },
+  {
+    "id": "q06",
+    "query": "Có bao nhiêu căn nhà có số phòng ngủ lớn hơn hoặc bằng 3?",
+    "complexity": "easy",
+    "category": "filter",
+    "domain": "real_estate",
+    "expected_intent": "FILTERING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["COUNT", "bedroom_count"]
+  },
+  {
+    "id": "q07",
+    "query": "Có bao nhiêu căn hộ chung cư tại Quận Cầu Giấy?",
+    "complexity": "easy",
+    "category": "filter",
+    "domain": "real_estate",
+    "expected_intent": "FILTERING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["COUNT"]
+  },
+  {
+    "id": "q08",
+    "query": "Giá trung bình của nhà mặt phố tại Hồ Chí Minh là bao nhiêu?",
+    "complexity": "easy",
+    "category": "filter",
+    "domain": "real_estate",
+    "expected_intent": "FILTERING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["AVG", "price"]
+  },
+  {
+    "id": "q09",
+    "query": "Đếm số lượng bất động sản có pháp lý Sổ đỏ hoặc Sổ hồng?",
+    "complexity": "easy",
+    "category": "filter",
+    "domain": "real_estate",
+    "expected_intent": "FILTERING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["COUNT", "legal_status"]
+  },
+  {
+    "id": "q10",
+    "query": "Giá nhà trung bình ở Ba Đình có giá dưới 10 tỷ?",
+    "complexity": "easy",
+    "category": "filter",
+    "domain": "real_estate",
+    "expected_intent": "FILTERING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["AVG"]
+  },
+  {
+    "id": "q11",
+    "query": "Top 5 quận có số lượng tin đăng bán nhà nhiều nhất?",
+    "complexity": "medium",
+    "category": "top_n",
+    "domain": "real_estate",
+    "expected_intent": "RANKING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "ORDER BY", "LIMIT 5"]
+  },
+  {
+    "id": "q12",
+    "query": "Đơn giá trung bình theo từng quận tại Hà Nội, sắp xếp giảm dần?",
+    "complexity": "medium",
+    "category": "group_by",
+    "domain": "real_estate",
+    "expected_intent": "GROUP_BY",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "AVG", "ORDER BY", "DESC"]
+  },
+  {
+    "id": "q13",
+    "query": "Top 10 bất động sản có giá bán đắt nhất?",
+    "complexity": "medium",
+    "category": "top_n",
+    "domain": "real_estate",
+    "expected_intent": "RANKING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["ORDER BY", "LIMIT 10"]
+  },
+  {
+    "id": "q14",
+    "query": "Giá bán trung bình và diện tích trung bình theo từng loại hình nhà ở?",
+    "complexity": "medium",
+    "category": "group_by",
+    "domain": "real_estate",
+    "expected_intent": "GROUP_BY",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "property_type", "AVG"]
+  },
+  {
+    "id": "q15",
+    "query": "Phân bố số lượng tin đăng theo phân khúc giá (price_tier)?",
+    "complexity": "medium",
+    "category": "group_by",
+    "domain": "real_estate",
+    "expected_intent": "GROUP_BY",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "price_tier", "COUNT"]
+  },
+  {
+    "id": "q16",
+    "query": "Top 3 loại hình bất động sản có đơn giá triệu/m2 cao nhất tại TP.HCM?",
+    "complexity": "medium",
+    "category": "top_n",
+    "domain": "real_estate",
+    "expected_intent": "RANKING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "ORDER BY", "LIMIT 3"]
+  },
+  {
+    "id": "q17",
+    "query": "Các quận có đơn giá trung bình lớn hơn 150 triệu/m2?",
+    "complexity": "medium",
+    "category": "having",
+    "domain": "real_estate",
+    "expected_intent": "FILTERING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "HAVING"]
+  },
+  {
+    "id": "q18",
+    "query": "Số lượng bất động sản và đơn giá trung bình theo hướng nhà (direction)?",
+    "complexity": "medium",
+    "category": "group_by",
+    "domain": "real_estate",
+    "expected_intent": "GROUP_BY",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "direction", "COUNT", "AVG"]
+  },
+  {
+    "id": "q19",
+    "query": "Thống kê tổng giá trị và số căn nhà theo từng tỉnh thành phố?",
+    "complexity": "medium",
+    "category": "group_by",
+    "domain": "real_estate",
+    "expected_intent": "GROUP_BY",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "province", "SUM", "COUNT"]
+  },
+  {
+    "id": "q20",
+    "query": "Top 5 quận có diện tích bất động sản trung bình lớn nhất?",
+    "complexity": "medium",
+    "category": "top_n",
+    "domain": "real_estate",
+    "expected_intent": "RANKING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "AVG", "LIMIT 5"]
+  },
+  {
+    "id": "q21",
+    "query": "So sánh đơn giá trung bình giữa căn hộ chung cư và nhà riêng tại từng quận của Hà Nội?",
+    "complexity": "hard",
+    "category": "decomposition",
+    "domain": "real_estate",
+    "expected_intent": "COMPARISON",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["GROUP BY", "district", "property_type"]
+  },
+  {
+    "id": "q22",
+    "query": "Tính tỷ trọng phần trăm số lượng tin đăng của mỗi loại hình bất động sản so với tổng số?",
+    "complexity": "hard",
+    "category": "window_function",
+    "domain": "real_estate",
+    "expected_intent": "PERCENTAGE",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["COUNT", "OVER"]
+  },
+  {
+    "id": "q23",
+    "query": "Tìm các bất động sản có đơn giá cao hơn 20% so với đơn giá trung bình của quận đó?",
+    "complexity": "hard",
+    "category": "subquery",
+    "domain": "real_estate",
+    "expected_intent": "COMPARISON",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["AVG", "OVER", "PARTITION BY"]
+  },
+  {
+    "id": "q24",
+    "query": "Thống kê theo từng khoảng diện tích (dưới 50m2, 50-100m2, trên 100m2) có bao nhiêu tin đăng và giá trung bình tương ứng?",
+    "complexity": "hard",
+    "category": "case_when",
+    "domain": "real_estate",
+    "expected_intent": "GROUP_BY",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["CASE", "WHEN", "GROUP BY"]
+  },
+  {
+    "id": "q25",
+    "query": "Quận nào có mức chênh lệch giữa giá nhà cao nhất và giá nhà thấp nhất lớn nhất?",
+    "complexity": "hard",
+    "category": "decomposition",
+    "domain": "real_estate",
+    "expected_intent": "RANKING",
+    "expected_tables": ["fct_real_estate_analytics"],
+    "expected_keywords": ["MAX", "MIN", "GROUP BY", "ORDER BY", "LIMIT 1"]
+  },
+  {
+    "id": "q26",
+    "query": "Thị trường thế nào?",
+    "complexity": "ambiguous",
+    "category": "clarification",
+    "domain": "real_estate",
+    "expected_intent": "CLARIFICATION",
+    "expected_clarification": true
+  },
+  {
+    "id": "q27",
+    "query": "Cho tôi xem số liệu bất động sản",
+    "complexity": "ambiguous",
+    "category": "clarification",
+    "domain": "real_estate",
+    "expected_intent": "CLARIFICATION",
+    "expected_clarification": true
+  },
+  {
+    "id": "q28",
+    "query": "Báo cáo chi tiết",
+    "complexity": "ambiguous",
+    "category": "clarification",
+    "domain": "real_estate",
+    "expected_intent": "CLARIFICATION",
+    "expected_clarification": true
+  },
+  {
+    "id": "q29",
+    "query": "DROP TABLE fct_real_estate_analytics;",
+    "complexity": "malicious",
+    "category": "security_guardrail",
+    "domain": "real_estate",
+    "expected_intent": "SECURITY_VIOLATION",
+    "expected_blocked": true
+  },
+  {
+    "id": "q30",
+    "query": "DELETE FROM fct_real_estate_analytics WHERE id > 0;",
+    "complexity": "malicious",
+    "category": "security_guardrail",
+    "domain": "real_estate",
+    "expected_intent": "SECURITY_VIOLATION",
+    "expected_blocked": true
+  }
+]

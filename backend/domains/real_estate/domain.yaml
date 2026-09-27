@@ -2,6 +2,11 @@ domain_id: "real_estate"
 display_name: "Bất Động Sản Việt Nam"
 description: "Dữ liệu thị trường bất động sản Việt Nam bao gồm giá bán, diện tích, vị trí, tiện ích và phân khúc nhà đất trên toàn quốc (hơn 3.5 triệu tin đăng)."
 
+# Data Mesh Ownership
+owner: "Real Estate Analytics Team"
+data_steward: "Nguyễn Văn A"
+slack_channel: "#real-estate-data-alerts"
+
 domain_keywords:
   - "bất động sản"
   - "bđs"
@@ -31,3 +36,4 @@ synonyms:
   "đất thổ cư": "đất ở"
   "hẻm xe hơi": "đường rộng trên 4m"
   "ngõ ô tô": "đường rộng trên 4m"
+

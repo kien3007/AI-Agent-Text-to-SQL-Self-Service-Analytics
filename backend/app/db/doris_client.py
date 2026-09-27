@@ -103,10 +103,17 @@ class DorisClient:
 
             is_partition_pruned = "partitions=" in explain_text
 
+            avg_row_size = 0
+            size_match = re.search(r"avgRowSize[=:]\s*([0-9.]+)", explain_text, re.IGNORECASE)
+            if size_match:
+                avg_row_size = float(size_match.group(1))
+            bytes_scanned = cardinality * avg_row_size
+
             return {
                 "success": True,
                 "cardinality": cardinality,
                 "tablets_scanned": tablets,
+                "bytes_scanned": bytes_scanned,
                 "is_partition_pruned": is_partition_pruned,
                 "raw_explain": explain_text[:2000] # Giới hạn lưu trữ
             }

@@ -19,6 +19,7 @@ class ColumnProfile(BaseModel):
     synonyms: List[str] = Field(default_factory=list, description="Từ đồng nghĩa, từ khóa tìm kiếm liên quan")
     is_partition_or_dist: bool = Field(False, description="Cột có dùng làm Partition hoặc Distributed key không")
     is_primary_key: bool = Field(False, description="Cột có phải Primary Key không")
+    is_sensitive: bool = Field(False, description="Dữ liệu nhạy cảm (ẩn đối với analyst thông thường)")
     foreign_key: Optional[str] = Field(None, description="Đích khóa ngoại (định dạng 'table.column')")
     sample_values: List[Any] = Field(default_factory=list, description="Các giá trị mẫu thực tế")
 
@@ -82,6 +83,11 @@ class DomainConfig(BaseModel):
     metrics: Dict[str, MetricProfile] = Field(default_factory=dict, description="Các chỉ số phân tích nghiệp vụ")
     segments: Dict[str, PriceSegmentProfile] = Field(default_factory=dict, description="Các phân khúc định lượng")
     synonyms: Dict[str, Union[str, List[str]]] = Field(default_factory=dict, description="Từ điển từ lóng / viết tắt nội bộ")
+    
+    # Metadata Quản trị Data Mesh
+    owner: str = Field("Data Platform Team", description="Đội ngũ sở hữu và chịu trách nhiệm cho domain này")
+    data_steward: str = Field("Data Steward", description="Người chịu trách nhiệm chất lượng dữ liệu")
+    slack_channel: str = Field("#data-alerts", description="Kênh thông báo sự cố dữ liệu")
 
     @classmethod
     def load_from_folder(cls, folder_path: str) -> "DomainConfig":

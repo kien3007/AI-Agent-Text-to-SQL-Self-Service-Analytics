@@ -19,6 +19,8 @@ backend_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
+from app.core.config import settings
+
 from app.schemas.schema_context import SchemaContext, ColumnContext
 from app.schemas.validation import ValidationResult
 from app.db.doris_client import DorisClient
@@ -99,8 +101,22 @@ class PlanValidator:
             else:
                 cardinality_est = explain_res.get("cardinality", 0)
                 tablets_est = explain_res.get("tablets_scanned", 0)
-                if tablets_est > 50 or cardinality_est > 1_000_000:
-                    warnings.append(f"Truy vấn quét dung lượng lớn: {tablets_est} tablets, ước tính {cardinality_est} dòng.")
+                
+                # Check bytes threshold
+                bytes_mb = explain_res.get("bytes_scanned", 0) / (1024 * 1024)
+                bytes_threshold = settings.HITL_ESTIMATED_BYTES_MB_THRESHOLD
+                
+                hitl_reasons = []
+                if tablets_est > settings.HITL_SCAN_TABLETS_THRESHOLD:
+                    hitl_reasons.append(f"{tablets_est} tablets")
+                if cardinality_est > settings.HITL_ROW_COUNT_THRESHOLD:
+                    hitl_reasons.append(f"{cardinality_est:,} dòng")
+                if bytes_mb > bytes_threshold:
+                    hitl_reasons.append(f"{bytes_mb:.0f} MB (>{bytes_threshold}MB)")
+                    
+                if hitl_reasons:
+                    reasons_str = ", ".join(hitl_reasons)
+                    warnings.append(f"⚠️ Truy vấn quét dung lượng lớn: {reasons_str}.")
                     requires_hitl = True
                     if risk_level == "SAFE":
                         risk_level = "WARNING"
@@ -114,6 +130,7 @@ class PlanValidator:
             vn_suggestions=vn_suggestions,
             cardinality_estimate=cardinality_est,
             tablets_scanned=tablets_est,
+            bytes_scanned_mb=bytes_mb if 'bytes_mb' in locals() else 0.0,
             requires_hitl=requires_hitl
         )
 
