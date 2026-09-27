@@ -165,11 +165,53 @@ class DualModelLLM:
 
             # Xác định metrics nếu có
             metric_match = re.search(r"CHỈ SỐ NGHIỆP VỤ ĐƯỢC GỢI Ý.*?`([^`]+)`", prompt, re.DOTALL)
-            if metric_match:
-                select_cols = f"{metric_match.group(1)} AS metric_value"
-            else:
-                select_cols = f"{main_table}.*"
+            
+            # Tách riêng câu hỏi người dùng để phân tích ý định chính xác
+            user_q_match = re.search(r'CÂU HỎI NGƯỜI DÙNG:\s*"(.*?)"', prompt, re.DOTALL)
+            user_q = user_q_match.group(1).lower() if user_q_match else prompt_lower
 
+            # Tự động suy luận metric từ câu hỏi người dùng
+            is_sqm = any(k in user_q for k in ["/m2", "m2", "m²", "mét vuông", "met vuong", "đơn giá", "don gia"])
+            if any(k in user_q for k in ["giá bán trung bình", "giá trung bình", "bình quân", "trung bình"]):
+                if is_sqm:
+                    metric_expr = "ROUND(AVG(price / NULLIF(area, 0)), 0) AS avg_price_per_sqm"
+                else:
+                    metric_expr = "ROUND(AVG(price), 0) AS avg_total_price"
+            elif any(k in user_q for k in ["số lượng tin", "tin đăng", "nguồn cung", "số lượng căn", "tổng số"]):
+                metric_expr = "COUNT(*) AS total_listings"
+            elif metric_match:
+                metric_expr = f"{metric_match.group(1)} AS metric_value"
+            else:
+                metric_expr = None
+
+            group_col = None
+            if any(k in user_q for k in ["theo quận", "từng quận", "quận", "huyện", "district"]):
+                group_col = "district_name"
+            elif any(k in user_q for k in ["loại hình", "loại bđs", "property_type"]):
+                group_col = "property_type_name"
+            elif any(k in user_q for k in ["tỉnh", "thành phố", "province"]):
+                group_col = "province_name"
+
+            # Nếu hỏi top N có giá cao nhất
+            if any(k in user_q for k in ["cao nhất", "lớn nhất", "đắt nhất"]):
+                limit_num = 10
+                num_match = re.search(r"top\s*(\d+)", user_q)
+                if num_match:
+                    limit_num = int(num_match.group(1))
+                sql = f"SELECT name, district_name, price, area FROM {main_table} ORDER BY price DESC LIMIT {limit_num};"
+                return f"```sql\n{sql}\n```"
+
+            if metric_expr:
+                select_metrics = metric_expr if "COUNT" in metric_expr.upper() else f"{metric_expr}, COUNT(*) AS total_listings"
+                if group_col:
+                    limit_val = limit.group(1) if limit else ("LIMIT 5" if "top 5" in user_q else "LIMIT 100")
+                    sql = f"SELECT {group_col}, {select_metrics} FROM {main_table} GROUP BY {group_col} ORDER BY 2 DESC {limit_val};"
+                else:
+                    # Truy vấn tổng hợp tổng thể theo quận huyện
+                    sql = f"SELECT district_name, {select_metrics} FROM {main_table} GROUP BY district_name ORDER BY 2 DESC LIMIT 10;"
+                return f"```sql\n{sql}\n```"
+
+            select_cols = f"{main_table}.*"
             sql_parts = [f"SELECT {select_cols}", f"FROM {main_table}"]
             for jc in join_clauses:
                 sql_parts.append(jc)

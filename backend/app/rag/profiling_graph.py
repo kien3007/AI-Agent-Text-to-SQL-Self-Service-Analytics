@@ -27,6 +27,7 @@ if backend_dir not in sys.path:
 
 from app.core.glossary import VietnameseBusinessGlossary
 from app.core.domain_manager import DomainManager
+from app.core.config import settings
 from app.rag.embeddings import BGEM3EmbeddingFunction
 from app.schemas.domain import DomainConfig, TableProfile, ColumnProfile, RelationshipProfile, MetricProfile
 from app.schemas.schema_context import SchemaContext, ColumnContext, MetricContext
@@ -48,8 +49,7 @@ class BilingualDataProfilingGraph:
         chroma_dir: Optional[str] = None,
         embedding_function: Optional[Any] = None
     ):
-        base_dir = os.getcwd()
-        self.chroma_dir = chroma_dir or os.path.join(base_dir, "data", "chroma_db")
+        self.chroma_dir = chroma_dir or settings.CHROMA_PERSIST_DIR
         os.makedirs(self.chroma_dir, exist_ok=True)
 
         self.domain_manager = DomainManager()
@@ -488,7 +488,24 @@ class BilingualDataProfilingGraph:
                         for dep_tbl in m_prof.depends_on_tables:
                             needed_tables.add(dep_tbl)
         except Exception as e:
-            print(f"[ProfilingGraph] Warning vector query metrics: {e}")
+            pass
+
+        # 3.1 Keyword matching fallback cho domain metrics (Zero-dependency matching)
+        user_query_clean = user_query.lower()
+        for m_id, m_prof in self.domain.metrics.items():
+            all_terms = (m_prof.vn_terms or []) + (m_prof.en_terms or [])
+            if any(term.lower() in user_query_clean for term in all_terms):
+                if not any(sm.name == m_id for sm in suggested_metrics):
+                    suggested_metrics.append(MetricContext(
+                        name=m_id,
+                        vn_terms=m_prof.vn_terms,
+                        sql_expression=m_prof.sql_expression,
+                        description=m_prof.description
+                    ))
+                    for dep_col in m_prof.depends_on_columns:
+                        matched_column_tuples.add((default_table, dep_col))
+                    for dep_tbl in m_prof.depends_on_tables:
+                        needed_tables.add(dep_tbl)
 
         # 4. Giải thuật Steiner Tree suy luận phép nối JOIN giữa các bảng
         if not needed_tables:
@@ -515,7 +532,7 @@ class BilingualDataProfilingGraph:
         prompt_lines = []
         if len(selected_tables) <= 1:
             primary_tbl = selected_tables[0] if selected_tables else default_table
-            prompt_lines.append(f"### SCHEMA LIÊN KẾT (Bảng: {primary_tbl}):")
+            prompt_lines.append(f"### SCHEMA LIÊN KẾT - TÊN BẢNG: `{primary_tbl}`")
             prompt_lines.append("| Cột | Kiểu | Tiếng Việt | Ghi chú & Giá trị mẫu |")
             prompt_lines.append("|---|---|---|---|")
             for rc in relevant_columns:

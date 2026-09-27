@@ -183,14 +183,14 @@ COLUMN_PROFILES: Dict[str, Dict[str, Any]] = {
 # 2. Ánh xạ các Chỉ số Nghiệp vụ phân tích (Business Analytics Metrics)
 BUSINESS_METRICS: Dict[str, Dict[str, Any]] = {
     "avg_price_per_sqm": {
-        "vn_terms": ["giá trung bình m2", "đơn giá m2", "giá mỗi mét vuông", "đơn giá trung bình", "m2 bao nhiêu tiền"],
+        "vn_terms": ["giá bán trung bình m2", "giá trung bình m2", "đơn giá m2", "giá mỗi mét vuông", "đơn giá trung bình", "m2 bao nhiêu tiền", "giá m2", "đơn giá mỗi mét vuông"],
         "en_terms": ["average price per sqm", "unit price per sqm", "price per square meter"],
         "sql_expression": "ROUND(AVG(price / NULLIF(area, 0)), 0)",
         "description": "Đơn giá trung bình mỗi mét vuông diện tích"
     },
     "avg_total_price": {
-        "vn_terms": ["giá trung bình", "giá bán bình quân", "giá căn hộ trung bình"],
-        "en_terms": ["average price", "mean listing price"],
+        "vn_terms": ["giá bán trung bình", "giá trung bình", "giá bán bình quân", "giá bình quân", "giá căn hộ trung bình", "mức giá trung bình", "giá nhà trung bình", "giá đất trung bình"],
+        "en_terms": ["average price", "mean listing price", "average selling price"],
         "sql_expression": "ROUND(AVG(price), 0)",
         "description": "Tổng giá trị bình quân của các bất động sản"
     },

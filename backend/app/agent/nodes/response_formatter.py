@@ -26,6 +26,29 @@ class ResponseFormatterNode:
         rows = state.query_result or []
         cols = state.column_names or []
 
+        # Nếu không có dữ liệu trả về hoặc xảy ra lỗi kết nối CSDL
+        if not rows:
+            exec_err = None
+            if state.error_history:
+                exec_err = next((e for e in reversed(state.error_history) if e.get("stage") == "executor"), None)
+
+            if exec_err:
+                response_parts = [
+                    f"### ⚠️ THÔNG BÁO THỰC THI TRUY VẤN: \"{state.user_query}\"\n",
+                    f"**Trạng thái CSDL:** Chưa thể kết nối hoặc thực thi trên kho dữ liệu Doris ({exec_err.get('raw_error', 'Lỗi kết nối')}).\n",
+                    f"- Câu lệnh SQL đã sinh: `{state.sql_query}`\n",
+                    f"- Khuyến nghị: {exec_err.get('vn_advice', 'Vui lòng kiểm tra trạng thái cụm CSDL Apache Doris.')}"
+                ]
+            else:
+                response_parts = [
+                    f"### 📊 KẾT QUẢ PHÂN TÍCH CHO CÂU HỎI: \"{state.user_query}\"\n",
+                    "**💡 Thông báo dữ liệu:**\nCâu truy vấn SQL đã được gửi tới CSDL nhưng không có bản ghi nào thỏa mãn điều kiện lọc đã yêu cầu.\n",
+                    f"- Câu lệnh SQL: `{state.sql_query}`"
+                ]
+            state.chart_config = None
+            state.final_response = "\n".join(response_parts)
+            return state
+
         # 1. Định dạng dữ liệu hiển thị (Format tiền tệ, diện tích)
         formatted_rows = self._format_table_data(rows)
 
@@ -54,21 +77,6 @@ class ResponseFormatterNode:
             f"### 📊 KẾT QUẢ PHÂN TÍCH CHO CÂU HỎI: \"{state.user_query}\"\n",
             f"**💡 Nhận định Chuyên sâu (Business Insights):**\n{insights}\n",
         ]
-
-        if formatted_rows:
-            response_parts.append(f"**📋 Bảng Số liệu Thống kê ({len(rows)} bản ghi):**\n")
-            header = "| " + " | ".join(cols) + " |"
-            sep = "| " + " | ".join(["---"] * len(cols)) + " |"
-            response_parts.append(header)
-            response_parts.append(sep)
-            for r in formatted_rows[:10]:
-                row_str = "| " + " | ".join(str(r.get(c, "")) for c in cols) + " |"
-                response_parts.append(row_str)
-            if len(rows) > 10:
-                response_parts.append(f"\n*(Đang hiển thị 10/{len(rows)} dòng dữ liệu)*")
-
-        if state.sql_query:
-            response_parts.append(f"\n```sql\n-- Câu lệnh SQL đã thực thi an toàn:\n{state.sql_query}\n```")
 
         state.final_response = "\n".join(response_parts)
         return state

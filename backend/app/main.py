@@ -19,6 +19,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
+from app.core.auth import auth_router
 from app.api.routers.health import router as health_router
 from app.api.routers.domains import router as domains_router
 from app.api.routers.chat import router as chat_router
@@ -39,6 +40,7 @@ app.add_middleware(
 )
 
 # Tích hợp các Routers API
+app.include_router(auth_router, prefix="/api")        # POST /api/auth/token
 app.include_router(health_router, prefix="/api")
 app.include_router(domains_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")

@@ -19,7 +19,7 @@ Nhiệm vụ của bạn là chuyển đổi câu hỏi tự nhiên của ngư�
 
 NGUYÊN TẮC BẮT BUỘC:
 1. CHỈ sinh câu lệnh đọc dữ liệu (SELECT hoặc WITH ... SELECT). Tuyệt đối KHÔNG sinh bất kỳ lệnh DDL/DML nào (DROP, DELETE, UPDATE, INSERT, ALTER...).
-2. Chỉ sử dụng các Bảng và Cột được cung cấp trong phần SCHEMA LIÊN KẾT. Không tự bịa thêm tên cột hoặc tên bảng.
+2. Chỉ sử dụng chính xác tên Bảng (ví dụ: `real_estate_listings`, tuyệt đối KHÔNG viết thêm từ 'Bảng:' hay 'Table:') và tên Cột được cung cấp trong phần SCHEMA LIÊN KẾT. Không tự bịa thêm tên cột hoặc tên bảng.
 3. Khi truy vấn đa bảng, BẮT BUỘC tuân thủ các mệnh đề JOIN ... ON ... được gợi ý từ giải thuật Steiner Tree. Tuyệt đối KHÔNG viết CROSS JOIN hoặc liệt kê nhiều bảng sau FROM bằng dấu phẩy.
 4. Tránh chia cho 0: Luôn dùng NULLIF(ten_cot, 0) khi thực hiện phép chia.
 5. Luôn thêm mệnh đề LIMIT hợp lý (mặc định LIMIT 100 nếu người dùng không yêu cầu số lượng cụ thể).
@@ -125,4 +125,33 @@ NGUYÊN TẮC BẮT BUỘC:
                 candidate = text.strip()
 
         # Dọn dẹp khoảng trắng thừa và dấu chấm phẩy cuối cùng
-        return candidate.strip().rstrip(";")
+        clean_candidate = candidate.strip().rstrip(";")
+        return self._format_sql_standard(clean_candidate)
+
+    def _format_sql_standard(self, sql: str) -> str:
+        """
+        Định dạng câu truy vấn SQL chuẩn quốc tế (Google / Mozilla / dbt SQL Style Guide):
+        - Các mệnh đề chính (SELECT, FROM, JOIN, WHERE, GROUP BY, ORDER BY, LIMIT) nằm trên các dòng riêng biệt.
+        - Căn lề rõ ràng, từ khóa viết HOA.
+        """
+        if not sql:
+            return sql
+
+        try:
+            import sqlparse
+            formatted = sqlparse.format(
+                sql,
+                reindent=True,
+                keyword_case="upper",
+                indent_width=4,
+                comma_first=False
+            ).strip().rstrip(";")
+            return formatted
+        except Exception:
+            # Fallback regex format nếu sqlparse không khả dụng
+            clauses = ["SELECT", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY", "LIMIT", "LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "JOIN"]
+            formatted = sql
+            for c in clauses:
+                formatted = re.sub(rf"\b{c}\b", f"\n{c}", formatted, flags=re.IGNORECASE)
+            return re.sub(r"\n+", "\n", formatted).strip()
+

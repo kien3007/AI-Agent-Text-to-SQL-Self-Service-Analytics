@@ -31,7 +31,7 @@ services:
     image: selectdb/doris.fe-ubuntu:2.0.2
     container_name: doris_fe
     environment:
-      - FE_SERVERS=fe1:127.0.0.1:9010
+      - FE_SERVERS=fe1:172.20.0.10:9010
       - FE_ID=1
     ports:
       - "8030:8030"
@@ -40,14 +40,15 @@ services:
       - doris_fe_meta:/opt/apache-doris/fe/doris-meta
       - doris_fe_log:/opt/apache-doris/fe/log
     networks:
-      - ai_data_net
+      ai_data_net:
+        ipv4_address: 172.20.0.10
 
   doris-be:
     image: selectdb/doris.be-ubuntu:2.0.2
     container_name: doris_be
     environment:
-      - FE_SERVERS=fe1:doris-fe:9010
-      - BE_ADDR=doris-be:9050
+      - FE_SERVERS=fe1:172.20.0.10:9010
+      - BE_ADDR=172.20.0.11:9050
     ports:
       - "8040:8040"
     depends_on:
@@ -56,7 +57,8 @@ services:
       - doris_be_storage:/opt/apache-doris/be/storage
       - doris_be_log:/opt/apache-doris/be/log
     networks:
-      - ai_data_net
+      ai_data_net:
+        ipv4_address: 172.20.0.11
 
 volumes:
   doris_fe_meta:
@@ -67,3 +69,6 @@ volumes:
 networks:
   ai_data_net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

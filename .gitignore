@@ -17,6 +17,7 @@ dataset/*.parquet
 dataset/*.csv
 dataset/*.db
 dataset/*.duckdb
+template/
 
 # Python
 __pycache__/

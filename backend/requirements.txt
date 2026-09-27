@@ -13,3 +13,6 @@ pyarrow
 tqdm
 pytest
 networkx
+PyJWT
+DBUtils
+sqlparse

@@ -37,8 +37,8 @@ class SchemaLinkingNode:
         
         # Lọc cột nhạy cảm theo role
         if state.user_role != "admin":
-            schema_context.columns = [
-                c for c in schema_context.columns 
+            schema_context.relevant_columns = [
+                c for c in schema_context.relevant_columns 
                 if not getattr(c, "is_sensitive", False)
             ]
             

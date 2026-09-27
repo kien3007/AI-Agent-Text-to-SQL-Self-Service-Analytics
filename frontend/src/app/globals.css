@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-app: #ffffff;
+    --bg-sidebar: #fbfbfb;
+    --bg-sidebar-hover: #f3f3f4;
+    --bg-card: #f8f8fa;
+    --bg-card-hover: #f1f1f4;
+    --bg-input: #f4f4f6;
+    --bg-input-focus: #ffffff;
+    --bg-user-bubble: #f4f4f5;
+    --text-user-bubble: #18181b;
+
+    --border-subtle: #ebebed;
+    --border-medium: #e2e2e5;
+    --border-focus: #18181b;
+
+    --text-primary: #18181b;
+    --text-secondary: #52525b;
+    --text-muted: #71717a;
+
+    --accent-primary: #18181b;
+    --accent-primary-hover: #27272a;
+    --accent-primary-text: #ffffff;
+
+    --accent-emerald: #10b981;
+    --accent-blue: #2563eb;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --accent-indigo: #6366f1;
+
+    --pill-bg: #f4f4f6;
+    --pill-border: #e4e4e7;
+    --pill-text: #3f3f46;
+
+    --shadow-float: 0 8px 28px -4px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark {
+    --bg-app: #0e0f12;
+    --bg-sidebar: #131418;
+    --bg-sidebar-hover: #1a1b22;
+    --bg-card: #181920;
+    --bg-card-hover: #20222b;
+    --bg-input: #1a1b22;
+    --bg-input-focus: #21232d;
+    --bg-user-bubble: #27272a;
+    --text-user-bubble: #f4f4f5;
+
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-medium: rgba(255, 255, 255, 0.14);
+    --border-focus: #ffffff;
+
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+
+    --accent-primary: #ffffff;
+    --accent-primary-hover: #e4e4e7;
+    --accent-primary-text: #0e0f12;
+
+    --pill-bg: #1e2028;
+    --pill-border: rgba(255, 255, 255, 0.1);
+    --pill-text: #d4d4d8;
+
+    --shadow-float: 0 10px 30px -4px rgba(0, 0, 0, 0.65);
+  }
+
+  body {
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 9999px;
+}
+
+/* Markdown prose enhancements */
+.prose-sana h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+.prose-sana p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+.prose-sana ul, .prose-sana ol {
+  margin-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.prose-sana li {
+  margin-bottom: 0.25rem;
+}
+.prose-sana strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sana AI - Enterprise Text-to-SQL Analytics</title>
+  <meta name="description" content="Superintelligence for Enterprise Analytics with Multi-Agent LangGraph, DAIL-SQL, DIN-SQL, and Apache Doris OLAP." />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for High-performance Data Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <link rel="stylesheet" href="style.css?v=2.2" />
+</head>
+<body class="light-theme">
+  <!-- Login Modal (Sana AI Clean Minimal Style) -->
+  <div id="loginModal" class="sana-modal-overlay active" style="z-index: 10000;">
+    <div class="sana-modal-card" style="max-width: 380px;">
+      <div class="sana-modal-header" style="justify-content: center; flex-direction: column; text-align: center; border-bottom: none; padding-bottom: 0;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: var(--accent-primary); color: var(--accent-primary-text); display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+          <i data-lucide="sparkles" style="width: 22px; height: 22px;"></i>
+        </div>
+        <h2 class="sana-modal-title">Welcome to Sana Analytics</h2>
+        <p class="sana-modal-subtitle">Sign in to your enterprise data workspace</p>
+      </div>
+      <div class="sana-modal-body" style="padding-top: 16px;">
+        <div id="loginError" style="color: var(--accent-rose); font-size: 0.82rem; margin-bottom: 12px; text-align: center; display: none;"></div>
+        <form id="loginForm" onsubmit="event.preventDefault(); window.app_login();">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="loginUsername" class="form-input" required placeholder="analyst / admin" value="analyst">
+          </div>
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label class="form-label">Password</label>
+            <input type="password" id="loginPassword" class="form-input" required placeholder="••••••••" value="analyst123">
+          </div>
+          <button type="submit" class="usage-action-btn" style="width: 100%; padding: 10px; font-size: 0.88rem; border-radius: var(--radius-sm);">Sign In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sana AI App Shell Layout -->
+  <div class="sana-layout">
+    <!-- Left Navigation Sidebar (Sana AI Pattern) -->
+    <aside class="sana-sidebar" id="sanaSidebar">
+      <!-- Workspace Brand & Collapse Toggle -->
+      <div class="sidebar-header">
+        <div class="workspace-badge" title="Enterprise Workspace">
+          <div class="workspace-icon">
+            <i data-lucide="sparkles" style="width: 15px; height: 15px;"></i>
+          </div>
+          <div class="workspace-title-group">
+            <span class="workspace-name">Sana Analytics <i data-lucide="chevron-down" style="width: 13px; height: 13px;"></i></span>
+            <span class="workspace-plan">Enterprise Core</span>
+          </div>
+        </div>
+        <button class="sidebar-collapse-btn" id="btnCollapseSidebar" title="Thu gọn / Mở rộng thanh bên">
+          <i data-lucide="panel-left-close" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+
+      <!-- New Chat Button -->
+      <button class="new-chat-btn" id="btnNewChat">
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+        <span class="sidebar-text">New query</span>
+      </button>
+
+      <!-- Primary Navigation Links -->
+      <div class="sidebar-nav">
+        <button class="sidebar-item active" id="navChat">
+          <i data-lucide="message-square"></i>
+          <span class="sidebar-text">Chat & Explore</span>
+        </button>
+        <button class="sidebar-item" id="btnOpenSchema">
+          <i data-lucide="layers"></i>
+          <span class="sidebar-text">Data Catalog</span>
+        </button>
+        <button class="sidebar-item" id="btnOpenLineage">
+          <i data-lucide="git-merge"></i>
+          <span class="sidebar-text">Data Lineage</span>
+        </button>
+        <button class="sidebar-item" id="btnOpenBenchmark">
+          <i data-lucide="award"></i>
+          <span class="sidebar-text">Benchmarks</span>
+        </button>
+      </div>
+
+      <!-- Scrollable History & Datasets -->
+      <div class="sidebar-scrollable">
+        <div class="sidebar-section-title">Nghiệp Vụ (Domains)</div>
+        <div class="history-item active" title="Bất động sản">
+          <i data-lucide="building-2" style="width: 15px; height: 15px; flex-shrink: 0;"></i>
+          <span class="sidebar-text" style="overflow: hidden; text-overflow: ellipsis;">Real Estate Analytics</span>
+        </div>
+
+        <div class="sidebar-section-title" style="margin-top: 10px;">Gợi Ý Câu Hỏi (Prompts)</div>
+        <div class="quick-prompts-list" id="quickPromptsList">
+          <div class="history-item quick-prompt-btn" data-query="Giá bán trung bình của bất động sản là bao nhiêu?">
+            <i data-lucide="sparkle" style="width: 14px; height: 14px; flex-shrink: 0; color: var(--text-muted);"></i>
+            <span class="sidebar-text" style="overflow: hidden; text-overflow: ellipsis;">Giá bán trung bình toàn quốc?</span>
+          </div>
+          <div class="history-item quick-prompt-btn" data-query="Top 5 quận có số lượng tin đăng bán nhà nhiều nhất?">
+            <i data-lucide="sparkle" style="width: 14px; height: 14px; flex-shrink: 0; color: var(--text-muted);"></i>
+            <span class="sidebar-text" style="overflow: hidden; text-overflow: ellipsis;">Top 5 quận nhiều tin đăng nhất?</span>
+          </div>
+          <div class="history-item quick-prompt-btn" data-query="Đơn giá trung bình (triệu/m2) theo từng loại hình nhà ở?">
+            <i data-lucide="sparkle" style="width: 14px; height: 14px; flex-shrink: 0; color: var(--text-muted);"></i>
+            <span class="sidebar-text" style="overflow: hidden; text-overflow: ellipsis;">Đơn giá theo loại hình nhà ở?</span>
+          </div>
+          <div class="history-item quick-prompt-btn" data-query="Phân bố số lượng tin đăng theo phân khúc giá (price_tier)?">
+            <i data-lucide="sparkle" style="width: 14px; height: 14px; flex-shrink: 0; color: var(--text-muted);"></i>
+            <span class="sidebar-text" style="overflow: hidden; text-overflow: ellipsis;">Phân bố theo phân khúc giá?</span>
+          </div>
+          <div class="history-item quick-prompt-btn" data-query="Top 10 bất động sản có giá bán cao nhất kèm thông tin quận?">
+            <i data-lucide="sparkle" style="width: 14px; height: 14px; flex-shrink: 0; color: var(--text-muted);"></i>
+            <span class="sidebar-text" style="overflow: hidden; text-overflow: ellipsis;">Top 10 BĐS giá trị cao nhất?</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom System Status Card (Signature Sana AI style) -->
+      <div class="sidebar-footer">
+        <div class="usage-card">
+          <div class="usage-card-header">
+            <div class="usage-ring"></div>
+            <span class="usage-title sidebar-text">Multi-Agent Engine</span>
+          </div>
+          <div class="usage-card-body sidebar-text">
+            <p class="usage-desc">Apache Doris 2.0 OLAP & 5-Tier Zero-Blindness Guardrail.</p>
+            <div style="margin-top: 8px;">
+              <button class="usage-action-btn" style="width: 100%;" id="btnSystemInfo">System Architecture</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile Row -->
+        <div class="user-profile-row">
+          <div class="user-avatar-group">
+            <div class="user-avatar">AS</div>
+            <div class="user-meta sidebar-text">
+              <span class="user-name">Alex Smith</span>
+              <span class="user-role">Enterprise Analyst</span>
+            </div>
+          </div>
+          <button class="sidebar-collapse-btn" id="btnLogout" title="Đăng xuất" style="padding: 4px;">
+            <i data-lucide="log-out" style="width: 14px; height: 14px; color: var(--accent-rose);"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Area -->
+    <main class="sana-main">
+      <!-- Top Navigation Bar -->
+      <header class="sana-topbar">
+        <div class="topbar-left">
+          <div class="domain-pill-select" title="Chọn nghiệp vụ dữ liệu">
+            <span class="status-dot-pulse" id="domainStatusPill"></span>
+            <select id="domainSelect">
+              <option value="real_estate" selected>🏢 Bất động sản (Real Estate)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button class="topbar-btn" id="btnHeaderCatalog" title="Xem từ điển bảng & chỉ số">
+            <i data-lucide="database" style="width: 14px; height: 14px;"></i> Catalog
+          </button>
+          <button class="topbar-btn" id="btnToggleCanvas" title="Bật / Tắt thanh Canvas mở rộng">
+            <i data-lucide="columns-2" style="width: 14px; height: 14px;"></i> Canvas
+          </button>
+          <button class="topbar-icon-btn" id="btnClearChat" title="Xóa lịch sử hội thoại">
+            <i data-lucide="trash-2" style="width: 15px; height: 15px;"></i>
+          </button>
+          <button class="topbar-icon-btn" id="btnThemeToggle" title="Chuyển chế độ Sáng / Tối">
+            <i data-lucide="moon" id="themeIcon" style="width: 15px; height: 15px;"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Viewport & Split Canvas Container -->
+      <div class="sana-viewport-container">
+        <!-- Floating Live Thought Banner -->
+        <div class="sana-thought-banner" id="thoughtStreamBanner" style="display: none;">
+          <div class="thought-spinner-sana"></div>
+          <span class="thought-banner-text" id="currentThoughtStep">Đang chuẩn bị phân tích...</span>
+          <span style="font-size: 0.74rem; color: var(--text-muted);" id="currentThoughtDetail"></span>
+        </div>
+
+        <!-- Scrollable Chat Viewport -->
+        <div class="chat-viewport" id="chatViewport">
+          <!-- Sana AI Welcome / Empty State Hero -->
+          <div class="sana-welcome-hero" id="welcomeHero">
+            <div class="hero-sparkle-icon">
+              <i data-lucide="sparkles" style="width: 22px; height: 22px;"></i>
+            </div>
+            <h1 class="hero-title">What would you like to analyze?</h1>
+            <p class="hero-subtitle">
+              Hỏi đáp dữ liệu tự phục vụ với Multi-Agent LangGraph, liên kết ngữ nghĩa DAIL-SQL và thực thi siêu tốc trên Apache Doris.
+            </p>
+
+            <!-- Hero Suggestion Cards (Sana AI style) -->
+            <div class="hero-suggestions-card">
+              <div class="hero-suggestion-item" onclick="submitQuickQuery('Giá bán trung bình của bất động sản là bao nhiêu?')">
+                <div class="suggestion-left">
+                  <div class="suggestion-icon"><i data-lucide="trending-up"></i></div>
+                  <span class="suggestion-text">Giá bán trung bình của bất động sản toàn quốc?</span>
+                </div>
+                <i data-lucide="arrow-right" class="suggestion-arrow" style="width: 16px; height: 16px;"></i>
+              </div>
+              <div class="hero-suggestion-item" onclick="submitQuickQuery('Top 5 quận có số lượng tin đăng bán nhà nhiều nhất?')">
+                <div class="suggestion-left">
+                  <div class="suggestion-icon"><i data-lucide="bar-chart-2"></i></div>
+                  <span class="suggestion-text">Top 5 quận có số lượng tin đăng bán nhà nhiều nhất?</span>
+                </div>
+                <i data-lucide="arrow-right" class="suggestion-arrow" style="width: 16px; height: 16px;"></i>
+              </div>
+              <div class="hero-suggestion-item" onclick="submitQuickQuery('Đơn giá trung bình (triệu/m2) theo từng loại hình nhà ở?')">
+                <div class="suggestion-left">
+                  <div class="suggestion-icon"><i data-lucide="pie-chart"></i></div>
+                  <span class="suggestion-text">Đơn giá trung bình (triệu/m2) theo từng loại hình nhà ở?</span>
+                </div>
+                <i data-lucide="arrow-right" class="suggestion-arrow" style="width: 16px; height: 16px;"></i>
+              </div>
+              <div class="hero-suggestion-item" onclick="submitQuickQuery('Phân bố số lượng tin đăng theo phân khúc giá (price_tier)?')">
+                <div class="suggestion-left">
+                  <div class="suggestion-icon"><i data-lucide="layers"></i></div>
+                  <span class="suggestion-text">Phân bố số lượng tin đăng theo phân khúc giá (price_tier)?</span>
+                </div>
+                <i data-lucide="arrow-right" class="suggestion-arrow" style="width: 16px; height: 16px;"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Stream Messages Container -->
+          <div class="chat-stream" id="chatStream" style="display: none;"></div>
+        </div>
+
+        <!-- Floating Bottom Prompt Bar (Sana AI Signature) -->
+        <div class="floating-prompt-bar">
+          <div class="prompt-pill-card">
+            <div class="prompt-input-row">
+              <i data-lucide="zap" class="prompt-icon"></i>
+              <textarea 
+                id="userQueryInput" 
+                class="prompt-textarea" 
+                placeholder="What would you like to analyze? (Hỏi về doanh thu, giá bán, top quận...)" 
+                rows="1"
+              ></textarea>
+              <button id="btnSend" class="prompt-send-btn" title="Gửi câu hỏi">
+                <i data-lucide="arrow-up" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
+            <div class="prompt-sub-bar">
+              <div class="prompt-sub-left">
+                <button class="prompt-sub-btn" id="btnActiveSources" title="Xem các bảng dữ liệu đang kết nối">
+                  <i data-lucide="database" style="width: 13px; height: 13px;"></i> Sources: 4 Tables
+                </button>
+                <div style="display: flex; align-items: center; gap: 4px; font-size: 0.74rem; color: var(--text-muted); margin-left: 6px;">
+                  <input type="checkbox" id="streamToggle" checked style="accent-color: var(--accent-primary); cursor: pointer;">
+                  <label for="streamToggle" style="cursor: pointer;">Streaming</label>
+                </div>
+              </div>
+              <div class="prompt-sub-right">
+                <span class="model-badge"><i data-lucide="cpu" style="width: 12px; height: 12px;"></i> Gemini 2.5 Pro</span>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-disclaimer">
+            Sana Analytics can make mistakes. Verify critical business numbers with primary data sources.
+          </div>
+        </div>
+
+        <!-- Right Split-View Canvas Drawer (Sana AI Canvas) -->
+        <aside class="sana-canvas-drawer" id="sanaCanvasDrawer">
+          <div class="canvas-header">
+            <div class="canvas-title-group">
+              <span class="canvas-title" id="canvasTitle">Data Canvas</span>
+              <span class="canvas-subtitle" id="canvasSubtitle">Chi tiết bảng dữ liệu & phân tích chuyên sâu</span>
+            </div>
+            <div class="canvas-actions">
+              <button class="topbar-icon-btn" id="btnExportCanvasCsv" title="Xuất CSV">
+                <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+              </button>
+              <button class="topbar-icon-btn" id="btnCloseCanvas" title="Đóng Canvas">
+                <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+              </button>
+            </div>
+          </div>
+          <div class="canvas-body" id="canvasBody">
+            <div style="color: var(--text-muted); text-align: center; margin-top: 40px;">
+              <i data-lucide="layout" style="width: 36px; height: 36px; stroke-width: 1.5; margin-bottom: 12px;"></i>
+              <p>Chọn câu hỏi hoặc nhấn "Open in Canvas" trên kết quả để mở rộng bảng dữ liệu và biểu đồ tại đây.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: Human-In-The-Loop (HITL) Gate (Sana Clean Modal) -->
+  <div class="sana-modal-overlay" id="hitlModal">
+    <div class="sana-modal-card">
+      <div class="sana-modal-header">
+        <div>
+          <h3 class="sana-modal-title" style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="alert-triangle" style="color: var(--accent-rose); width: 20px; height: 20px;"></i>
+            HITL Approval Gate
+          </h3>
+          <p class="sana-modal-subtitle">Truy vấn có chi phí quét cao cần sự phê duyệt của chuyên viên.</p>
+        </div>
+      </div>
+      <div class="sana-modal-body">
+        <div style="background-color: var(--bg-card); border-left: 3px solid var(--accent-rose); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 14px;" id="hitlWarningText">
+          Cảnh báo chi phí quét dữ liệu Doris.
+        </div>
+        <div class="sql-code-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 0.74rem; color: var(--text-muted);">Proposed Doris SQL:</span>
+            <button class="action-pill-btn" id="btnCopyHitlSql"><i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy</button>
+          </div>
+          <pre><code id="hitlSqlCode" style="font-family: var(--font-mono); font-size: 0.82rem;">-- SQL</code></pre>
+        </div>
+      </div>
+      <div class="sana-modal-footer">
+        <button id="btnRejectHitl" class="topbar-btn" style="color: var(--accent-rose);">
+          <i data-lucide="x" style="width: 14px; height: 14px;"></i> Từ chối
+        </button>
+        <button id="btnApproveHitl" class="usage-action-btn">
+          <i data-lucide="check" style="width: 14px; height: 14px;"></i> Phê duyệt & Thực thi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Data Catalog / Schema Explorer -->
+  <div class="sana-modal-overlay" id="schemaModal">
+    <div class="sana-modal-card modal-lg">
+      <div class="sana-modal-header">
+        <div>
+          <h3 class="sana-modal-title">Data Catalog & Semantic Metrics</h3>
+          <p class="sana-modal-subtitle">Từ điển chỉ số nghiệp vụ và cấu trúc bảng OLAP của domain hiện tại</p>
+        </div>
+        <button class="topbar-icon-btn" id="btnCloseSchemaModal"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
+      </div>
+      <div class="sana-modal-body" id="schemaModalContent">
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+          <i data-lucide="loader-2" class="spin" style="width: 24px; height: 24px; margin-bottom: 8px;"></i>
+          <p>Đang nạp danh mục dữ liệu...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Data Lineage & Governance -->
+  <div class="sana-modal-overlay" id="lineageModal">
+    <div class="sana-modal-card modal-lg">
+      <div class="sana-modal-header">
+        <div>
+          <h3 class="sana-modal-title">Data Lineage & Governance Contract</h3>
+          <p class="sana-modal-subtitle">Nguồn gốc dữ liệu, bảng ETL dbt và cam kết SLA</p>
+        </div>
+        <button class="topbar-icon-btn" id="btnCloseLineageModal"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
+      </div>
+      <div class="sana-modal-body" id="lineageModalContent">
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+          <i data-lucide="loader-2" class="spin" style="width: 24px; height: 24px; margin-bottom: 8px;"></i>
+          <p>Đang nạp thông tin lineage...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Benchmark Runner -->
+  <div class="sana-modal-overlay" id="benchmarkModal">
+    <div class="sana-modal-card modal-lg">
+      <div class="sana-modal-header">
+        <div>
+          <h3 class="sana-modal-title">Đánh Giá & Benchmark Hệ Thống</h3>
+          <p class="sana-modal-subtitle">Bộ 30 câu hỏi vàng đo lường độ chính xác thực thi (EX Accuracy), An toàn & Độ trễ</p>
+        </div>
+        <button class="topbar-icon-btn" id="btnCloseBenchmarkModal"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
+      </div>
+      <div class="sana-modal-body" id="benchmarkModalContent">
+        <div class="bm-summary-grid">
+          <div class="bm-stat-card">
+            <span class="bm-stat-value" id="bmValidRate">93.3%</span>
+            <span class="bm-stat-label">Valid SQL Rate</span>
+          </div>
+          <div class="bm-stat-card">
+            <span class="bm-stat-value" id="bmSafetyRate">100%</span>
+            <span class="bm-stat-label">Guardrail Safety</span>
+          </div>
+          <div class="bm-stat-card">
+            <span class="bm-stat-value" id="bmClarifyRate">100%</span>
+            <span class="bm-stat-label">Clarification Rate</span>
+          </div>
+          <div class="bm-stat-card">
+            <span class="bm-stat-value" id="bmLatency">1.85s</span>
+            <span class="bm-stat-label">Avg Response Time</span>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <button id="btnRunBenchmarkSuite" class="usage-action-btn">
+            <i data-lucide="play" style="width: 13px; height: 13px; margin-right: 4px;"></i> Chạy Lại Benchmark Suite
+          </button>
+          <span id="bmStatusText" style="font-size: 0.8rem; color: var(--text-muted);">Đã kiểm thử sẵn sàng 30/30 câu hỏi</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="sana-table" id="benchmarkTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Câu hỏi kiểm thử</th>
+                <th>Độ phức tạp</th>
+                <th>Kết quả</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="app.js?v=2.2"></script>
+</body>
+</html>
