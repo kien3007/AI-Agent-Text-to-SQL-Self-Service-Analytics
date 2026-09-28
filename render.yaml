@@ -1,0 +1,91 @@
+# ==============================================================================
+# Render Blueprint Specification (Infrastructure-as-Code)
+# AI-Agent Text-to-SQL Self-Service Analytics
+# Docs: https://render.com/docs/blueprint-spec
+# ==============================================================================
+
+version: "1"
+
+services:
+  # ============================================================================
+  # 1. BACKEND SERVICE (FastAPI + LangGraph + Vector Search)
+  # ============================================================================
+  - type: web
+    name: text2sql-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_HOST
+        value: 0.0.0.0
+      - key: CORS_ORIGINS
+        value: "*"
+      # Tự động tạo JWT Secret ngẫu nhiên 32-byte an toàn
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_EXPIRE_HOURS
+        value: "24"
+      # Thư mục lưu trữ vector database ChromaDB
+      - key: CHROMA_PERSIST_DIR
+        value: ./data/chroma_db
+      # Cấu hình CSDL Doris (nếu kết nối cloud Doris/MySQL)
+      - key: DORIS_HOST
+        value: localhost
+      - key: DORIS_PORT
+        value: "9030"
+      - key: DORIS_USER
+        value: root
+      - key: DORIS_PASSWORD
+        sync: false
+      - key: DORIS_DATABASE
+        value: real_estate_analytics
+      # Cấu hình LLM Gateway (vLLM / OpenRouter / Together / OpenAI)
+      - key: LLM_BASE_URL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: MODEL_REASONER
+        value: Qwen/Qwen2.5-72B-Instruct
+      - key: MODEL_CODER
+        value: Qwen/Qwen2.5-Coder-32B-Instruct
+      - key: LLM_TEMPERATURE
+        value: "0.1"
+      - key: LLM_MAX_TOKENS
+        value: "2048"
+      # Tài khoản mặc định hệ thống
+      - key: ANALYST_USERNAME
+        value: analyst
+      - key: ANALYST_PASSWORD
+        value: analyst123
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: admin123
+
+  # ============================================================================
+  # 2. FRONTEND SERVICE (Next.js 16 + React 19 + TailwindCSS)
+  # ============================================================================
+  - type: web
+    name: text2sql-frontend
+    runtime: node
+    rootDir: frontend
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      # Tự động liên kết URL của backend service thông qua Render service discovery
+      - key: BACKEND_API_URL
+        fromService:
+          type: web
+          name: text2sql-backend
+          property: host
