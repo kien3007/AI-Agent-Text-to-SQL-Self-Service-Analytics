@@ -17,7 +17,7 @@ jobs:
   # =========================================================================
   frontend:
     name: Frontend Quality & Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: frontend
@@ -48,7 +48,7 @@ jobs:
   # =========================================================================
   backend:
     name: Backend Unit Tests & Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -87,7 +87,7 @@ jobs:
   # =========================================================================
   docker-validation:
     name: Docker Build Validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [frontend, backend]
     steps:
       - name: Checkout Repository
@@ -104,7 +104,7 @@ jobs:
   # =========================================================================
   ci-status:
     name: CI Pipeline Status
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [frontend, backend, docker-validation]
     if: always()
     steps:
