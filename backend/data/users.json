@@ -1,0 +1,26 @@
+{
+  "kien3007": {
+    "password": "password123",
+    "role": "admin",
+    "display_name": "Kien Nguyen",
+    "user_id": "admin-02"
+  },
+  "analyst": {
+    "password": "analyst123",
+    "role": "analyst",
+    "display_name": "Analyst",
+    "user_id": "analyst-01"
+  },
+  "admin": {
+    "password": "admin123",
+    "role": "admin",
+    "display_name": "Administrator",
+    "user_id": "admin-01"
+  },
+  "testanalyst": {
+    "password": "password123",
+    "role": "analyst",
+    "display_name": "Test Analyst",
+    "user_id": "user-1790567470"
+  }
+}

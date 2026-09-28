@@ -16,7 +16,7 @@ import {
   ChartOptions,
 } from 'chart.js';
 import { Bar, Line, Pie, Doughnut } from 'react-chartjs-2';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/components/ThemeProvider';
 import { ChartConfig } from '@/types/chat';
 
 ChartJS.register(

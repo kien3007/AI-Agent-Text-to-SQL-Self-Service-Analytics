@@ -25,15 +25,34 @@ _GLOBAL_POOL = None
 def _get_pool(host=None, port=None, user=None, password=None, database=None):
     global _GLOBAL_POOL
     if _GLOBAL_POOL is None:
-        if PooledDB is None:
-            raise RuntimeError("Cần cài đặt 'DBUtils': pip install DBUtils")
-        
         h = host or os.getenv("DORIS_HOST", "localhost")
         p = port or int(os.getenv("DORIS_PORT", "9030"))
         u = user or os.getenv("DORIS_USER", "root")
         pw = password or os.getenv("DORIS_PASSWORD", "")
         db = database or os.getenv("DORIS_DATABASE", "real_estate_analytics")
-        
+
+        if PooledDB is None:
+            # Fallback to direct connection wrapper when DBUtils is not installed
+            class DirectConnectionPool:
+                def __init__(self, **kwargs):
+                    self.kwargs = kwargs
+                def connection(self):
+                    return pymysql.connect(**self.kwargs)
+
+            _GLOBAL_POOL = DirectConnectionPool(
+                host=h,
+                port=p,
+                user=u,
+                password=pw,
+                database=db,
+                charset="utf8mb4",
+                autocommit=True,
+                connect_timeout=10,
+                read_timeout=60,
+                write_timeout=60
+            )
+            return _GLOBAL_POOL
+
         _GLOBAL_POOL = PooledDB(
             creator=pymysql,
             maxconnections=20,

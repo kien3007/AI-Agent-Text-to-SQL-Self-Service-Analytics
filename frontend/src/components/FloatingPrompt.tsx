@@ -42,7 +42,7 @@ export function FloatingPrompt({
   };
 
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-2xl z-35 flex flex-col gap-2">
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-2xl z-35 flex flex-col gap-2 transition-all duration-200">
       <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-3xl p-2.5 px-4 shadow-[var(--shadow-float)] flex flex-col gap-1.5 backdrop-blur-md focus-within:border-[var(--border-focus)] focus-within:bg-[var(--bg-input-focus)] transition-all">
         <div className="flex items-center gap-3">
           <Zap className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />

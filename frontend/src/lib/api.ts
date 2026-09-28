@@ -8,12 +8,14 @@ export function getStoredToken(): string | null {
 export function setStoredToken(token: string): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    document.cookie = `${TOKEN_STORAGE_KEY}=${token}; path=/; max-age=86400; SameSite=Lax`;
   }
 }
 
 export function removeStoredToken(): void {
   if (typeof window !== 'undefined') {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
+    document.cookie = `${TOKEN_STORAGE_KEY}=; path=/; max-age=0; SameSite=Lax`;
   }
 }
 

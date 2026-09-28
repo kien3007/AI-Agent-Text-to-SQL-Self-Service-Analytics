@@ -105,13 +105,90 @@ export interface DomainDetails {
   tables: TableItem[];
 }
 
+export interface PIIField {
+  table: string;
+  column: string;
+  vn_name?: string;
+  classification: string;
+  masking_policy: string;
+}
+
 export interface DataContract {
+  domain_id?: string;
+  display_name?: string;
   owner: string;
   data_steward: string;
   slack_channel: string;
+  tables_guaranteed?: string[];
+  metrics_guaranteed?: string[];
+  pii_governance?: {
+    total_pii_fields: number;
+    columns: PIIField[];
+    encryption: string;
+    gdpr_compliance: boolean;
+  };
   SLA: {
     freshness: string;
+    availability?: string;
+    query_latency_p95?: string;
+    incident_response_time?: string;
   };
+}
+
+export interface LineageGraphNode {
+  id: string;
+  label: string;
+  vn_label?: string;
+  layer: "source" | "staging" | "warehouse" | "metric" | "consumer";
+  type: string;
+  status: string;
+  details?: {
+    materialization?: string;
+    description?: string;
+    columns_count?: number;
+    table_name?: string;
+    vn_name?: string;
+    row_count?: number;
+    freshness?: string;
+    sla?: string;
+    owner?: string;
+    steward?: string;
+    columns?: Array<{
+      name: string;
+      vn_name?: string;
+      type?: string;
+      is_pk?: boolean;
+      is_fk?: boolean;
+      is_pii?: boolean;
+    }>;
+    metric_id?: string;
+    sql_expression?: string;
+    vn_terms?: string[];
+    consumer_type?: string;
+    active_users?: string;
+    query_volume?: string;
+    criticality?: string;
+    [key: string]: any;
+  };
+}
+
+export interface LineageGraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  label?: string;
+  animated?: boolean;
+  type?: string;
+  style?: Record<string, any>;
+}
+
+export interface LineageGraphData {
+  domain_id: string;
+  total_nodes: number;
+  total_edges: number;
+  layers: string[];
+  nodes: LineageGraphNode[];
+  edges: LineageGraphEdge[];
 }
 
 export interface IngestionLineage {
@@ -125,7 +202,80 @@ export interface IngestionLineage {
 export interface LineageResponse {
   type: string;
   domain_id: string;
-  lineage?: IngestionLineage;
+  lineage?: LineageGraphData | IngestionLineage;
+}
+
+export interface ImpactAnalysisResult {
+  domain_id: string;
+  target: {
+    table_name: string;
+    column_name?: string | null;
+    vn_table_name?: string;
+  };
+  risk_assessment: {
+    risk_level: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+    risk_color: string;
+    blast_radius_score: number;
+    total_impacted_entities: number;
+    is_breaking_change: boolean;
+  };
+  impact_breakdown: {
+    tables: Array<{ id: string; name: string; vn_name?: string; row_count: number }>;
+    metrics: Array<{ id: string; name: string; sql_expression?: string; is_direct_break?: boolean }>;
+    consumers: Array<{ id: string; name: string; type?: string }>;
+  };
+  direct_breaking_metrics: Array<{
+    metric_id: string;
+    label: string;
+    reason: string;
+  }>;
+  recommendations: string[];
+}
+
+export interface DQTestItem {
+  test_id: string;
+  table: string;
+  rule: string;
+  rule_type: string;
+  description: string;
+  threshold: string;
+  actual: string;
+  status: "PASS" | "WARN" | "FAIL";
+  severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  executed_at: string;
+}
+
+export interface DQTableSummary {
+  table_name: string;
+  vn_name: string;
+  total_checks: number;
+  passed: number;
+  warnings: number;
+  failed: number;
+  health_score: number;
+  estimated_rows: number;
+}
+
+export interface QualityReport {
+  domain_id: string;
+  overall_score: number;
+  sla_compliance_rate: string;
+  sla_status: string;
+  last_run: string;
+  summary: {
+    total: number;
+    passed: number;
+    warnings: number;
+    failed: number;
+  };
+  table_summaries: DQTableSummary[];
+  tests: DQTestItem[];
+  history: Array<{
+    date: string;
+    score: number;
+    passed_checks: number;
+    warnings: number;
+  }>;
 }
 
 export interface BenchmarkItem {

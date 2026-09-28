@@ -61,7 +61,17 @@ def _load_user_registry() -> Dict[str, Dict[str, Any]]:
                 return json.load(f)
         except Exception as e:
             logger.warning(f"Không thể đọc users.json: {e}. Dùng default users.")
-    return _DEFAULT_USERS
+    return dict(_DEFAULT_USERS)
+
+
+def _save_user_registry(registry: Dict[str, Dict[str, Any]]):
+    """Lưu user registry vào file JSON."""
+    os.makedirs(os.path.dirname(_USERS_FILE), exist_ok=True)
+    try:
+        with open(_USERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(registry, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"Không thể lưu users.json: {e}")
 
 
 # --------------------------------------------------------------------------
@@ -71,11 +81,18 @@ class UserContext(BaseModel):
     user_id:      str
     role:         str       # "analyst" | "admin"
     display_name: str
+    username:     Optional[str] = None
 
 
 class TokenRequest(BaseModel):
     username: str
     password: str
+
+
+class RegisterRequest(BaseModel):
+    username:     str
+    password:     str
+    display_name: Optional[str] = None
 
 
 class TokenResponse(BaseModel):
@@ -84,6 +101,8 @@ class TokenResponse(BaseModel):
     expires_in:   int          # seconds
     user_id:      str
     role:         str
+    username:     Optional[str] = None
+    display_name: Optional[str] = None
 
 
 # --------------------------------------------------------------------------
@@ -115,6 +134,11 @@ def _decode_access_token(token: str) -> Dict[str, Any]:
         raise HTTPException(status_code=403, detail="Token không hợp lệ.")
 
 
+# Public aliases
+create_access_token = _create_access_token
+decode_access_token = _decode_access_token
+
+
 # --------------------------------------------------------------------------
 # FastAPI Dependencies
 # --------------------------------------------------------------------------
@@ -135,11 +159,12 @@ def get_current_user(
     user_id      = payload.get("user_id")
     role         = payload.get("role")
     display_name = payload.get("display_name", "User")
+    username     = payload.get("username", user_id)
 
     if not user_id or not role:
         raise HTTPException(status_code=403, detail="Token không chứa thông tin người dùng hợp lệ.")
 
-    return UserContext(user_id=user_id, role=role, display_name=display_name)
+    return UserContext(user_id=user_id, role=role, display_name=display_name, username=username)
 
 
 def require_admin(user: UserContext = Depends(get_current_user)) -> UserContext:
@@ -149,7 +174,7 @@ def require_admin(user: UserContext = Depends(get_current_user)) -> UserContext:
 
 
 # --------------------------------------------------------------------------
-# Auth Router — POST /api/auth/token
+# Auth Router — POST /api/auth/token, POST /api/auth/register, GET /api/auth/me
 # --------------------------------------------------------------------------
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -169,10 +194,11 @@ def login(req: TokenRequest):
             detail="Tên đăng nhập hoặc mật khẩu không đúng."
         )
 
+    display_name = user_data.get("display_name", req.username)
     payload = {
         "user_id":      user_data["user_id"],
         "role":         user_data["role"],
-        "display_name": user_data.get("display_name", req.username),
+        "display_name": display_name,
         "username":     req.username,
     }
     token = _create_access_token(payload)
@@ -184,6 +210,59 @@ def login(req: TokenRequest):
         expires_in=JWT_EXPIRE_HOURS * 3600,
         user_id=user_data["user_id"],
         role=user_data["role"],
+        username=req.username,
+        display_name=display_name,
+    )
+
+
+@auth_router.post("/register", response_model=TokenResponse)
+def register(req: RegisterRequest):
+    """
+    Đăng ký tài khoản người dùng mới (vai trò mặc định: analyst).
+    Tự động cấp JWT access_token và lưu vào users.json.
+    """
+    username = req.username.strip()
+    if len(username) < 3:
+        raise HTTPException(status_code=400, detail="Tên đăng nhập phải có ít nhất 3 ký tự.")
+    if len(req.password) < 6:
+        raise HTTPException(status_code=400, detail="Mật khẩu phải có ít nhất 6 ký tự.")
+
+    registry = _load_user_registry()
+
+    for existing_user in registry.keys():
+        if existing_user.lower() == username.lower():
+            raise HTTPException(status_code=400, detail="Tên đăng nhập đã tồn tại trên hệ thống.")
+
+    user_id = f"user-{int(datetime.now(timezone.utc).timestamp())}"
+    display_name = (req.display_name or "").strip() or username
+    role = "analyst"
+
+    new_user_data = {
+        "password": req.password,
+        "role": role,
+        "display_name": display_name,
+        "user_id": user_id,
+    }
+    registry[username] = new_user_data
+    _save_user_registry(registry)
+
+    payload = {
+        "user_id": user_id,
+        "role": role,
+        "display_name": display_name,
+        "username": username,
+    }
+    token = _create_access_token(payload)
+
+    logger.info(f"[AUTH] Register success: user={username} role={role} id={user_id}")
+
+    return TokenResponse(
+        access_token=token,
+        expires_in=JWT_EXPIRE_HOURS * 3600,
+        user_id=user_id,
+        role=role,
+        username=username,
+        display_name=display_name,
     )
 
 

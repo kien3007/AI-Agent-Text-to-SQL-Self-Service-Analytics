@@ -1,0 +1,121 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # =========================================================================
+  # 1. FRONTEND QUALITY GATE (Next.js 16 + React 19 + TypeScript)
+  # =========================================================================
+  frontend:
+    name: Frontend Quality & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: TypeScript Type Check
+        run: npx tsc --noEmit
+
+      - name: Build Next.js Production Bundle
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+  # =========================================================================
+  # 2. BACKEND QUALITY GATE (Python 3.11 + FastAPI + Pytest)
+  # =========================================================================
+  backend:
+    name: Backend Unit Tests & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python Environment & Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install ruff pytest
+
+      - name: Lint Backend with Ruff
+        run: ruff check backend/app --select=E9,F63,F7,F82 --show-source
+
+      - name: Run Backend Unit Tests (59+ Core Tests)
+        env:
+          PYTHONPATH: backend
+          JWT_SECRET_KEY: ci-test-secret-key-for-automated-github-actions-0123456789
+        run: |
+          pytest -v \
+            backend/tests/test_domain_config.py \
+            backend/tests/test_domain_manager.py \
+            backend/tests/test_glossary.py \
+            backend/tests/test_config.py \
+            backend/tests/test_lineage_and_quality.py \
+            backend/tests/test_multi_domain.py \
+            backend/tests/test_plan_validator.py \
+            backend/tests/test_steiner_tree_join.py \
+            backend/tests/test_agent_graph.py \
+            backend/tests/test_complex_query_decomposition.py \
+            backend/tests/test_few_shot_dail_sql.py \
+            backend/tests/test_introspection.py \
+            backend/tests/test_api_endpoints.py
+
+  # =========================================================================
+  # 3. DOCKER BUILD VALIDATION
+  # =========================================================================
+  docker-validation:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Backend Docker Image
+        run: docker build -t text2sql-backend:ci-check -f backend/Dockerfile backend
+
+      - name: Validate Docker Compose Configuration
+        run: docker compose -f docker-compose.full.yml config
+
+  # =========================================================================
+  # 4. CI STATUS SUMMARY
+  # =========================================================================
+  ci-status:
+    name: CI Pipeline Status
+    runs-on: ubuntu-latest
+    needs: [frontend, backend, docker-validation]
+    if: always()
+    steps:
+      - name: Verify All Quality Gates Passed
+        run: |
+          if [ "${{ needs.frontend.result }}" = "success" ] && \
+             [ "${{ needs.backend.result }}" = "success" ] && \
+             [ "${{ needs.docker-validation.result }}" = "success" ]; then
+            echo "All CI quality gates passed successfully! 🚀"
+            exit 0
+          else
+            echo "One or more CI quality gates failed. ❌"
+            exit 1
+          fi

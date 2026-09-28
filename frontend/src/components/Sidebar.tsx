@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatSession } from "@/types/chat";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export type SidebarTab = "chat" | "catalog" | "lineage" | "benchmark";
 
@@ -52,10 +54,28 @@ export function Sidebar({
   onDeleteSession,
   onClearAllSessions,
 }: SidebarProps) {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    // Prefetch login route so sign out is instantaneous
+    router.prefetch('/login');
+  }, [router]);
+
+  const displayName = user?.display_name || user?.username || "Data Analyst";
+  const initials = React.useMemo(() => {
+    if (!displayName) return "SA";
+    const parts = displayName.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return displayName.slice(0, 2).toUpperCase();
+  }, [displayName]);
+
   return (
     <aside
       className={cn(
-        "h-full border-r border-[var(--border-subtle)] bg-[var(--bg-sidebar)] flex flex-col flex-shrink-0 transition-all duration-200 z-40 select-none",
+        "h-full border-r border-[var(--border-subtle)] bg-[var(--bg-sidebar)] flex flex-col flex-shrink-0 transition-[width] duration-200 ease-in-out z-40 select-none overflow-hidden",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -125,9 +145,12 @@ export function Sidebar({
               )}
             >
               {/* Active Indicator Bar */}
-              {isActive && (
-                <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-[var(--accent-primary)] animate-in fade-in zoom-in-75 duration-200" />
-              )}
+              <span
+                className={cn(
+                  "absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-[var(--accent-primary)] transition-all duration-200",
+                  isActive ? "opacity-100 scale-100" : "opacity-0 scale-75 pointer-events-none"
+                )}
+              />
               <Icon
                 className={cn(
                   "w-4 h-4 flex-shrink-0 transition-transform duration-200 group-hover:scale-105",
@@ -260,21 +283,33 @@ export function Sidebar({
         )}
 
         <div className="flex items-center justify-between p-1 rounded-lg hover:bg-[var(--bg-sidebar-hover)]">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[var(--pill-bg)] border border-[var(--border-subtle)] flex items-center justify-center text-[11px] font-bold text-[var(--text-primary)]">
-              AS
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div
+              className={cn(
+                "w-7 h-7 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-[11px] font-bold shrink-0",
+                user?.role === "admin"
+                  ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"
+                  : "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30"
+              )}
+              title={`${user?.display_name || user?.username || 'User'} (${user?.role || 'analyst'})`}
+            >
+              {initials}
             </div>
             {!collapsed && (
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-[var(--text-primary)]">Alex Smith</span>
-                <span className="text-[10px] text-[var(--text-muted)]">Enterprise Analyst</span>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-xs font-medium text-[var(--text-primary)] truncate" title={user?.display_name || user?.username || "Data Analyst"}>
+                  {user?.display_name || user?.username || "Data Analyst"}
+                </span>
+                <span className="text-[10px] text-[var(--text-muted)] truncate">
+                  {user?.role === "admin" ? "System Administrator" : "Enterprise Analyst"}
+                </span>
               </div>
             )}
           </div>
           <button
             onClick={onLogout}
-            title="Đăng xuất"
-            className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--accent-rose)] transition-colors"
+            title="Đăng xuất (Sign Out)"
+            className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--accent-rose)] hover:bg-[var(--bg-card)] transition-colors shrink-0 cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>

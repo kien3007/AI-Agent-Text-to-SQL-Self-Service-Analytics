@@ -67,6 +67,13 @@
     --shadow-float: 0 10px 30px -4px rgba(0, 0, 0, 0.65);
   }
 
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     background-color: var(--bg-app);
     color: var(--text-primary);
@@ -91,6 +98,18 @@
   border-radius: 9999px;
 }
 
+/* Hide scrollbar completely while maintaining scroll functionality if needed */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
 /* Markdown prose enhancements */
 .prose-sana h3 {
   font-size: 1.15rem;
@@ -114,3 +133,48 @@
   font-weight: 600;
   color: var(--text-primary);
 }
+
+/* Page & View Transitions */
+@keyframes smoothPageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes smoothFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes cardPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.98) translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.page-transition-enter {
+  animation: smoothPageEnter 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.card-transition-enter {
+  animation: cardPopIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fade-transition-enter {
+  animation: smoothFadeIn 0.2s ease-out forwards;
+}
+

@@ -15,7 +15,9 @@ class TestDomainConfig(unittest.TestCase):
     """Kiểm thử nạp và xác thực cấu hình Domain từ YAML."""
 
     def test_load_real_estate_domain(self):
-        domain_path = os.path.join(backend_dir, "app", "domains", "real_estate")
+        domain_path = os.path.join(backend_dir, "domains", "real_estate")
+        if not os.path.exists(domain_path):
+            domain_path = os.path.join(backend_dir, "app", "domains", "real_estate")
         self.assertTrue(os.path.exists(domain_path), f"Thư mục không tồn tại: {domain_path}")
 
         domain = DomainConfig.load_from_folder(domain_path)

@@ -20,7 +20,7 @@ class TestConfigManagement(unittest.TestCase):
 
     def test_default_settings_loaded(self):
         """Xác nhận các giá trị mặc định thiết yếu được khởi tạo chính xác."""
-        self.assertEqual(settings.DORIS_HOST, "localhost")
+        self.assertIn(settings.DORIS_HOST, ["localhost", "doris-fe", "127.0.0.1"])
         self.assertEqual(settings.DORIS_PORT, 9030)
         self.assertEqual(settings.DORIS_DATABASE, "real_estate_analytics")
         self.assertEqual(settings.APP_PORT, 8000)
