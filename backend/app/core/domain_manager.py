@@ -81,7 +81,7 @@ class DomainManager:
             raise ValueError(f"Domain '{domain_id}' chưa được đăng ký trong hệ thống.")
         self._active_domain_id = domain_id
 
-    def get_active_domain() -> DomainConfig:
+    def get_active_domain(self) -> DomainConfig:
         """Trả về domain đang được kích hoạt."""
         return self.get_domain(self._active_domain_id)
 
