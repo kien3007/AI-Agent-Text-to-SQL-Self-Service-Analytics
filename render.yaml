@@ -38,17 +38,6 @@ services:
         value: duckdb
       - key: DUCKDB_PATH
         value: ./data/warehouse.duckdb
-      # Cấu hình CSDL Doris (nếu kết nối cloud Doris/MySQL)
-      - key: DORIS_HOST
-        value: localhost
-      - key: DORIS_PORT
-        value: "9030"
-      - key: DORIS_USER
-        value: root
-      - key: DORIS_PASSWORD
-        sync: false
-      - key: DORIS_DATABASE
-        value: real_estate_analytics
       # Cấu hình LLM Gateway (vLLM / OpenRouter / Together / OpenAI)
       - key: LLM_BASE_URL
         sync: false

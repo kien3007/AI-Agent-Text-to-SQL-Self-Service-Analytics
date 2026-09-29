@@ -62,13 +62,29 @@ class BGEM3EmbeddingFunction:
                 print("[EmbeddingEngine] Fallback model khởi tạo thành công!")
         return self._model
 
+    def _mock_embed(self, text: str) -> List[float]:
+        """Sinh vector giả lập 1024 chiều tất định dựa trên từ vựng phục vụ unit test nhanh."""
+        import hashlib
+        vec = np.zeros(1024, dtype=np.float32)
+        words = text.lower().split()
+        if not words:
+            vec[0] = 1.0
+            return vec.tolist()
+        for w in words:
+            idx = int(hashlib.md5(w.encode("utf-8")).hexdigest(), 16) % 1024
+            vec[idx] += 1.0
+        norm = float(np.linalg.norm(vec))
+        if norm > 0:
+            vec = vec / norm
+        return vec.tolist()
+
     def __call__(self, input: Documents) -> Embeddings:
         """Sinh vector embedding cho danh sách documents (Callable interface)."""
         if not input:
             return []
         
         if self._is_mock:
-            return [[0.0] * 1024 for _ in input]
+            return [self._mock_embed(t) for t in input]
 
         # Chuyển đổi embedding sang float list chuẩn với inference_mode
         import torch
@@ -84,7 +100,7 @@ class BGEM3EmbeddingFunction:
     def encode_query(self, query: str) -> List[float]:
         """Sinh vector cho một câu truy vấn."""
         if self._is_mock:
-            return [0.0] * 1024
+            return self._mock_embed(query)
 
         import torch
         with torch.inference_mode():
@@ -94,4 +110,5 @@ class BGEM3EmbeddingFunction:
                 show_progress_bar=False
             )
         return emb[0].tolist()
+
 

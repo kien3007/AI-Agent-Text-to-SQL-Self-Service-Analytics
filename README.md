@@ -1,6 +1,6 @@
 # AI-Agent Text-to-SQL Self-Service Analytics
 
-> Hệ thống trợ lý ảo thông minh chuyển đổi ngôn ngữ tự nhiên (Tiếng Việt) thành truy vấn SQL phục vụ phân tích dữ liệu tự phục vụ (Self-Service Analytics). Hỗ trợ kiến trúc Data Mesh, Data Governance, và Data Lineage với khả năng chạy trên Apache Doris OLAP.
+> Hệ thống trợ lý ảo thông minh chuyển đổi ngôn ngữ tự nhiên (Tiếng Việt) thành truy vấn SQL phục vụ phân tích dữ liệu tự phục vụ (Self-Service Analytics). Hỗ trợ kiến trúc Data Mesh, Data Governance, và Data Lineage với khả năng chạy trên DuckDB OLAP Engine.
 
 ---
 
@@ -12,7 +12,7 @@
   * Qwen-2.5-Coder: Chuyên sinh mã SQL chính xác, tối ưu cho DAIL-SQL.
   * Qwen-3: Suy luận ngữ cảnh, tư duy phân tích (CoT) và diễn giải kết quả bằng Tiếng Việt.
 * **Human-In-The-Loop (HITL) Gate**: Dừng truy vấn có chi phí lớn, cảnh báo rủi ro quét dữ liệu và yêu cầu người dùng (Admin) phê duyệt trước khi thực thi.
-* **Data Governance & Audit**: Quản lý hạn mức (Query Budget), gắn nhãn dữ liệu nhạy cảm (PII), và Audit log chi tiết (lưu trữ JSONL/Doris).
+* **Data Governance & Audit**: Quản lý hạn mức (Query Budget), gắn nhãn dữ liệu nhạy cảm (PII), và Audit log chi tiết.
 * **Data Lineage**: Theo dõi luồng dữ liệu thông qua dbt `manifest.json` và log nạp dữ liệu (Ingestion Log).
 * **Self-Healing API**: Agent có khả năng tự sửa lỗi khi truy vấn thất bại (Retry logic qua Validator).
 
@@ -21,7 +21,7 @@
 ## 🚀 Cài đặt & Khởi động nhanh (Quick Start)
 
 ### 1. Khởi động bằng Docker Compose
-Dự án được cấu hình đầy đủ qua Docker Compose (FastAPI Backend, Qdrant Vector DB, Apache Doris FE/BE, Next.js Frontend):
+Dự án được cấu hình đầy đủ qua Docker Compose (FastAPI Backend, Qdrant Vector DB, Next.js Frontend):
 ```bash
 # Build và chạy ngầm toàn bộ dịch vụ
 make up
@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 # 2. Cấu hình biến môi trường
 cp .env.example .env
-# Chỉnh sửa file .env với API Key (Qwen-3, Qwen-2.5-Coder), Qdrant URL và Doris connection
+# Chỉnh sửa file .env với API Key (Qwen-3, Qwen-2.5-Coder), Qdrant URL
 
 # 3. Chạy Vector DB (Qdrant)
 docker compose up -d qdrant
@@ -68,7 +68,7 @@ npm run dev
 * `/backend/domains/`: Định nghĩa Data Mesh Config (`domain.yaml`, `schema.yaml`, `metrics.yaml`) cho từng nghiệp vụ.
 * `/frontend/`: Giao diện Next.js 15 (React 19, TypeScript, Recharts, SSE streaming, Auth Context).
 * `/infra/dbt/`: Dự án dbt (Data marts, semantic models, data lineage qua `manifest.json`).
-* `/scripts/`: Script tiện ích (Nạp Parquet vào Doris, Benchmark, System Health Check).
+* `/scripts/`: Script tiện ích (Khởi tạo DuckDB từ Parquet, Benchmark, System Health Check).
 
 ---
 

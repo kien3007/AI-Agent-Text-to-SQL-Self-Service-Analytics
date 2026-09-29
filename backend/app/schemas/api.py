@@ -29,7 +29,7 @@ class DomainSwitchRequest(BaseModel):
 
 class BootstrapRequest(BaseModel):
     """Yêu cầu tự động khám phá CSDL mới và tạo dbt pipeline."""
-    db_name: str = Field(..., description="Tên cơ sở dữ liệu cần quét (MySQL / Doris)")
+    db_name: str = Field(..., description="Tên cơ sở dữ liệu cần quét (DuckDB / MySQL)")
     domain_id: Optional[str] = Field(None, description="Mã domain mới (mặc định lấy theo tên db)")
     display_name: Optional[str] = Field(None, description="Tên hiển thị tiếng Việt của domain mới")
     auto_dbt: bool = Field(True, description="Có tự động tạo dbt pipeline và semantic metrics không")

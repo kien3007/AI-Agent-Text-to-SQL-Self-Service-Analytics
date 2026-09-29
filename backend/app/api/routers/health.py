@@ -17,13 +17,13 @@ router = APIRouter(prefix="/health", tags=["Health"])
 
 @router.get("")
 def health_check():
-    """Kiểm tra tình trạng sống của API server, CSDL Apache Doris, Qdrant Vector DB và các domain."""
+    """Kiểm tra tình trạng sống của API server, Data Warehouse (DuckDB), Qdrant Vector DB và các domain."""
     dm = DomainManager()
     domains = dm.list_domains()
     active_domain_cfg = dm.get_active_domain_config()
     active_domain = active_domain_cfg.domain_id if active_domain_cfg else None
 
-    # Check Data Warehouse (DuckDB / Doris)
+    # Check Data Warehouse (DuckDB)
     warehouse_status = "unhealthy"
     try:
         client = get_warehouse_client()
@@ -63,7 +63,6 @@ def health_check():
         "total_domains": len(domains),
         "dependencies": {
             "warehouse": warehouse_status,
-            "doris": warehouse_status,  # Giữ backward compatibility cho frontend
             "llm": llm_status,
             "qdrant": qdrant_status
         }

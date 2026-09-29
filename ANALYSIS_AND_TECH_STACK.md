@@ -1,7 +1,7 @@
 # AI-Agent Text-to-SQL & Heterogeneous Analytics Assistant
 ##### Tài liệu Kiến trúc Hệ thống, Tech Stack & Thiết kế Kỹ thuật Toàn diện (Phiên bản Cập nhật AgenticData & Tối ưu Tiếng Việt)
 
-**Hệ thống trợ lý phân tích dữ liệu tự phục vụ (Self-Service Analytics) thế hệ mới chuyên biệt cho ngành Bất động sản Việt Nam, vận hành trên bộ dữ liệu thực tế 3,5 triệu bản ghi (Tinix Vietnam Real Estates), kết hợp mô hình Dual-Model LLM (Qwen 3 + Qwen 2.5-Coder), điều phối đa tác tử LangGraph trên nền Apache Doris, dbt Semantic Layer, tích hợp bộ xử lý ngữ nghĩa Tiếng Việt chuyên sâu và các cơ chế tiên tiến từ bài báo AgenticData (Data Profiling Graph, Plan Validator Agent 3 Tầng, Bộ nhớ 3 Tầng và Complex Query Decomposition).**
+**Hệ thống trợ lý phân tích dữ liệu tự phục vụ (Self-Service Analytics) thế hệ mới chuyên biệt cho ngành Bất động sản Việt Nam, vận hành trên bộ dữ liệu thực tế 3,5 triệu bản ghi (Tinix Vietnam Real Estates), kết hợp mô hình Dual-Model LLM (Qwen 3 + Qwen 2.5-Coder), điều phối đa tác tử LangGraph trên nền DuckDB Embedded OLAP, dbt Semantic Layer, tích hợp bộ xử lý ngữ nghĩa Tiếng Việt chuyên sâu và các cơ chế tiên tiến từ bài báo AgenticData (Data Profiling Graph, Plan Validator Agent 3 Tầng, Bộ nhớ 3 Tầng và Complex Query Decomposition).**
 
 ---
 
@@ -30,7 +30,7 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
 1.  **Hiểu tiếng Việt tự nhiên & Ngữ cảnh chuyên ngành BĐS**: Xử lý ngữ nghĩa Tiếng Việt tự nhiên và từ lóng/viết tắt (*"căn 2PN tháp A", "căn duplex", "shophouse mặt tiền", "đất thổ cư sổ đỏ", "hướng Đông Nam"*).
 2.  **Chuẩn hóa Ngữ nghĩa & Từ điển Doanh nghiệp (Vietnamese Business Glossary)**: Tự động chuyển đổi từ viết tắt và các mốc thời gian tiếng Việt (*"quý này", "tháng trước", "năm ngoái"*) thành tham số truy vấn chuẩn xác.
 3.  **Lập kế hoạch Semantic & Phân rã câu hỏi**: Tự động xác định bảng, chỉ số (đơn giá/m², YoY, MoM) và phân rã các câu hỏi phức tạp Mức 3 thành các tác vụ con (sub-tasks).
-4.  **Đồ thị Hồ sơ Dữ liệu Song ngữ (Bilingual Data Profiling Graph)**: Tự động liên kết câu hỏi tiếng Việt với tên bảng/cột tiếng Anh trong Apache Doris bằng Hybrid Search và mô tả song ngữ.
+4.  **Đồ thị Hồ sơ Dữ liệu Song ngữ (Bilingual Data Profiling Graph)**: Tự động liên kết câu hỏi tiếng Việt với tên bảng/cột tiếng Anh trong DuckDB Data Warehouse bằng Hybrid Search và mô tả song ngữ.
 5.  **Sinh SQL chuẩn xác & Tự kiểm định (Plan Validator Agent)**: Kiểm tra cú pháp qua Pseudo-execution giả lập, kiểm tra logic ngữ nghĩa và phát hiện thiếu dữ liệu trước khi thực thi.
 6.  **Hỏi lại khi câu hỏi mơ hồ (Clarification Loop)**: Tự động dừng sớm để xác nhận với người dùng khi thiếu thông tin điều kiện, tiết kiệm 80% chi phí API.
 7.  **Quản lý bộ nhớ 3 tầng & Dịch lỗi Tiếng Việt (3-Tier Memory & Error Translator)**: Phân loại lỗi ngắn hạn, dịch lỗi Database sang tiếng Việt, chấm điểm Bellman cắt tỉa nhánh lặp trong phiên, và lưu trữ tri thức dài hạn (Good Plans / Bad Plans / Common Knowledge).
@@ -43,8 +43,8 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
 | Ràng buộc | Yêu cầu nghiệp vụ | Giải pháp Kỹ thuật |
 | :--- | :--- | :--- |
 | **1. Human-In-The-Loop (HITL)** | Bắt buộc xem trước câu lệnh SQL và bấm xác nhận trước khi thực thi truy vấn lớn trên 3,5 triệu dòng. | Sử dụng cơ chế `interrupt` của **LangGraph**. Graph phát event qua SSE về Next.js modal preview SQL + bytes scan estimate. |
-| **2. Phân quyền vai trò (RBAC)** | Analyst chỉ đọc kết quả; Admin quản lý schema, semantic layer và vector store. | **Supabase Auth (JWT)** tích hợp Middleware trên FastAPI. Tầng Database áp dụng `GRANT SELECT` cho analyst và `GRANT ALL` cho admin trên Doris. |
-| **3. Giới hạn chi phí quét dữ liệu (Bytes Scanned)** | Ước tính dung lượng quét dữ liệu, cảnh báo hoặc chặn thực thi khi vượt ngưỡng. | Gọi `EXPLAIN VERBOSE <SQL>` trên **Apache Doris** phân tích Tablets/Partitions. Cảnh báo khi $> 100\text{ MB}$, bắt buộc duyệt HITL khi $> 500\text{ MB}$. |
+| **2. Phân quyền vai trò (RBAC)** | Analyst chỉ đọc kết quả; Admin quản lý schema, semantic layer và vector store. | **Supabase Auth (JWT)** tích hợp Middleware trên FastAPI. Tầng Database áp dụng phân quyền vai trò cho analyst và admin. |
+| **3. Giới hạn chi phí quét dữ liệu (Bytes Scanned)** | Ước tính dung lượng quét dữ liệu, cảnh báo hoặc chặn thực thi khi vượt ngưỡng. | Gọi `EXPLAIN <SQL>` trên **DuckDB Warehouse** phân tích Table/Block scans. Cảnh báo khi $> 100\text{ MB}$, bắt buộc duyệt HITL khi $> 500\text{ MB}$. |
 | **4. Độ chính xác đo lường được (Metrics)** | Đo lường hiệu năng định lượng và định kỳ qua bộ benchmark nội bộ. | Bộ test benchmark 50 câu hỏi tiếng Việt chuyên ngành BĐS. Đo lường **Execution Accuracy (EX)** ($\ge 85\%$), **Valid SQL Rate** ($\ge 95\%$), **Self-Correction** ($\ge 75\%$), và **Latency P95** ($< 4.5\text{s}$). |
 
 ---
@@ -62,7 +62,7 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
 ┌───────────────────────────────────▼────────────────────────────────────┐
 │                        BACKEND API (FastAPI)                           │
 │   • Async Python 3.10+, Server-Sent Events (SSE) Streaming Agent Logs │
-│   • RBAC Middleware, Session Management, Doris Connection Pool         │
+│   • RBAC Middleware, Session Management, DuckDB Connection            │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
 ┌───────────────────────────────────▼────────────────────────────────────┐
@@ -82,13 +82,13 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
 │   [Model 2: Qwen 2.5-Coder (32B / 14B)]              ▼                 │
 │   ┌────────────────────────────────┐     ┌────────────────────────┐    │
 │   │ 4. Plan Validator Agent        │◄────┤ 3. Sinh SQL Chuẩn Xác  │    │
-│   │    (Grammar/Semantic/Data)     │     │    (MySQL / Doris DDL) │    │
+│   │    (Grammar/Semantic/Data)     │     │    (DuckDB / SQL DDL)  │    │
 │   └───────────────┬────────────────┘     └────────────────────────┘    │
 │                   │ SQL hợp lệ & Dry-run OK                            │
 │                   ▼                                                    │
 │   ┌────────────────────────────────┐     ┌────────────────────────┐    │
-│   │ 5. HITL Gate (Interrupt)       ├────►│ 6. Thực thi Doris      │    │
-│   │    Xem trước SQL & Bytes Scan  │     │    (MySQL Connection)  │    │
+│   │ 5. HITL Gate (Interrupt)       ├────►│ 6. Thực thi Warehouse  │    │
+│   │    Xem trước SQL & Bytes Scan  │     │    (DuckDB Connection) │    │
 │   └────────────────────────────────┘     └───────────┬────────────┘    │
 │                                                      │                 │
 │   [UPDATE 5: VN Formatter & Chart Rendering]         ▼                 │
@@ -100,8 +100,8 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
                ▼                    ▼                     ▼
       ┌────────────────┐   ┌─────────────────┐   ┌────────────────┐
       │  3-Tier Memory │   │  dbt Semantic   │   │ Real-Time DW   │
-      │ Multilingual   │   │      Model      │   │ (Apache Doris  │
-      │ (Qdrant +      │   │  (`dbt-doris`)  │   │ 3.5M Listings) │
+      │ Multilingual   │   │      Model      │   │ (DuckDB OLAP   │
+      │ (Qdrant +      │   │  (`dbt-duckdb`) │   │ 3.5M Listings) │
       │  bge-m3 Model) │   │  Bilingual Meta │   │                │
       └────────────────┘   └─────────────────┘   └────────────────┘
 ```
@@ -112,13 +112,13 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
 | :--- | :--- | :--- |
 | **VN Text Preprocessor** | **Business Glossary Engine** *(Update 1)* | Chuẩn hóa từ lóng ngành BĐS (*căn 2PN, duplex, shophouse, sổ đỏ/sổ hồng, hẻm xe hơi*), quy đổi ngày tháng tiếng Việt (*tháng trước, quý này*) trước khi gửi vào LLM. |
 | **Model 1: Planner & Reasoner** | **Qwen 3** *(MoE / Deep Thinking)* | Đọc câu hỏi tiếng Việt đã chuẩn hóa, nhận diện mơ hồ, kích hoạt hỏi lại người dùng, phân rã câu hỏi phức tạp (sub-tasks), lập cây kế hoạch Semantic Plan. |
-| **Model 2: SQL Generator & Fixer** | **Qwen 2.5-Coder** *(32B / 14B)* | Sinh SQL chuẩn MySQL cho Apache Doris từ Query Plan và Schema nén; tự sửa lỗi cú pháp dựa trên định tuyến từ Short-Term Memory. |
+| **Model 2: SQL Generator & Fixer** | **Qwen 2.5-Coder** *(32B / 14B)* | Sinh SQL chuẩn ANSI SQL cho DuckDB từ Query Plan và Schema nén; tự sửa lỗi cú pháp dựa trên định tuyến từ Short-Term Memory. |
 | **Agent Orchestrator** | **LangGraph** | Quản lý stateful graph, tích hợp vòng lặp sửa lỗi 3-Tier Memory, ngắt interrupt cho HITL và luồng phân rã Complex Query. |
-| **Data Warehouse** | **Apache Doris Standalone** | Real-time MPP OLAP DW lưu trữ dạng cột, nạp toàn bộ 3,5 triệu dòng Parquet, tương thích hoàn toàn giao thức MySQL, đáp ứng truy vấn sub-second. |
+| **Data Warehouse** | **DuckDB Embedded Engine** | High-performance Columnar In-Process OLAP DW, nạp trực tiếp 3,5 triệu dòng Parquet, truy vấn sub-second (~0.1s). |
 | **Bilingual Data Profiling Graph** | **`bge-m3` + Qdrant** *(LlamaIndex)* | Đánh chỉ mục song ngữ (Anh-Việt) cho Node Profiling và Edge Profiling bằng Hybrid Search (Vector `bge-m3` + BM25 + Jaccard) để liên kết schema. |
-| **Semantic Layer** | **dbt-core + dbt-doris** | Định nghĩa các chỉ số kinh doanh BĐS (*Đơn giá/m², Tỷ lệ chênh lệch giá, Phân phối diện tích*) làm Single Source of Truth kèm chú thích song ngữ. |
+| **Semantic Layer** | **dbt-core + dbt-duckdb** | Định nghĩa các chỉ số kinh doanh BĐS (*Đơn giá/m², Tỷ lệ chênh lệch giá, Phân phối diện tích*) làm Single Source of Truth kèm chú thích song ngữ. |
 | **Error Translator** | **Short-Term Memory Translator** *(Update 4)* | Tự động dịch lỗi DB bằng tiếng Anh (`Unknown column`, `Syntax error`) sang chỉ dẫn sửa lỗi bằng tiếng Việt cho LLM. |
-| **Backend API** | **FastAPI + Async Python** | Cung cấp endpoint SSE stream log suy nghĩ của Agent, middleware RBAC Supabase JWT và connection pool kết nối Doris. |
+| **Backend API** | **FastAPI + Async Python** | Cung cấp endpoint SSE stream log suy nghĩ của Agent, middleware RBAC Supabase JWT và kết nối DuckDB Warehouse. |
 | **Frontend & VN Formatter** | **Next.js 14+ / Recharts** *(Update 5)* | UI Chatbot Analytics, Data Table phân trang, Recharts render biểu đồ động với nhãn tiếng Việt, định dạng tiền tệ VNĐ (`1,2 tỷ VNĐ`) và Modal Preview SQL kèm Bytes Scan. |
 
 ---
@@ -128,11 +128,11 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
 ### 4.1. Phân bổ RAM chi tiết
 *   **Windows OS & System Background**: ~ 4.0 GB
 *   **IDE + Browser**: ~ 2.5 GB
-*   **Apache Doris (FE + BE Standalone trong Docker)**: **~ 2.0 – 2.5 GB**
+*   **DuckDB (In-process Embedded OLAP)**: **~ 0.5 GB**
 *   **Backend (FastAPI + LangGraph + Uvicorn + FastEmbed `bge-m3`)**: ~ 0.8 GB
 *   **Frontend (Next.js dev server)**: ~ 0.6 GB
 *   **Qdrant / Vector Store**: ~ 0.3 GB
-*   👉 **Dự phòng an toàn**: **~ 4.8 – 5.3 GB** (Giúp hệ thống vận hành mượt mà, không bị tràn RAM).
+*   👉 **Dự phòng an toàn**: **~ 7.0 GB** (Giúp hệ thống vận hành siêu nhẹ mượt mà, không bị tràn RAM).
 
 ---
 
@@ -154,11 +154,11 @@ Bộ tiền xử lý ngữ nghĩa tiếng Việt đặt trước Node 1 trong La
     $$\text{Hybrid Search} = \text{Vector Similarity (bge-m3)} + \text{BM25 Text Search} + \text{Jaccard Keyword Similarity}$$
 
 ### 5.3. Plan Validator Agent & Update 4: DB Error Translator
-Thực hiện kiểm định đa tầng trước khi chạy câu lệnh truy vấn thật trên Doris:
+Thực hiện kiểm định đa tầng trước khi chạy câu lệnh truy vấn thật trên Data Warehouse:
 1.  **Grammar Validator**: Thực hiện *Pseudo-execution* (chạy giả lập trên Schema) để phát hiện cột/bảng không tồn tại.
 2.  **Semantic Validator**: Kiểm tra logic ngữ nghĩa (ví dụ: yêu cầu Top K giá rẻ nhất nhưng thiếu `ORDER BY price ASC LIMIT K`).
 3.  **Data Missing Detector**: Phát hiện thiếu các điều kiện lọc địa phương (quận/huyện, tỉnh/thành).
-4.  **Error Translator**: Khi Doris trả về lỗi tiếng Anh (`Unknown column 'dien_tich' in 'field list'`), Short-Term Memory dịch thành phản hồi tiếng Việt cụ thể cho LLM: *"Cột 'dien_tich' không tồn tại trong bảng 'real_estate_listings', hãy đổi thành cột 'area'"*.
+4.  **Error Translator**: Khi CSDL trả về lỗi tiếng Anh (`Unknown column 'dien_tich' in 'field list'`), Short-Term Memory dịch thành phản hồi tiếng Việt cụ thể cho LLM: *"Cột 'dien_tich' không tồn tại trong bảng 'real_estate_listings', hãy đổi thành cột 'area'"*.
 
 ### 5.4. Cấu trúc Quản lý Bộ nhớ 3 Tầng (3-Tier Memory)
 *   **Short-Term Memory**: Lưu tối đa 3 lỗi gần nhất, chia thành 3 container (*Data, Semantic, Grammar*) để định tuyến chính xác lỗi về đúng Agent xử lý.
@@ -181,19 +181,18 @@ Dành riêng cho các câu hỏi Mức 3 (YoY, MoM, biến động giá, Window 
 
 ## 6. Lộ trình Triển khai Chi tiết 14 Ngày (Updated 14-Day Roadmap)
 
-### 📍 GIAI ĐOẠN 1: Hạ tầng, Schema & Nạp 3,5 Triệu Bản ghi vào Doris (Ngày 1 - Ngày 3)
-*   [ ] Khởi tạo file `.wslconfig` và deploy cụm Apache Doris Standalone bằng Docker Compose.
-*   [ ] Tạo bảng `real_estate_listings` trên Apache Doris tối ưu Partitioning theo `province_name` và `published_at`.
-*   [ ] Nạp dữ liệu 10 file Parquet vào Apache Doris qua tính năng *Stream Load* hoặc *S3/Local Parquet Table*.
+### 📍 GIAI ĐOẠN 1: Hạ tầng, Schema & Nạp 3,5 Triệu Bản ghi vào DuckDB (Ngày 1 - Ngày 3)
+*   [x] Khởi tạo DuckDB In-Process Engine và nạp trực tiếp toàn bộ 3,5 triệu dòng Parquet.
+*   [x] Tạo bảng `real_estate_listings` trên DuckDB tối ưu truy vấn sub-second dạng Columnar.
 *   [x] Tích hợp mô hình Embedding đa ngôn ngữ **`bge-m3`** cho Qdrant Vector Store (LlamaIndex).
-*   [ ] Tự động hóa **Bilingual Data Profiling Graph**: Tạo Node Profiles song ngữ và thiết lập Edge Profiles bằng Hybrid Search.
+*   [x] Tự động hóa **Bilingual Data Profiling Graph**: Tạo Node Profiles song ngữ và thiết lập Edge Profiles bằng Hybrid Search.
 
 ### 📍 GIAI ĐOẠN 2: Vietnamese Preprocessor, Plan Validator & Core Dual-Model (Ngày 4 - Ngày 7)
-*   [ ] Xây dựng **Vietnamese Business Glossary & Normalizer** (xử lý từ lóng BĐS và quy đổi mốc thời gian).
-*   [ ] Cấu hình `dbt-doris` định nghĩa các metrics BĐS cốt lõi (*Đơn giá/m², Tỷ lệ chênh lệch giá, Phân phối diện tích*) kèm chú thích tiếng Việt.
-*   [ ] Lập trình các Node chính trong LangGraph (Node 0 Preprocessor, Node 1 Intent, Node 2 Data Selection, Node 3 Planning, Node 4 SQL Generation).
-*   [ ] Tích hợp **Plan Validator Agent 3 Tầng** (*Grammar Pseudo-execution, Semantic Logic, Data Missing*) và bộ dịch lỗi DB sang tiếng Việt (**Error Translator**).
-*   [ ] Tích hợp **Cấu trúc Bộ nhớ 3 Tầng** (*Short-term containers, Temporary Bellman scoring, Long-term Vector DB*).
+*   [x] Xây dựng **Vietnamese Business Glossary & Normalizer** (xử lý từ lóng BĐS và quy đổi mốc thời gian).
+*   [x] Cấu hình `dbt-duckdb` định nghĩa các metrics BĐS cốt lõi (*Đơn giá/m², Tỷ lệ chênh lệch giá, Phân phối diện tích*) kèm chú thích tiếng Việt.
+*   [x] Lập trình các Node chính trong LangGraph (Node 0 Preprocessor, Node 1 Intent, Node 2 Data Selection, Node 3 Planning, Node 4 SQL Generation).
+*   [x] Tích hợp **Plan Validator Agent 3 Tầng** (*Grammar Pseudo-execution, Semantic Logic, Data Missing*) và bộ dịch lỗi DB sang tiếng Việt (**Error Translator**).
+*   [x] Tích hợp **Cấu trúc Bộ nhớ 3 Tầng** (*Short-term containers, Temporary Bellman scoring, Long-term Vector DB*).
 
 ### 📍 GIAI ĐOẠN 3: Complex Query Decomposition, Backend & Frontend UI (Ngày 8 - Ngày 11)
 *   [ ] Thiết lập quy trình **Complex Query Decomposition** cho câu hỏi Mức 3 và cơ chế vật chất hóa bảng tạm (Materialization).

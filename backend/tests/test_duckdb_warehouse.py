@@ -70,7 +70,7 @@ class TestDuckDBWarehouse(unittest.TestCase):
         self.assertIsInstance(w_client, DuckDBClient)
 
     def test_executor_node_with_duckdb(self):
-        executor = ExecutorNode(doris_client=self.client)
+        executor = ExecutorNode(warehouse_client=self.client)
         state = AgentState(
             user_query="Tổng tiền của Bob",
             domain_id="ecommerce",
@@ -83,7 +83,7 @@ class TestDuckDBWarehouse(unittest.TestCase):
         self.assertEqual(out_state.query_result[0]["amount"], 250.5)
 
     def test_plan_validator_with_duckdb_explain(self):
-        validator = PlanValidator(doris_client=self.client)
+        validator = PlanValidator(warehouse_client=self.client)
         # Truy vấn hợp lệ
         res = validator.validate("SELECT * FROM test_orders LIMIT 10", use_explain=True)
         self.assertTrue(res.is_valid)

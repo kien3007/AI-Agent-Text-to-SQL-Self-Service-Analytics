@@ -197,7 +197,7 @@ class DbtManifestLoader:
     def compile_manifest_mock(self) -> str:
         """
         Sinh file target/manifest.json mô phỏng từ các file YAML/SQL
-        phục vụ môi trường development / CI khi chưa cài máy chủ dbt-doris CLI.
+        phục vụ môi trường development / CI khi chưa cài dbt CLI.
         """
         target_dir = os.path.join(self.dbt_dir, "target")
         os.makedirs(target_dir, exist_ok=True)

@@ -110,7 +110,7 @@ def switch_active_domain(req: DomainSwitchRequest, admin: UserContext = Depends(
 @router.post("/bootstrap")
 def bootstrap_new_database(req: BootstrapRequest, admin: UserContext = Depends(require_admin)):
     """
-    Quét CSDL mới (MySQL/Doris), tự động sinh Domain YAML và dbt pipeline.
+    Quét CSDL mới (DuckDB/MySQL), tự động sinh Domain YAML và dbt pipeline.
     """
     domain_id = req.domain_id or req.db_name.lower().replace("-", "_")
     display_name = req.display_name or domain_id.replace("_", " ").title()

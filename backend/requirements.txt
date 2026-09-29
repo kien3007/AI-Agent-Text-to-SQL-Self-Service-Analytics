@@ -9,13 +9,11 @@ sentence-transformers
 pyyaml
 sse-starlette
 pandas
-pymysql
 pyarrow
 tqdm
 pytest
 networkx
 PyJWT
-DBUtils
 sqlparse
 langgraph
 llama-index-core

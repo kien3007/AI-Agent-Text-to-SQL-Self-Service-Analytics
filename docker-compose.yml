@@ -13,10 +13,6 @@ services:
       - API_KEY_QWEN_2_5_CODER=your_qwen25_coder_api_key
       - WAREHOUSE_BACKEND=duckdb
       - DUCKDB_PATH=/app/data/warehouse.duckdb
-      - DORIS_HOST=doris-fe
-      - DORIS_PORT=9030
-      - DORIS_USER=root
-      - DORIS_PASSWORD=
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
       - QDRANT_STORAGE_DIR=/app/data/qdrant_db
@@ -32,41 +28,6 @@ services:
     networks:
       - ai_data_net
 
-  doris-fe:
-    profiles: ["doris"]
-    image: selectdb/doris.fe-ubuntu:2.0.2
-    container_name: doris_fe
-    environment:
-      - FE_SERVERS=fe1:172.20.0.10:9010
-      - FE_ID=1
-    ports:
-      - "8030:8030"
-      - "9030:9030"
-    volumes:
-      - doris_fe_meta:/opt/apache-doris/fe/doris-meta
-      - doris_fe_log:/opt/apache-doris/fe/log
-    networks:
-      ai_data_net:
-        ipv4_address: 172.20.0.10
-
-  doris-be:
-    profiles: ["doris"]
-    image: selectdb/doris.be-ubuntu:2.0.2
-    container_name: doris_be
-    environment:
-      - FE_SERVERS=fe1:172.20.0.10:9010
-      - BE_ADDR=172.20.0.11:9050
-    ports:
-      - "8040:8040"
-    depends_on:
-      - doris-fe
-    volumes:
-      - doris_be_storage:/opt/apache-doris/be/storage
-      - doris_be_log:/opt/apache-doris/be/log
-    networks:
-      ai_data_net:
-        ipv4_address: 172.20.0.11
-
   qdrant:
     image: qdrant/qdrant:latest
     container_name: qdrant_vectordb
@@ -80,10 +41,6 @@ services:
       - ai_data_net
 
 volumes:
-  doris_fe_meta:
-  doris_fe_log:
-  doris_be_storage:
-  doris_be_log:
   qdrant_storage:
 
 networks:

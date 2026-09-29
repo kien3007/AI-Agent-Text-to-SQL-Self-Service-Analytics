@@ -1,6 +1,6 @@
 """
 SQL Generator Node (Node 3 - Model 2: Qwen 2.5-Coder).
-Sinh câu lệnh truy vấn SQL chuẩn cú pháp MySQL / Apache Doris
+Sinh câu lệnh truy vấn SQL chuẩn cú pháp ANSI SQL / DuckDB
 từ Schema Context, Steiner Tree JOIN paths và phản hồi sửa lỗi từ Short-Term Memory.
 """
 

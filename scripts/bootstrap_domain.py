@@ -1,7 +1,7 @@
 """
 Script CLI: Bootstrap Domain (Tự động khám phá CSDL mới hoặc Khôi phục Domain).
 Sử dụng:
-  1. Quét CSDL mới (MySQL / Apache Doris):
+  1. Quét CSDL mới (DuckDB / MySQL):
      python scripts/bootstrap_domain.py --db-name my_company_db --domain-id my_domain --display-name "Tên Nghiệp Vụ"
   2. Liệt kê các domain đang cài đặt:
      python scripts/bootstrap_domain.py --list
@@ -24,21 +24,18 @@ if backend_dir not in sys.path:
 from app.core.domain_manager import DomainManager
 from app.core.introspection import DatabaseIntrospector
 from app.core.dbt_generator import AutoDbtGenerator
-from app.db.doris_client import DorisClient
+from app.db.warehouse_client import get_warehouse_client
 
 
 def main():
     parser = argparse.ArgumentParser(description="Bootstrap Domain cho AI-Agent Text-to-SQL")
     parser.add_argument("--list", action="store_true", help="Liệt kê toàn bộ các domain hiện có trong hệ thống")
     parser.add_argument("--restore", action="store_true", help="Khôi phục các domain mẫu (real_estate, ecommerce, healthcare) từ backup")
-    parser.add_argument("--db-name", type=str, help="Tên database cần quét introspection (MySQL/Doris)")
+    parser.add_argument("--db-name", type=str, help="Tên database cần quét introspection (DuckDB/SQL)")
     parser.add_argument("--domain-id", type=str, help="Mã định danh domain mới (VD: logistics, hr, crm)")
     parser.add_argument("--display-name", type=str, help="Tên hiển thị của domain mới")
     parser.add_argument("--auto-dbt", action="store_true", help="Tự động sinh toàn bộ pipeline dbt (staging, marts, metrics) và đồng bộ vào Agent")
-    parser.add_argument("--host", type=str, default=None, help="Host của CSDL (mặc định lấy từ env)")
-    parser.add_argument("--port", type=int, default=None, help="Port của CSDL (mặc định 9030 hoặc 3306)")
-    parser.add_argument("--user", type=str, default=None, help="Username CSDL")
-    parser.add_argument("--password", type=str, default=None, help="Password CSDL")
+    parser.add_argument("--db-path", type=str, default=None, help="Đường dẫn file DuckDB database")
 
     args = parser.parse_args()
 
@@ -84,13 +81,7 @@ def main():
         display_name = args.display_name or domain_id.replace("_", " ").title()
 
         print(f"[INTROSPECTION] Bắt đầu kết nối CSDL '{args.db_name}'...")
-        client = DorisClient(
-            host=args.host,
-            port=args.port,
-            user=args.user,
-            password=args.password,
-            database=args.db_name
-        )
+        client = get_warehouse_client(db_path=args.db_path)
 
         try:
             conn = client.get_connection()

@@ -20,9 +20,8 @@ class TestConfigManagement(unittest.TestCase):
 
     def test_default_settings_loaded(self):
         """Xác nhận các giá trị mặc định thiết yếu được khởi tạo chính xác."""
-        self.assertIn(settings.DORIS_HOST, ["localhost", "doris-fe", "127.0.0.1"])
-        self.assertEqual(settings.DORIS_PORT, 9030)
-        self.assertEqual(settings.DORIS_DATABASE, "real_estate_analytics")
+        self.assertEqual(settings.WAREHOUSE_BACKEND, "duckdb")
+        self.assertIn("warehouse.duckdb", settings.DUCKDB_PATH)
         self.assertEqual(settings.APP_PORT, 8000)
         self.assertIn("*", settings.cors_origins_list)
 
@@ -34,13 +33,13 @@ class TestConfigManagement(unittest.TestCase):
     def test_custom_env_override(self):
         """Kiểm tra khả năng ghi đè giá trị qua tham số khởi tạo."""
         custom_cfg = AppSettings(
-            DORIS_HOST="192.168.1.100",
-            DORIS_PORT=9031,
+            WAREHOUSE_BACKEND="duckdb",
+            DUCKDB_PATH="./custom/path.duckdb",
             APP_PORT=8080,
             CORS_ORIGINS="http://localhost:3000, https://app.example.com"
         )
-        self.assertEqual(custom_cfg.DORIS_HOST, "192.168.1.100")
-        self.assertEqual(custom_cfg.DORIS_PORT, 9031)
+        self.assertEqual(custom_cfg.WAREHOUSE_BACKEND, "duckdb")
+        self.assertEqual(custom_cfg.DUCKDB_PATH, "./custom/path.duckdb")
         self.assertEqual(custom_cfg.APP_PORT, 8080)
         self.assertEqual(len(custom_cfg.cors_origins_list), 2)
         self.assertIn("http://localhost:3000", custom_cfg.cors_origins_list)

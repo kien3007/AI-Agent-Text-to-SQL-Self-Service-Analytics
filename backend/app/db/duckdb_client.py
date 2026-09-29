@@ -1,7 +1,6 @@
 """
 DuckDB Client Module.
 Client kết nối và thực thi truy vấn phân tích (OLAP) trên DuckDB Embedded Engine.
-Được thiết kế tương thích 100% với giao diện của DorisClient nhưng:
 - Không cần server daemon/Docker
 - Chạy in-process với hiệu năng Vectorized Columnar Engine
 - Hỗ trợ an toàn đa luồng ở chế độ read-only

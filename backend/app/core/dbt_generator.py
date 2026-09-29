@@ -442,12 +442,19 @@ class AutoDbtGenerator:
             with open(prof_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            # Thay thế dòng schema: ...
-            updated = re.sub(
-                r"schema:\s*.*",
-                f"schema: {new_schema}",
-                content
-            )
+            # Thay thế hoặc chèn dòng schema: ...
+            if re.search(r"schema:\s*.*", content):
+                updated = re.sub(
+                    r"schema:\s*.*",
+                    f"schema: {new_schema}",
+                    content
+                )
+            else:
+                updated = re.sub(
+                    r"(dev:\s*\n)",
+                    f"\\1      schema: {new_schema}\n",
+                    content
+                )
 
             with open(prof_path, "w", encoding="utf-8") as f:
                 f.write(updated)

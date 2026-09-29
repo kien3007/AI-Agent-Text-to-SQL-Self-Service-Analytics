@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 
 class ColumnContext(BaseModel):
-    name: str = Field(..., description="Tên cột trong CSDL Doris")
+    name: str = Field(..., description="Tên cột trong CSDL Data Warehouse")
     table_name: Optional[str] = Field(None, description="Tên bảng chứa cột này (hỗ trợ đa bảng)")
     data_type: str = Field(..., description="Kiểu dữ liệu SQL")
     vn_name: str = Field(..., description="Tên tiếng Việt")

@@ -43,7 +43,7 @@ class DataQualityChecker:
             "table": "* (Toàn Domain)",
             "rule": "Data Freshness SLA",
             "rule_type": "Freshness",
-            "description": "Thời gian trễ nạp dữ liệu từ nguồn vào Doris OLAP",
+            "description": "Thời gian trễ nạp dữ liệu từ nguồn vào DuckDB Warehouse",
             "threshold": "< 2 giờ",
             "actual": "18 phút trước",
             "status": "PASS",

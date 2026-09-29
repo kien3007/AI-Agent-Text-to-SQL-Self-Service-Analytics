@@ -1,6 +1,6 @@
 """
 Build Profiling Index Script
-Trích xuất toàn bộ metadata từ Apache Doris (3.4M bản ghi) và xây dựng chỉ mục ngữ nghĩa
+Trích xuất toàn bộ metadata từ DuckDB Data Warehouse (3.4M bản ghi) và xây dựng chỉ mục ngữ nghĩa
 Bilingual Data Profiling Graph vào Qdrant On-premise sử dụng LlamaIndex và BAAI/bge-m3.
 """
 
@@ -20,7 +20,7 @@ backend_dir = os.path.join(root_dir, "backend")
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-from app.db.doris_client import DorisClient
+from app.db.duckdb_client import DuckDBClient
 from app.rag.profiling_graph import BilingualDataProfilingGraph
 
 def main():
@@ -30,21 +30,19 @@ def main():
 
     start_time = time.time()
     
-    # 1. Trích xuất metadata danh mục từ Apache Doris
-    print("\n[1/3] Đang kết nối Apache Doris và trích xuất danh mục thực tế...")
-    doris = DorisClient()
+    # 1. Trích xuất metadata danh mục từ DuckDB
+    print("\n[1/3] Đang kết nối DuckDB và trích xuất danh mục thực tế...")
+    warehouse = DuckDBClient()
     try:
-        categories = doris.get_distinct_categories()
+        categories = warehouse.get_distinct_categories()
         print(f" -> Loại hình BĐS: {len(categories['property_types'])} loại hình")
         print(f" -> Tỉnh / Thành phố: {len(categories['provinces'])} tỉnh thành")
         print(f" -> Quận / Huyện: {len(categories['districts'])} quận huyện")
         print(f" -> Hướng nhà chuẩn: {len(categories['directions'])} hướng ({', '.join(categories['directions'])})")
         print(f" -> Top Dự án phổ biến: {len(categories['top_projects'])} dự án")
     except Exception as e:
-        print(f" -> Cảnh báo lỗi kết nối Doris: {e}. Sử dụng danh mục tĩnh dự phòng.")
+        print(f" -> Cảnh báo lỗi đọc DuckDB: {e}. Sử dụng danh mục tĩnh dự phòng.")
         categories = None
-    finally:
-        doris.close()
 
     # 2. Khởi tạo BilingualDataProfilingGraph và lập chỉ mục Qdrant
     print("\n[2/3] Đang khởi tạo Qdrant Vector Store & mô hình BAAI/bge-m3 qua LlamaIndex...")

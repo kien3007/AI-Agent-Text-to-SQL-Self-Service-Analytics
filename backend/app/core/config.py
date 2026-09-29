@@ -31,15 +31,9 @@ for p in env_paths:
 class AppSettings(BaseSettings):
     """Lớp cấu hình tập trung cho toàn bộ ứng dụng."""
 
-    # 1. Warehouse OLAP Engine (DuckDB / Apache Doris)
-    WAREHOUSE_BACKEND: str = Field("duckdb", description="Động cơ Data Warehouse: 'duckdb' (mặc định nhẹ, nhanh) hoặc 'doris'")
+    # 1. Warehouse OLAP Engine (DuckDB)
+    WAREHOUSE_BACKEND: str = Field("duckdb", description="Động cơ Data Warehouse: 'duckdb' in-process siêu nhẹ")
     DUCKDB_PATH: str = Field("./data/warehouse.duckdb", description="Đường dẫn file DuckDB database")
-    DORIS_HOST: str = Field("localhost", description="Địa chỉ máy chủ Apache Doris")
-    DORIS_PORT: int = Field(9030, description="MySQL Query Protocol Port")
-    DORIS_HTTP_PORT: int = Field(8030, description="Doris FE HTTP / Stream Load Port")
-    DORIS_USER: str = Field("root", description="Tên đăng nhập Doris")
-    DORIS_PASSWORD: str = Field("", description="Mật khẩu đăng nhập Doris")
-    DORIS_DATABASE: str = Field("real_estate_analytics", description="CSDL mặc định")
 
     # 2. Dual-Model LLM Gateway
     LLM_BASE_URL: str = Field("", description="OpenAI-compatible API base URL (vLLM, Ollama, Together, OpenAI...)")

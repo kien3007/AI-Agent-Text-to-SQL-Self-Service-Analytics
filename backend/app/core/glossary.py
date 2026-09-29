@@ -24,7 +24,7 @@ class VietnameseBusinessGlossary:
     3. Bảo đảm tương thích ngược 100% với toàn bộ unit test và pipeline hiện tại.
     """
 
-    # Danh mục Loại hình BĐS chuẩn trong Database (Apache Doris)
+    # Danh mục Loại hình BĐS chuẩn trong Database (DuckDB Data Warehouse)
     PROPERTY_TYPE_MAPPING = {
         r"\b(chung cư mini|cc mini|căn hộ mini|officetel|penthouse|duplex|studio|căn hộ dịch vụ|chung cư cao cấp|căn hộ cao cấp|chung cư|căn hộ|chcc|cc)\b": "Căn hộ chung cư",
         r"\b(nhà riêng|nhà phố|nhà ngõ|nhà hẻm|nhà ở|nhà cấp 4|nhà mặt tiền|nhà mặt phố|nhà hẻm xe hơi|nhà ngõ ô tô|nhà)\b": "Nhà",

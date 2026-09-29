@@ -5,7 +5,7 @@ Chịu trách nhiệm:
 2. Cross-Join / Cartesian Product Detector: Phát hiện và chặn đứng các phép JOIN thiếu điều kiện ON gây treo cụm CSDL.
 3. Fan-Trap Validator: Cảnh báo hoặc phát hiện các phép tính SUM/COUNT trên quan hệ 1-N gây nhân bản số liệu.
 4. Column Existence & Error Translator: Đối chiếu cột với SchemaContext và dịch lỗi DB sang tiếng Việt cho LLM tự sửa.
-5. Dry-run EXPLAIN Guardrail: Phân tích số lượng tablet và số byte quét trên Apache Doris trước khi chạy thật.
+5. Dry-run EXPLAIN Guardrail: Phân tích số lượng row group / block quét trên Data Warehouse trước khi chạy thật.
 """
 
 import re
@@ -23,14 +23,13 @@ from app.core.config import settings
 
 from app.schemas.schema_context import SchemaContext, ColumnContext
 from app.schemas.validation import ValidationResult
-from app.db.doris_client import DorisClient
 from app.db.duckdb_client import DuckDBClient
 from app.db.warehouse_client import get_warehouse_client
 
 
 class PlanValidator:
     """
-    Agent kiểm định đa tầng cho SQL trước khi thực thi trên Data Warehouse (DuckDB / Doris).
+    Agent kiểm định đa tầng cho SQL trước khi thực thi trên Data Warehouse.
     """
 
     FORBIDDEN_KEYWORDS = [
@@ -38,8 +37,11 @@ class PlanValidator:
         "UPDATE", "CREATE", "GRANT", "REVOKE", "RENAME"
     ]
 
-    def __init__(self, doris_client: Optional[Union[DorisClient, DuckDBClient]] = None):
-        self.doris_client = doris_client
+    def __init__(
+        self,
+        warehouse_client: Optional[DuckDBClient] = None
+    ):
+        self.warehouse_client = warehouse_client or get_warehouse_client()
 
     def validate(
         self,
@@ -89,11 +91,11 @@ class PlanValidator:
                 errors.extend(col_errors)
                 risk_level = "BLOCKED"
 
-        # TẦNG 5: Dry-run EXPLAIN (Nếu có Doris Client và chưa bị Block)
+        # TẦNG 5: Dry-run EXPLAIN (Nếu có Warehouse Client và chưa bị Block)
         cardinality_est = 0
         tablets_est = 0
-        if use_explain and self.doris_client and risk_level != "BLOCKED":
-            explain_res = self.doris_client.explain_query(cleaned_sql)
+        if use_explain and self.warehouse_client and risk_level != "BLOCKED":
+            explain_res = self.warehouse_client.explain_query(cleaned_sql)
             if not explain_res.get("success"):
                 err_msg = explain_res.get("error", "")
                 errors.append(f"Lỗi Dry-run EXPLAIN trên CSDL: {err_msg}")

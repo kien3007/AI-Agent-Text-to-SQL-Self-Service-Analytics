@@ -1,12 +1,11 @@
 """
 Executor Node (Node 6).
-Thực thi câu lệnh SQL an toàn trên Data Warehouse (DuckDB / Apache Doris) và thu thập tập kết quả.
+Thực thi câu lệnh SQL an toàn trên Data Warehouse (DuckDB) và thu thập tập kết quả.
 """
 
 import logging
 from typing import Optional, List, Dict, Any, Callable, Union
 from app.agent.state import AgentState
-from app.db.doris_client import DorisClient
 from app.db.duckdb_client import DuckDBClient
 from app.db.warehouse_client import get_warehouse_client
 
@@ -16,10 +15,11 @@ logger = logging.getLogger("ExecutorNode")
 class ExecutorNode:
     """Node thực thi câu truy vấn SQL và lưu kết quả vào AgentState."""
 
-    def __init__(self, doris_client: Optional[Union[DorisClient, DuckDBClient]] = None):
-        self.warehouse_client = doris_client or get_warehouse_client()
-        # Giữ thuộc tính doris_client cho backward compatibility
-        self.doris_client = self.warehouse_client
+    def __init__(
+        self,
+        warehouse_client: Optional[DuckDBClient] = None
+    ):
+        self.warehouse_client = warehouse_client or get_warehouse_client()
         self._mock_executor: Optional[Callable[[str], List[Dict[str, Any]]]] = None
 
     def set_mock_executor(self, executor: Optional[Callable[[str], List[Dict[str, Any]]]]) -> None:
@@ -45,7 +45,7 @@ class ExecutorNode:
             state.column_names = list(results[0].keys()) if results else []
             return state
 
-        # 2. Thực thi trên Warehouse Client (DuckDB / Doris)
+        # 2. Thực thi trên Warehouse Client (DuckDB)
         try:
             results = self.warehouse_client.execute_query_dict(state.sql_query, max_rows=500)
             if not results:

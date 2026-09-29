@@ -1,7 +1,7 @@
 """
 Database Introspector (Bộ Tự Động Khám Phá Schema CSDL - Automated Schema Crawler).
 Chịu trách nhiệm:
-1. Quét CSDL qua information_schema (MySQL, Apache Doris, SQLite) để lấy danh sách bảng, cột, kiểu dữ liệu, comment.
+1. Quét CSDL qua information_schema (DuckDB, MySQL, SQLite) để lấy danh sách bảng, cột, kiểu dữ liệu, comment.
 2. Tự động phát hiện khóa chính (PK) và khóa ngoại (FK) từ ràng buộc CSDL hoặc quy ước đặt tên (*_id -> table.id).
 3. Xuất kết quả tự động thành đối tượng DomainConfig hoặc lưu thành bộ cấu hình YAML (domain.yaml, schema.yaml, metrics.yaml).
 """
@@ -91,7 +91,7 @@ class DatabaseIntrospector:
                 metrics={}
             )
 
-        # 1. Lấy danh sách bảng và mô tả bảng (MySQL / Doris)
+        # 1. Lấy danh sách bảng và mô tả bảng (DuckDB / MySQL)
         cur.execute(
             """
             SELECT table_name, table_comment

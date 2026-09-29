@@ -1,7 +1,7 @@
 """
 Bilingual Data Profiling Graph (Đồ thị hồ sơ dữ liệu song ngữ & Schema Linking Đa Domain).
 Sử dụng BAAI/bge-m3 + LlamaIndex + Qdrant + NetworkX để liên kết ngữ nghĩa câu hỏi người dùng
-với CSDL Apache Doris, hỗ trợ đa bảng và tự động suy luận phép nối JOIN qua thuật toán Minimum Steiner Tree.
+với CSDL DuckDB Data Warehouse, hỗ trợ đa bảng và tự động suy luận phép nối JOIN qua thuật toán Minimum Steiner Tree.
 """
 
 import os
@@ -625,7 +625,7 @@ class BilingualDataProfilingGraph:
                 "Bảng được PARTITION BY RANGE(published_at) theo tháng. "
                 "Nếu người dùng hỏi mốc thời gian (tháng trước, quý này...), luôn thêm điều kiện published_at BETWEEN ... để tối ưu số tablet quét."
             )
-            prompt_lines.append(f"\n> **LƯU Ý HIỆU NĂNG TỐI ƯU DORIS:** {partition_hint}")
+            prompt_lines.append(f"\n> **LƯU Ý HIỆU NĂNG TỐI ƯU TRUY VẤN:** {partition_hint}")
 
         prompt_context = "\n".join(prompt_lines)
 

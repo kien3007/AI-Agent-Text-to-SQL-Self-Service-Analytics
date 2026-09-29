@@ -44,7 +44,7 @@ class LineageService:
         Xây dựng đồ thị DAG hoàn chỉnh cho domain gồm 5 tầng:
         1. Sources (CDC / Kafka / Raw DB)
         2. Staging (dbt Staging Models)
-        3. Storage / Marts (Doris Warehouse Tables)
+        3. Storage / Marts (DuckDB Warehouse Tables)
         4. Semantic Metrics (Chỉ số nghiệp vụ)
         5. Consumers (BI / AI Agent / Downstream reports)
         """

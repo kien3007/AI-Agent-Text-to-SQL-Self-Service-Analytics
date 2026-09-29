@@ -37,7 +37,7 @@ class AgentOrchestrator:
         self,
         llm: Optional[DualModelLLM] = None,
         embedding_function: Optional[Any] = None,
-        doris_client: Optional[Any] = None,
+        warehouse_client: Optional[Any] = None,
         use_explain: bool = False,
         checkpointer: Optional[Any] = None
     ):
@@ -51,7 +51,7 @@ class AgentOrchestrator:
         self.sql_node = SQLGeneratorNode(llm=self.llm, memory=self.memory)
         self.validator_node = ValidatorNode(memory=self.memory, use_explain=use_explain)
         self.hitl_node = HITLNode()
-        self.executor_node = ExecutorNode(doris_client=doris_client)
+        self.executor_node = ExecutorNode(warehouse_client=warehouse_client)
         self.formatter_node = ResponseFormatterNode(llm=self.llm)
 
         # Bộ lưu trữ trạng thái phiên làm việc (Checkpointer)

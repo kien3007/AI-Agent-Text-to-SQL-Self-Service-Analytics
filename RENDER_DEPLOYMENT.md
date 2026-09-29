@@ -12,7 +12,7 @@ graph LR
     Frontend -->|Next.js Rewrites / API Proxy| Backend[text2sql-backend<br/>FastAPI + LangGraph<br/>Docker Web Service]
     Backend --> Qdrant[(Qdrant Vector Store)]
     Backend -->|LLM Gateway| LLM[(OpenAI / vLLM / Together)]
-    Backend -->|SQL Query| Doris[(Apache Doris / MySQL)]
+    Backend -->|SQL Query| Warehouse[(DuckDB OLAP / Warehouse)]
 ```
 
 | Tên Dịch Vụ | Loại | Môi Trường | Port | Ghi Chú |
@@ -38,7 +38,6 @@ graph LR
 Trước khi nhấn **"Apply"**, Render sẽ yêu cầu bạn điền các biến môi trường chưa có giá trị mặc định (`sync: false`):
 * `LLM_BASE_URL`: Địa chỉ API của LLM (ví dụ: `https://api.openai.com/v1` hoặc để trống nếu chạy mock simulation).
 * `LLM_API_KEY`: Khóa API (ví dụ: `sk-...` hoặc `EMPTY`).
-* `DORIS_PASSWORD`: Mật khẩu CSDL Doris (nếu có kết nối CSDL ngoài).
 
 Nhấn **"Apply"**. Render sẽ tự động:
 1. Build Docker image cho Backend.

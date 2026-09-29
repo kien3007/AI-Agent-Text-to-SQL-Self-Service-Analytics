@@ -14,7 +14,7 @@ class ValidationResult(BaseModel):
     warnings: List[str] = Field(default_factory=list, description="Danh sách cảnh báo (Fan-trap, hiệu năng, bytes scan)")
     vn_suggestions: List[str] = Field(default_factory=list, description="Chỉ dẫn bằng tiếng Việt cho LLM sửa câu lệnh")
     cardinality_estimate: int = Field(0, description="Ước tính số dòng kết quả từ EXPLAIN")
-    tablets_scanned: int = Field(0, description="Ước tính số tablet quét trên Apache Doris")
+    tablets_scanned: int = Field(0, description="Ước tính số tablet/block quét trên Data Warehouse")
     bytes_scanned_mb: float = Field(0.0, description="Dung lượng ước tính quét (MB)")
     requires_hitl: bool = Field(False, description="Có bắt buộc người dùng phê duyệt Human-In-The-Loop không")
 

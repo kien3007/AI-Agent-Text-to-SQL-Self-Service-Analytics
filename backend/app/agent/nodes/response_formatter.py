@@ -35,9 +35,9 @@ class ResponseFormatterNode:
             if exec_err:
                 response_parts = [
                     f"### ⚠️ THÔNG BÁO THỰC THI TRUY VẤN: \"{state.user_query}\"\n",
-                    f"**Trạng thái CSDL:** Chưa thể kết nối hoặc thực thi trên kho dữ liệu Doris ({exec_err.get('raw_error', 'Lỗi kết nối')}).\n",
+                    f"**Trạng thái CSDL:** Chưa thể kết nối hoặc thực thi trên kho dữ liệu Data Warehouse ({exec_err.get('raw_error', 'Lỗi kết nối')}).\n",
                     f"- Câu lệnh SQL đã sinh: `{state.sql_query}`\n",
-                    f"- Khuyến nghị: {exec_err.get('vn_advice', 'Vui lòng kiểm tra trạng thái cụm CSDL Apache Doris.')}"
+                    f"- Khuyến nghị: {exec_err.get('vn_advice', 'Vui lòng kiểm tra trạng thái CSDL Data Warehouse.')}"
                 ]
             else:
                 response_parts = [
