@@ -50,7 +50,7 @@ const LAYER_CONFIGS: Record<
     accentColor: "text-purple-500",
     badgeBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
     borderActive: "border-purple-500 ring-2 ring-purple-500/20",
-    title: "Doris Warehouse",
+    title: "OLAP Warehouse",
   },
   metric: {
     icon: TrendingUp,

@@ -118,7 +118,7 @@ class LineageService:
                 "type": "smoothstep"
             })
 
-        # Layer 3: Warehouse Tables (Doris Marts & Fact/Dim)
+        # Layer 3: Warehouse Tables (OLAP Marts & Fact/Dim)
         for t_name, tbl in conf.tables.items():
             tbl_id = f"tbl_{t_name}"
             # Extract column info
@@ -139,7 +139,7 @@ class LineageService:
                 "label": t_name,
                 "vn_label": tbl.vn_name or t_name,
                 "layer": "warehouse",
-                "type": "Doris Table (OLAP)",
+                "type": "Warehouse Table (OLAP)",
                 "status": "online",
                 "details": {
                     "table_name": t_name,

@@ -114,7 +114,7 @@ export default function LineageView({ domainId }: LineageViewProps) {
       type: "Buffer",
     },
     {
-      title: "Doris OLAP Warehouse",
+      title: "DuckDB OLAP Warehouse",
       desc: "Marts & Aggregation",
       icon: Layers,
       status: "Online",

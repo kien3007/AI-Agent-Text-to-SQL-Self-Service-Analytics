@@ -10,7 +10,7 @@ interface WelcomeHeroProps {
 const CAPABILITIES = [
   {
     icon: Zap,
-    title: "Apache Doris OLAP",
+    title: "DuckDB OLAP Warehouse",
     desc: "Truy vấn phân tích dữ liệu siêu tốc trên hàng triệu bản ghi",
   },
   {

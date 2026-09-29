@@ -180,7 +180,7 @@ export default function LineageFlowCanvas({
             { id: "all", label: "Tất Cả" },
             { id: "source", label: "Nguồn (Raw)" },
             { id: "staging", label: "Staging" },
-            { id: "warehouse", label: "Doris Tables" },
+            { id: "warehouse", label: "Warehouse Tables" },
             { id: "metric", label: "Metrics" },
             { id: "consumer", label: "Consumers" },
           ].map((l) => (

@@ -53,7 +53,7 @@ export default function SplitCanvas({ isOpen, onClose, data }: SplitCanvasProps)
             <span>Data & Insights Canvas</span>
           </h2>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            {normalized.columns.length} Cột · {normalized.rows.length} Dòng dữ liệu Doris OLAP
+            {normalized.columns.length} Cột · {normalized.rows.length} Dòng dữ liệu Warehouse OLAP
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export default function SplitCanvas({ isOpen, onClose, data }: SplitCanvasProps)
           <div className="flex flex-col gap-4">
             <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
               <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
-                Trực quan hóa dữ liệu Doris
+                Trực quan hóa dữ liệu Warehouse
               </h3>
               <ChartView
                 columns={normalized.columns}
@@ -230,7 +230,7 @@ export default function SplitCanvas({ isOpen, onClose, data }: SplitCanvasProps)
               <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60">
                 <div className="flex items-center gap-1.5 text-zinc-500 mb-1">
                   <Zap size={14} className="text-amber-500" />
-                  <span>Doris OLAP Latency</span>
+                  <span>Warehouse Latency</span>
                 </div>
                 <div className="font-semibold text-zinc-800 dark:text-zinc-200">
                   {data?.execution_time_ms ? `${Math.round(data.execution_time_ms)}ms` : 'Cached / Fast'}
@@ -241,7 +241,7 @@ export default function SplitCanvas({ isOpen, onClose, data }: SplitCanvasProps)
             {/* SQL Block */}
             <div className="rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950">
               <div className="px-4 py-2 border-b border-zinc-800 text-xs text-zinc-400 font-mono">
-                Apache Doris SQL
+                DuckDB / Warehouse SQL
               </div>
               <pre className="p-4 text-xs font-mono text-zinc-200 overflow-x-auto leading-relaxed">
                 <code>{data?.sql_query || '-- No SQL available'}</code>

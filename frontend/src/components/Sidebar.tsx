@@ -277,7 +277,7 @@ export function Sidebar({
               <span className="text-[11px] font-semibold text-[var(--text-primary)]">Multi-Agent Engine</span>
             </div>
             <p className="text-[10px] text-[var(--text-muted)] leading-tight">
-              Apache Doris 2.0 OLAP & 5-Tier Zero-Blindness Guardrail.
+              DuckDB OLAP Warehouse & 5-Tier Zero-Blindness Guardrail.
             </p>
           </div>
         )}

@@ -89,7 +89,7 @@ export default function BenchmarkModal({ isOpen, onClose }: BenchmarkModalProps)
                 Enterprise Benchmark Suite (Spider / BIRD / OWASP)
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Đánh giá độ chính xác thực thi SQL, khả năng phòng chống SQL Injection và độ trễ Doris
+                Đánh giá độ chính xác thực thi SQL, khả năng phòng chống SQL Injection và độ trễ Warehouse
               </p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function BenchmarkModal({ isOpen, onClose }: BenchmarkModalProps)
             <div className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40 text-center">
               <div className="text-[11px] text-zinc-500 font-medium uppercase">Avg Latency</div>
               <div className="text-xl font-bold text-amber-600 dark:text-amber-400 mt-0.5">1.3s</div>
-              <div className="text-[10px] text-zinc-400">Doris OLAP + Agent</div>
+              <div className="text-[10px] text-zinc-400">DuckDB OLAP + Agent</div>
             </div>
           </div>
 

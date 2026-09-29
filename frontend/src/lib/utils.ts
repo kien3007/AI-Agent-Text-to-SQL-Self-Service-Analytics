@@ -47,7 +47,7 @@ export function formatStepName(stepKey: string): string {
     'plan_validator': '4. Kiểm duyệt An toàn (5-Tier Guardrail)',
     'self_correction_retry': '4.1. Tự sửa lỗi truy vấn (Self-Correction)',
     'hitl_gate': '5. Cổng kiểm duyệt Con người (HITL Gate)',
-    'executor': '6. Thực thi Doris OLAP',
+    'executor': '6. Thực thi Warehouse OLAP',
     'response_formatter': '7. Định dạng Nhận định (Business Insights)'
   };
   return map[stepKey] || stepKey;

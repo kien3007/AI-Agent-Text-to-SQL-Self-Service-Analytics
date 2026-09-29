@@ -109,7 +109,7 @@ export default function CatalogView({
             </div>
             <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-2xl leading-relaxed">
               {data?.description ||
-                "Semantic Layer, Business Metrics & Cấu trúc Schema cơ sở dữ liệu phân tích Apache Doris."}
+                "Semantic Layer, Business Metrics & Cấu trúc Schema cơ sở dữ liệu phân tích Data Warehouse."}
             </p>
           </div>
         </div>
@@ -203,7 +203,7 @@ export default function CatalogView({
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-emerald-500" />
               <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-                Cấu trúc Bảng & Cột Doris OLAP
+                Cấu trúc Bảng & Cột Data Warehouse
               </h2>
               <span className="text-[11px] px-2 py-0.5 rounded-full bg-[var(--pill-bg)] text-[var(--text-muted)] font-mono">
                 {filteredTables?.length || 0} bảng

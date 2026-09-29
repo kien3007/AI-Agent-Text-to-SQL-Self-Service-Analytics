@@ -236,7 +236,7 @@ export default function AssistantMessage({
                   }`}
                 >
                   <Code size={13} />
-                  Doris SQL
+                  SQL Query
                 </button>
               )}
             </div>
@@ -328,7 +328,7 @@ export default function AssistantMessage({
                 {!hasData && (
                   <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
                     <Database size={13} className="text-blue-500 shrink-0" />
-                    <span>Doris OLAP đã thực thi thành công câu truy vấn. Không có bản ghi dữ liệu nào khớp với điều kiện lọc.</span>
+                    <span>Data Warehouse đã thực thi thành công câu truy vấn. Không có bản ghi dữ liệu nào khớp với điều kiện lọc.</span>
                   </div>
                 )}
               </div>
@@ -349,10 +349,10 @@ export default function AssistantMessage({
                     ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border border-zinc-900 dark:border-zinc-100 font-semibold'
                     : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-800'
                 }`}
-                title="Xem câu lệnh Doris SQL"
+                title="Xem câu lệnh SQL Query"
               >
                 <Code size={12} />
-                Doris SQL
+                SQL Query
               </button>
             )}
 

@@ -12,8 +12,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Sana AI - Enterprise Text-to-SQL Analytics",
-  description: "Superintelligence for Enterprise Analytics with Multi-Agent LangGraph, DAIL-SQL, DIN-SQL, and Apache Doris OLAP.",
-  keywords: ["Text-to-SQL", "Multi-Agent", "LangGraph", "Apache Doris", "Self-Service Analytics", "Enterprise BI"],
+  description: "Superintelligence for Enterprise Analytics with Multi-Agent LangGraph, DAIL-SQL, DIN-SQL, and DuckDB OLAP Warehouse.",
+  keywords: ["Text-to-SQL", "Multi-Agent", "LangGraph", "DuckDB", "Self-Service Analytics", "Enterprise BI"],
   authors: [{ name: "Enterprise Data Team" }],
 };
 

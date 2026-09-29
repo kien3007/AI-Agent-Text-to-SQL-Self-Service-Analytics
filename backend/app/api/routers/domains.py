@@ -11,7 +11,6 @@ from app.core.dbt_generator import AutoDbtGenerator
 from app.core.introspection import DatabaseIntrospector
 from app.core.lineage_service import LineageService
 from app.core.dq_checker import DataQualityChecker
-from app.db.doris_client import DorisClient
 from app.db.warehouse_client import get_warehouse_client
 from app.schemas.api import DomainSwitchRequest, BootstrapRequest
 from app.core.auth import require_admin, UserContext

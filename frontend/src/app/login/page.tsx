@@ -106,7 +106,7 @@ export default function LoginPage() {
             Đăng nhập hệ thống
           </h1>
           <p className="mt-2 text-xs sm:text-sm text-[var(--text-muted)] max-w-sm mx-auto">
-            Truy cập Sana AI Text-to-SQL Self-Service Analytics với Apache Doris 2.0 & LLM kép
+            Truy cập Sana AI Text-to-SQL Self-Service Analytics với DuckDB OLAP & LLM kép
           </p>
         </div>
 
@@ -258,7 +258,7 @@ export default function LoginPage() {
           <span>•</span>
           <span className="flex items-center gap-1">
             <Database size={12} />
-            Apache Doris OLAP
+            DuckDB OLAP Warehouse
           </span>
         </div>
       </div>

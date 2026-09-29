@@ -33,6 +33,11 @@ services:
       # Thư mục lưu trữ vector database Qdrant On-premise
       - key: QDRANT_STORAGE_DIR
         value: ./data/qdrant_db
+      # Cấu hình Data Warehouse Engine (Mặc định: DuckDB in-process siêu nhẹ)
+      - key: WAREHOUSE_BACKEND
+        value: duckdb
+      - key: DUCKDB_PATH
+        value: ./data/warehouse.duckdb
       # Cấu hình CSDL Doris (nếu kết nối cloud Doris/MySQL)
       - key: DORIS_HOST
         value: localhost

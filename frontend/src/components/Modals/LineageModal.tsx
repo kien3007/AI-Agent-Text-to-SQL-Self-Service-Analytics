@@ -145,7 +145,7 @@ export default function LineageModal({ isOpen, domainId, onClose }: LineageModal
                   </div>
                   <ArrowRight size={14} className="text-zinc-400" />
                   <div className="text-xs font-mono font-semibold text-blue-600 dark:text-blue-400">
-                    {lineage?.destination || 'fct_doris_olap'}
+                    {lineage?.destination || 'fct_warehouse_olap'}
                   </div>
                 </div>
 

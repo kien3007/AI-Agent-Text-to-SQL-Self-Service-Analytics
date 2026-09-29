@@ -121,7 +121,7 @@ export default function BenchmarkView() {
               </span>
             </div>
             <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-2xl leading-relaxed">
-              Hệ thống kiểm thử tự động đánh giá độ chính xác sinh câu lệnh SQL, khả năng phòng chống tấn công SQL Injection và độ trễ thực thi trên Apache Doris.
+              Hệ thống kiểm thử tự động đánh giá độ chính xác sinh câu lệnh SQL, khả năng phòng chống tấn công SQL Injection và độ trễ thực thi trên Data Warehouse.
             </p>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function BenchmarkView() {
           <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1 font-mono">
             1.3s
           </div>
-          <div className="text-[11px] text-[var(--text-muted)]">Apache Doris Sub-second OLAP</div>
+          <div className="text-[11px] text-[var(--text-muted)]">DuckDB Sub-second OLAP</div>
         </div>
 
         <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] flex flex-col gap-1 shadow-xs">

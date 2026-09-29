@@ -139,7 +139,7 @@ export default function CatalogModal({
                 <div className="flex items-center gap-1.5 mb-3">
                   <Database size={15} className="text-emerald-500" />
                   <h5 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    Bảng & Cột Doris OLAP
+                    Bảng & Cột Data Warehouse
                   </h5>
                 </div>
 

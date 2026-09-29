@@ -52,7 +52,7 @@ export default function HitlModal({
               Yêu cầu Phê duyệt Con người (HITL Gate)
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Hệ thống phát hiện truy vấn có mức độ phức tạp cao hoặc tiềm ẩn chi phí quét tài nguyên lớn trên Doris OLAP.
+              Hệ thống phát hiện truy vấn có mức độ phức tạp cao hoặc tiềm ẩn chi phí quét tài nguyên lớn trên Data Warehouse.
             </p>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function HitlModal({
         {/* SQL Code Box */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-1.5 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-            <span>Doris SQL được sinh:</span>
+            <span>SQL Query được sinh:</span>
             <button
               onClick={handleCopy}
               className="inline-flex items-center gap-1 text-[11px] text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"

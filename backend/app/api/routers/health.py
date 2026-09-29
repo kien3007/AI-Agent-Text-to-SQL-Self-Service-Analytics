@@ -8,7 +8,7 @@ from pydantic import BaseModel
 import time
 
 from app.core.domain_manager import DomainManager
-from app.db.doris_client import DorisClient
+from app.db.warehouse_client import get_warehouse_client
 from app.agent.llm_client import DualModelLLM
 from app.rag.qdrant_provider import get_qdrant_client
 from app.core.config import settings
@@ -26,7 +26,6 @@ def health_check():
     # Check Data Warehouse (DuckDB / Doris)
     warehouse_status = "unhealthy"
     try:
-        from app.db.warehouse_client import get_warehouse_client
         client = get_warehouse_client()
         res = client.execute_query_dict("SELECT 1")
         if res:
