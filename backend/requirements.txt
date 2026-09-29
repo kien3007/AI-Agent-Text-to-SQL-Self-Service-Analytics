@@ -21,3 +21,4 @@ langgraph
 llama-index-core
 llama-index-vector-stores-qdrant
 qdrant-client
+duckdb

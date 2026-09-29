@@ -44,7 +44,54 @@ class DatabaseIntrospector:
         domain_key = domain_id or database_name.lower().replace("-", "_")
         domain_title = display_name or database_name.replace("_", " ").title()
 
-        # 1. Lấy danh sách bảng và mô tả bảng
+        is_duckdb = "duckdb" in type(self.connection).__module__.lower() if self.connection else False
+
+        if is_duckdb:
+            # 1. Lấy danh sách bảng và view từ DuckDB
+            cur.execute("SELECT table_name FROM duckdb_tables WHERE NOT internal UNION SELECT view_name FROM duckdb_views WHERE NOT internal")
+            table_rows = cur.fetchall()
+            tables_dict: Dict[str, TableProfile] = {}
+            for row in table_rows:
+                t_name = row[0]
+                tables_dict[t_name] = TableProfile(
+                    table_name=t_name,
+                    vn_name=t_name.replace("_", " ").title(),
+                    description=f"Bảng/View {t_name}",
+                    columns={}
+                )
+
+            # 2. Lấy danh sách cột từ DuckDB
+            cur.execute("SELECT table_name, column_name, data_type FROM duckdb_columns WHERE NOT internal ORDER BY table_name")
+            col_rows = cur.fetchall()
+            for row in col_rows:
+                t_name, c_name, d_type = row[0], row[1], row[2]
+                if t_name in tables_dict:
+                    is_pk = (c_name.lower() in ("id", f"{t_name}_id", f"{t_name[:-1] if t_name.endswith('s') else t_name}_id"))
+                    if is_pk:
+                        tables_dict[t_name].primary_key.append(c_name)
+                    synonyms = [c_name.replace("_", " ")]
+                    col_profile = ColumnProfile(
+                        name=c_name,
+                        vn_name=c_name.replace("_", " ").title(),
+                        data_type=d_type.upper(),
+                        description=f"Cột {c_name} trong bảng {t_name}",
+                        is_primary_key=is_pk,
+                        synonyms=list(set(synonyms))
+                    )
+                    tables_dict[t_name].columns[c_name] = col_profile
+
+            # 3. Tự động suy luận quan hệ từ quy ước đặt tên
+            inferred_rels = self.infer_relationships_by_naming(tables_dict)
+            return DomainConfig(
+                domain_id=domain_key,
+                display_name=domain_title,
+                description=f"Domain {domain_title} được tự động trích xuất từ DuckDB",
+                tables=tables_dict,
+                relationships=inferred_rels,
+                metrics={}
+            )
+
+        # 1. Lấy danh sách bảng và mô tả bảng (MySQL / Doris)
         cur.execute(
             """
             SELECT table_name, table_comment

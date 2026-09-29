@@ -11,7 +11,7 @@ Chịu trách nhiệm:
 import re
 import os
 import sys
-from typing import Dict, Any, List, Optional, Tuple, Set
+from typing import Dict, Any, List, Optional, Tuple, Set, Union
 from pydantic import BaseModel, Field
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -24,11 +24,13 @@ from app.core.config import settings
 from app.schemas.schema_context import SchemaContext, ColumnContext
 from app.schemas.validation import ValidationResult
 from app.db.doris_client import DorisClient
+from app.db.duckdb_client import DuckDBClient
+from app.db.warehouse_client import get_warehouse_client
 
 
 class PlanValidator:
     """
-    Agent kiểm định đa tầng cho SQL trước khi thực thi trên Doris / DW.
+    Agent kiểm định đa tầng cho SQL trước khi thực thi trên Data Warehouse (DuckDB / Doris).
     """
 
     FORBIDDEN_KEYWORDS = [
@@ -36,7 +38,7 @@ class PlanValidator:
         "UPDATE", "CREATE", "GRANT", "REVOKE", "RENAME"
     ]
 
-    def __init__(self, doris_client: Optional[DorisClient] = None):
+    def __init__(self, doris_client: Optional[Union[DorisClient, DuckDBClient]] = None):
         self.doris_client = doris_client
 
     def validate(

@@ -11,6 +11,8 @@ services:
     environment:
       - API_KEY_QWEN_3=your_qwen3_api_key
       - API_KEY_QWEN_2_5_CODER=your_qwen25_coder_api_key
+      - WAREHOUSE_BACKEND=duckdb
+      - DUCKDB_PATH=/app/data/warehouse.duckdb
       - DORIS_HOST=doris-fe
       - DORIS_PORT=9030
       - DORIS_USER=root
@@ -22,15 +24,16 @@ services:
       - LOG_LEVEL=INFO
     volumes:
       - ./data:/app/data
+      - ./dataset:/app/dataset
       - ./backend:/app/backend
       - ./infra/dbt:/app/infra/dbt
     depends_on:
-      - doris-fe
       - qdrant
     networks:
       - ai_data_net
 
   doris-fe:
+    profiles: ["doris"]
     image: selectdb/doris.fe-ubuntu:2.0.2
     container_name: doris_fe
     environment:
@@ -47,6 +50,7 @@ services:
         ipv4_address: 172.20.0.10
 
   doris-be:
+    profiles: ["doris"]
     image: selectdb/doris.be-ubuntu:2.0.2
     container_name: doris_be
     environment:

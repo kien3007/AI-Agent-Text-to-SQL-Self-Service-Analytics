@@ -20,8 +20,8 @@ except ImportError:
 class SQLGeneratorNode:
     """Node sinh câu truy vấn SQL đảm bảo an toàn và tối ưu bằng Qwen Function Calling."""
 
-    SYSTEM_PROMPT = """Bạn là Chuyên gia Kỹ thuật Dữ liệu cấp cao (Data Engineer & Text-to-SQL Expert) chuyên về Apache Doris và MySQL.
-Nhiệm vụ của bạn là chuyển đổi câu hỏi tự nhiên của người dùng thành câu truy vấn SQL chuẩn xác, an toàn và tối ưu hiệu năng.
+    SYSTEM_PROMPT = """Bạn là Chuyên gia Kỹ thuật Dữ liệu cấp cao (Data Engineer & Text-to-SQL Expert) chuyên về DuckDB, PostgreSQL và Data Warehouse.
+Nhiệm vụ của bạn là chuyển đổi câu hỏi tự nhiên của người dùng thành câu truy vấn SQL chuẩn xác (chuẩn ANSI SQL / PostgreSQL / DuckDB), an toàn và tối ưu hiệu năng.
 
 NGUYÊN TẮC BẮT BUỘC:
 1. CHỈ sinh câu lệnh đọc dữ liệu (SELECT hoặc WITH ... SELECT). Tuyệt đối KHÔNG sinh bất kỳ lệnh DDL/DML nào (DROP, DELETE, UPDATE, INSERT, ALTER...).

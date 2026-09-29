@@ -31,7 +31,9 @@ for p in env_paths:
 class AppSettings(BaseSettings):
     """Lớp cấu hình tập trung cho toàn bộ ứng dụng."""
 
-    # 1. Apache Doris OLAP
+    # 1. Warehouse OLAP Engine (DuckDB / Apache Doris)
+    WAREHOUSE_BACKEND: str = Field("duckdb", description="Động cơ Data Warehouse: 'duckdb' (mặc định nhẹ, nhanh) hoặc 'doris'")
+    DUCKDB_PATH: str = Field("./data/warehouse.duckdb", description="Đường dẫn file DuckDB database")
     DORIS_HOST: str = Field("localhost", description="Địa chỉ máy chủ Apache Doris")
     DORIS_PORT: int = Field(9030, description="MySQL Query Protocol Port")
     DORIS_HTTP_PORT: int = Field(8030, description="Doris FE HTTP / Stream Load Port")

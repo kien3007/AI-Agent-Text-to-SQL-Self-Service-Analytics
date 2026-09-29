@@ -10,13 +10,13 @@ SQL_GENERATION_TOOL: Dict[str, Any] = {
     "type": "function",
     "function": {
         "name": "generate_sql_query",
-        "description": "Sinh câu lệnh SQL phân tích dữ liệu chuẩn xác, an toàn trên Apache Doris / MySQL dựa vào Schema Context và giải thuật Steiner Tree.",
+        "description": "Sinh câu lệnh SQL phân tích dữ liệu chuẩn xác, an toàn trên Data Warehouse (DuckDB / Apache Doris) dựa vào Schema Context và giải thuật Steiner Tree.",
         "parameters": {
             "type": "object",
             "properties": {
                 "sql": {
                     "type": "string",
-                    "description": "Câu lệnh SQL hoàn chỉnh thực thi được trên Apache Doris/MySQL. CHỈ chấp nhận SELECT hoặc WITH ... SELECT."
+                    "description": "Câu lệnh SQL hoàn chỉnh thực thi được trên Data Warehouse (DuckDB/PostgreSQL/Doris). CHỈ chấp nhận SELECT hoặc WITH ... SELECT."
                 },
                 "tables_used": {
                     "type": "array",

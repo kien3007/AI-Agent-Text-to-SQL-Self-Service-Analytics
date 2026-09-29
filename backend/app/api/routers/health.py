@@ -23,12 +23,14 @@ def health_check():
     active_domain_cfg = dm.get_active_domain_config()
     active_domain = active_domain_cfg.domain_id if active_domain_cfg else None
 
-    # Check Doris
-    doris_status = "unhealthy"
+    # Check Data Warehouse (DuckDB / Doris)
+    warehouse_status = "unhealthy"
     try:
-        client = DorisClient()
+        from app.db.warehouse_client import get_warehouse_client
+        client = get_warehouse_client()
         res = client.execute_query_dict("SELECT 1")
-        if res: doris_status = "healthy"
+        if res:
+            warehouse_status = "healthy"
     except Exception:
         pass
 
@@ -53,14 +55,16 @@ def health_check():
         }
 
     return {
-        "status": "healthy" if doris_status == "healthy" and qdrant_status == "healthy" else "degraded",
+        "status": "healthy" if warehouse_status == "healthy" and qdrant_status == "healthy" else "degraded",
         "service": "AI-Agent-Text-to-SQL",
+        "warehouse_engine": getattr(settings, "WAREHOUSE_BACKEND", "duckdb"),
         "loaded_domains": domains,
         "active_domain": active_domain,
         "domain_ownership": ownership,
         "total_domains": len(domains),
         "dependencies": {
-            "doris": doris_status,
+            "warehouse": warehouse_status,
+            "doris": warehouse_status,  # Giữ backward compatibility cho frontend
             "llm": llm_status,
             "qdrant": qdrant_status
         }

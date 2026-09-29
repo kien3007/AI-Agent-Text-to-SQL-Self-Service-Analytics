@@ -12,6 +12,8 @@ data/*.parquet
 data/*.csv
 data/*.db
 data/*.sqlite3
+data/*.duckdb
+data/*.duckdb.wal
 backend/data/*.sqlite3
 data/chroma/
 data/chroma_db/

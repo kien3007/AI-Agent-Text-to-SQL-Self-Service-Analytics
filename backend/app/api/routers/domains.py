@@ -12,6 +12,7 @@ from app.core.introspection import DatabaseIntrospector
 from app.core.lineage_service import LineageService
 from app.core.dq_checker import DataQualityChecker
 from app.db.doris_client import DorisClient
+from app.db.warehouse_client import get_warehouse_client
 from app.schemas.api import DomainSwitchRequest, BootstrapRequest
 from app.core.auth import require_admin, UserContext
 
@@ -115,7 +116,7 @@ def bootstrap_new_database(req: BootstrapRequest, admin: UserContext = Depends(r
     domain_id = req.domain_id or req.db_name.lower().replace("-", "_")
     display_name = req.display_name or domain_id.replace("_", " ").title()
 
-    client = DorisClient(database=req.db_name)
+    client = get_warehouse_client(database=req.db_name)
     try:
         conn = client.get_connection()
         introspector = DatabaseIntrospector(connection=conn)

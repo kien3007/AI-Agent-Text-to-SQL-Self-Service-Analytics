@@ -81,6 +81,7 @@ jobs:
             backend/tests/test_complex_query_decomposition.py \
             backend/tests/test_few_shot_dail_sql.py \
             backend/tests/test_introspection.py \
+            backend/tests/test_duckdb_warehouse.py \
             backend/tests/test_api_endpoints.py
 
   # =========================================================================
