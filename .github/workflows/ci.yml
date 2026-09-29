@@ -66,6 +66,7 @@ jobs:
         env:
           PYTHONPATH: backend
           JWT_SECRET_KEY: ci-test-secret-key-for-automated-github-actions-0123456789
+          EMBEDDING_MODEL: mock
         run: |
           pytest -v \
             backend/tests/test_domain_config.py \

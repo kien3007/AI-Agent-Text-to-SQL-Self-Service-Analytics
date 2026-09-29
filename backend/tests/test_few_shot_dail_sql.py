@@ -35,7 +35,7 @@ class TestFewShotDailSQL(unittest.TestCase):
 
     def setUp(self):
         self.mock_emb = MockEmbedding()
-        self.ltm = LongTermMemory(seed_defaults=True)
+        self.ltm = LongTermMemory(seed_defaults=True, embedding_function=self.mock_emb)
 
     def test_long_term_memory_seeds(self):
         """Kiểm tra LongTermMemory được khởi tạo sẵn với các mẫu dbt Marts và Steiner Tree joins."""

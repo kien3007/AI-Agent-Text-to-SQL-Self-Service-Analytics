@@ -20,12 +20,14 @@ class LlamaIndexBGEM3Embedding(BaseEmbedding):
 
     def __init__(
         self,
-        model_name: str = "BAAI/bge-m3",
-        embedding_function: Optional[BGEM3EmbeddingFunction] = None,
+        model_name: Optional[str] = None,
+        embedding_function: Optional[Any] = None,
         **kwargs: Any
     ):
-        super().__init__(model_name=model_name, **kwargs)
-        self._bge_fn = embedding_function or BGEM3EmbeddingFunction(model_name=model_name)
+        eff_fn = embedding_function or BGEM3EmbeddingFunction(model_name=model_name)
+        eff_name = model_name or getattr(eff_fn, "model_name", None) or "BAAI/bge-m3"
+        super().__init__(model_name=eff_name, **kwargs)
+        self._bge_fn = eff_fn
 
     @classmethod
     def class_name(cls) -> str:

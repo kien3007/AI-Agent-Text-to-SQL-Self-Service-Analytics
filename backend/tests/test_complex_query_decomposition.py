@@ -91,7 +91,8 @@ class TestComplexQueryDecomposition(unittest.TestCase):
 
     def test_sql_generator_incorporates_decomposition_plan(self):
         """Kiểm tra SQLGeneratorNode tự động chèn Kế hoạch phân rã CTEs vào prompt và sinh SQL có WITH."""
-        sql_node = SQLGeneratorNode()
+        from app.agent.memory.three_tier_memory import ThreeTierMemory
+        sql_node = SQLGeneratorNode(memory=ThreeTierMemory(embedding_function=self.mock_emb))
 
         captured_prompt = []
         original_generate = sql_node.llm.generate

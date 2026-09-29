@@ -61,7 +61,7 @@ class TestAgentStateMachine(unittest.TestCase):
 
     def test_three_tier_memory_operations(self):
         """Kiểm tra 3 tầng bộ nhớ: Short-term, Temporary (Bellman) và Long-term."""
-        memory = ThreeTierMemory()
+        memory = ThreeTierMemory(embedding_function=self.mock_emb)
 
         # 1. Short-Term Memory
         err1 = memory.short_term.record_error(

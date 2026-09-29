@@ -120,7 +120,8 @@ class LongTermMemory:
         seed_defaults: bool = True,
         vector_backend: Optional[str] = None,
         qdrant_client: Optional[Any] = None,
-        in_memory: bool = False
+        in_memory: bool = False,
+        embedding_function: Optional[Any] = None
     ):
         self.good_plans: List[Dict[str, Any]] = []
         self.bad_plans: List[Dict[str, Any]] = []
@@ -128,9 +129,20 @@ class LongTermMemory:
         self.vector_backend = vector_backend or "qdrant"
         self.in_memory = in_memory
         self.qdrant_client = qdrant_client
+        self.embedding_function = embedding_function
         self.vector_index = None
 
-        if self.vector_backend == "qdrant":
+        # Detect mock/dummy embedding: all-zero vectors make cosine similarity
+        # undefined (0/0), producing non-deterministic retrieval. Skip the vector
+        # index in that case and rely on Jaccard keyword matching instead.
+        _is_mock_emb = (
+            embedding_function is not None and (
+                getattr(embedding_function, "_is_mock", False)
+                or getattr(embedding_function, "name", lambda: "")() == "mock_embedding"
+            )
+        )
+
+        if self.vector_backend == "qdrant" and not _is_mock_emb:
             try:
                 from llama_index.core import VectorStoreIndex
                 from app.rag.llamaindex_embedding import LlamaIndexBGEM3Embedding
@@ -138,7 +150,7 @@ class LongTermMemory:
 
                 if self.qdrant_client is None:
                     self.qdrant_client = get_qdrant_client(in_memory=self.in_memory)
-                self.embed_model = LlamaIndexBGEM3Embedding()
+                self.embed_model = LlamaIndexBGEM3Embedding(embedding_function=self.embedding_function)
                 try:
                     probe_vec = self.embed_model.get_text_embedding("probe")
                     vector_dim = len(probe_vec) if probe_vec else 1024
@@ -341,12 +353,14 @@ class ThreeTierMemory:
         self,
         vector_backend: Optional[str] = None,
         qdrant_client: Optional[Any] = None,
-        in_memory: bool = False
+        in_memory: bool = False,
+        embedding_function: Optional[Any] = None
     ):
         self.short_term = ShortTermMemory()
         self.temporary = TemporaryMemory()
         self.long_term = LongTermMemory(
             vector_backend=vector_backend,
             qdrant_client=qdrant_client,
-            in_memory=in_memory
+            in_memory=in_memory,
+            embedding_function=embedding_function
         )

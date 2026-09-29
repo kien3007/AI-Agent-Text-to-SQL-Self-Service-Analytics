@@ -42,7 +42,7 @@ class AgentOrchestrator:
         checkpointer: Optional[Any] = None
     ):
         self.llm = llm or DualModelLLM()
-        self.memory = ThreeTierMemory()
+        self.memory = ThreeTierMemory(embedding_function=embedding_function)
         self.use_explain = use_explain
 
         # Khởi tạo các Node tác tử độc lập
