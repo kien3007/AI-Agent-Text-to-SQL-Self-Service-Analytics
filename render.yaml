@@ -30,9 +30,9 @@ services:
         generateValue: true
       - key: JWT_EXPIRE_HOURS
         value: "24"
-      # Thư mục lưu trữ vector database ChromaDB
-      - key: CHROMA_PERSIST_DIR
-        value: ./data/chroma_db
+      # Thư mục lưu trữ vector database Qdrant On-premise
+      - key: QDRANT_STORAGE_DIR
+        value: ./data/qdrant_db
       # Cấu hình CSDL Doris (nếu kết nối cloud Doris/MySQL)
       - key: DORIS_HOST
         value: localhost

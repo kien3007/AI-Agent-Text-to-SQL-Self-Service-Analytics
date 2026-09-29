@@ -11,16 +11,16 @@ help:
 	@echo "  make test       - Run pytest unit/integration tests"
 
 up:
-	docker-compose -f docker-compose.full.yml up -d
+	docker compose up -d
 
 down:
-	docker-compose -f docker-compose.full.yml down
+	docker compose down
 
 logs:
-	docker-compose -f docker-compose.full.yml logs -f backend
+	docker compose logs -f backend
 
 build:
-	docker-compose -f docker-compose.full.yml build backend
+	docker compose build backend
 
 load-data:
 	@echo "Loading parquet data into Apache Doris..."

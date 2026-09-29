@@ -5,6 +5,7 @@ Unit and Integration Tests for DIN-SQL Complex Query Decomposition (Sub-task & C
 import os
 import sys
 import unittest
+from typing import List, Dict, Any
 
 # Đảm bảo import backend
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,16 +13,11 @@ backend_dir = os.path.abspath(os.path.join(current_dir, ".."))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
-
-class MockEmbedding(EmbeddingFunction):
-    def __init__(self):
-        super().__init__()
-
+class MockEmbedding:
     def name(self) -> str:
         return "mock_embedding"
 
-    def __call__(self, input: Documents) -> Embeddings:
+    def __call__(self, input: List[str]) -> List[List[float]]:
         return [[0.0] * 1024 for _ in input]
 
 

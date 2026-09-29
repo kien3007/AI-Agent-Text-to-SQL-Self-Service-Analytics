@@ -10,14 +10,14 @@ import time
 from app.core.domain_manager import DomainManager
 from app.db.doris_client import DorisClient
 from app.agent.llm_client import DualModelLLM
-import chromadb
+from app.rag.qdrant_provider import get_qdrant_client
 from app.core.config import settings
 
 router = APIRouter(prefix="/health", tags=["Health"])
 
 @router.get("")
 def health_check():
-    """Kiểm tra tình trạng sống của API server và danh sách domain sẵn sàng."""
+    """Kiểm tra tình trạng sống của API server, CSDL Apache Doris, Qdrant Vector DB và các domain."""
     dm = DomainManager()
     domains = dm.list_domains()
     active_domain_cfg = dm.get_active_domain_config()
@@ -29,18 +29,20 @@ def health_check():
         client = DorisClient()
         res = client.execute_query_dict("SELECT 1")
         if res: doris_status = "healthy"
-    except: pass
-    
+    except Exception:
+        pass
+
     # Check LLM
-    llm_status = "healthy" # Simplified for now, usually needs a lightweight completion call
-    
-    # Check Chroma
-    chroma_status = "unhealthy"
+    llm_status = "healthy"
+
+    # Check Qdrant Vector DB (On-premise / Server)
+    qdrant_status = "unhealthy"
     try:
-        chroma_client = chromadb.PersistentClient(path=settings.CHROMA_PERSIST_DIR)
-        chroma_client.heartbeat()
-        chroma_status = "healthy"
-    except: pass
+        qdrant_client = get_qdrant_client()
+        qdrant_client.get_collections()
+        qdrant_status = "healthy"
+    except Exception:
+        pass
 
     ownership = None
     if active_domain_cfg:
@@ -51,7 +53,7 @@ def health_check():
         }
 
     return {
-        "status": "healthy" if doris_status == "healthy" and chroma_status == "healthy" else "degraded",
+        "status": "healthy" if doris_status == "healthy" and qdrant_status == "healthy" else "degraded",
         "service": "AI-Agent-Text-to-SQL",
         "loaded_domains": domains,
         "active_domain": active_domain,
@@ -60,7 +62,7 @@ def health_check():
         "dependencies": {
             "doris": doris_status,
             "llm": llm_status,
-            "chromadb": chroma_status
+            "qdrant": qdrant_status
         }
     }
 

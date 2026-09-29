@@ -115,10 +115,40 @@ class LongTermMemory:
     - Tự động học (Auto-learning): Ghi nhận các câu truy vấn thành công vào tập Good Plans.
     """
 
-    def __init__(self, seed_defaults: bool = True):
+    def __init__(
+        self,
+        seed_defaults: bool = True,
+        vector_backend: Optional[str] = None,
+        qdrant_client: Optional[Any] = None,
+        in_memory: bool = False
+    ):
         self.good_plans: List[Dict[str, Any]] = []
         self.bad_plans: List[Dict[str, Any]] = []
         self.common_knowledge: List[Dict[str, Any]] = []
+        self.vector_backend = vector_backend or "qdrant"
+        self.in_memory = in_memory
+        self.qdrant_client = qdrant_client
+        self.vector_index = None
+
+        if self.vector_backend == "qdrant":
+            try:
+                from llama_index.core import VectorStoreIndex
+                from app.rag.llamaindex_embedding import LlamaIndexBGEM3Embedding
+                from app.rag.qdrant_provider import get_qdrant_client, get_qdrant_vector_store
+
+                if self.qdrant_client is None:
+                    self.qdrant_client = get_qdrant_client(in_memory=self.in_memory)
+                self.embed_model = LlamaIndexBGEM3Embedding()
+                try:
+                    probe_vec = self.embed_model.get_text_embedding("probe")
+                    vector_dim = len(probe_vec) if probe_vec else 1024
+                except Exception:
+                    vector_dim = 1024
+                self.vector_store = get_qdrant_vector_store(self.qdrant_client, "few_shot_sql_plans", vector_dim=vector_dim)
+                self.vector_index = VectorStoreIndex.from_vector_store(self.vector_store, embed_model=self.embed_model)
+            except Exception as e:
+                self.vector_index = None
+
         if seed_defaults:
             self._seed_initial_plans()
 
@@ -195,6 +225,29 @@ class LongTermMemory:
         if is_successful:
             if not any(p["query"] == user_query and p["sql"] == sql for p in self.good_plans):
                 self.good_plans.append(record)
+                if self.vector_index:
+                    try:
+                        from llama_index.core import Document
+                        doc_text = (
+                            f"Yêu cầu: {user_query}\n"
+                            f"Domain: {domain_id}\n"
+                            f"Bảng: {', '.join(tables_used or [])}\n"
+                            f"Mô tả: {record['metadata'].get('description', '')}\n"
+                            f"SQL: {sql}"
+                        )
+                        doc = Document(
+                            text=doc_text,
+                            metadata={
+                                "query": user_query,
+                                "domain_id": domain_id,
+                                "sql": sql,
+                                "tables_used": tables_used or [],
+                                "description": record["metadata"].get("description", "")
+                            }
+                        )
+                        self.vector_index.insert(doc)
+                    except Exception:
+                        pass
         else:
             self.bad_plans.append(record)
 
@@ -207,8 +260,53 @@ class LongTermMemory:
     ) -> List[Dict[str, Any]]:
         """
         Tìm kiếm Top-K ví dụ mẫu tương đồng nhất (Dynamic Few-Shot Retrieval theo DAIL-SQL).
-        Kết hợp độ tương đồng từ khóa câu hỏi và tập bảng liên quan.
+        Ưu tiên đối sánh ngữ nghĩa qua LlamaIndex + Qdrant Cosine Similarity kết hợp lọc domain và đối sánh bảng.
+        Tự động fallback về Jaccard keyword matching nếu vector retrieval chưa khởi tạo.
         """
+        # 1. Thử Vector Retrieval qua LlamaIndex + Qdrant
+        if self.vector_index:
+            try:
+                retriever = self.vector_index.as_retriever(similarity_top_k=top_k * 3)
+                nodes = retriever.retrieve(query)
+                target_tables_set = set(t.lower() for t in (target_tables or []))
+                vector_scored = []
+
+                for node in nodes:
+                    m = node.node.metadata
+                    if m.get("domain_id") != domain_id:
+                        continue
+
+                    score = float(node.score or 0.0) * 10.0
+                    cand_tables = set(t.lower() for t in m.get("tables_used", []))
+                    if target_tables_set and cand_tables:
+                        overlap = len(target_tables_set & cand_tables)
+                        score += overlap * 3.0
+
+                    cand_record = {
+                        "query": m.get("query", ""),
+                        "domain_id": m.get("domain_id", domain_id),
+                        "sql": m.get("sql", ""),
+                        "tables_used": m.get("tables_used", []),
+                        "metadata": {"description": m.get("description", "")}
+                    }
+                    vector_scored.append((score, cand_record))
+
+                if vector_scored:
+                    vector_scored.sort(key=lambda x: x[0], reverse=True)
+                    seen_sqls = set()
+                    final_results = []
+                    for _, c in vector_scored:
+                        if c["sql"] not in seen_sqls:
+                            seen_sqls.add(c["sql"])
+                            final_results.append(c)
+                            if len(final_results) >= top_k:
+                                break
+                    if final_results:
+                        return final_results
+            except Exception:
+                pass
+
+        # 2. Fallback: Jaccard keyword matching
         candidates = [p for p in self.good_plans if p["domain_id"] == domain_id]
         if not candidates:
             return []
@@ -239,7 +337,16 @@ class LongTermMemory:
 class ThreeTierMemory:
     """Bộ điều phối thống nhất toàn bộ 3 tầng bộ nhớ."""
 
-    def __init__(self):
+    def __init__(
+        self,
+        vector_backend: Optional[str] = None,
+        qdrant_client: Optional[Any] = None,
+        in_memory: bool = False
+    ):
         self.short_term = ShortTermMemory()
         self.temporary = TemporaryMemory()
-        self.long_term = LongTermMemory()
+        self.long_term = LongTermMemory(
+            vector_backend=vector_backend,
+            qdrant_client=qdrant_client,
+            in_memory=in_memory
+        )

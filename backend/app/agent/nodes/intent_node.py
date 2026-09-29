@@ -11,6 +11,7 @@ from app.core.domain_manager import DomainManager
 from app.core.normalizer import GenericVietnameseNormalizer
 from app.core.glossary import VietnameseBusinessGlossary
 from app.schemas.validation import ValidationResult
+from app.agent.tools.definitions import CLARIFICATION_TOOL
 
 
 class IntentClarifierNode:
@@ -110,11 +111,24 @@ class IntentClarifierNode:
                 "Hãy đặt một câu hỏi làm rõ (clarification question) ngắn gọn, lịch sự bằng tiếng Việt "
                 "để hỏi người dùng cung cấp thêm tiêu chí cần phân tích (khu vực, loại hình, khoảng giá hoặc mốc thời gian)."
             )
-            state.clarification_question = self.llm.generate(
-                prompt=prompt,
+            tool_result = self.llm.call_with_tools(
+                messages=[
+                    {"role": "system", "content": "Bạn là chuyên gia phân tích dữ liệu và tư vấn nghiệp vụ cấp cao."},
+                    {"role": "user", "content": prompt}
+                ],
+                tools=[CLARIFICATION_TOOL],
+                tool_choice={"type": "function", "function": {"name": "ask_clarification"}},
                 role="reasoner",
                 temperature=0.3
             )
+            clarify_q = ""
+            if tool_result.get("tool_calls"):
+                args = tool_result["tool_calls"][0].get("arguments", {})
+                clarify_q = args.get("question", "")
+            if not clarify_q:
+                clarify_q = tool_result.get("content") or "Dạ em nhận thấy yêu cầu của anh/chị cần thêm thông tin chi tiết để kết quả phân tích chính xác nhất."
+
+            state.clarification_question = clarify_q
             state.final_response = state.clarification_question
             return state
 

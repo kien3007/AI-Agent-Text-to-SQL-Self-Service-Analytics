@@ -13,8 +13,7 @@ from app.rag.profiling_graph import BilingualDataProfilingGraph
 class TestBilingualDataProfilingGraph(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        chroma_dir = os.path.join(root_dir, "data", "chroma_db")
-        cls.profiler = BilingualDataProfilingGraph(chroma_dir=chroma_dir)
+        cls.profiler = BilingualDataProfilingGraph()
 
     def test_link_schema_cau_giay(self):
         query = "chung cư 2PN Cầu Giấy dưới 3 tỷ"

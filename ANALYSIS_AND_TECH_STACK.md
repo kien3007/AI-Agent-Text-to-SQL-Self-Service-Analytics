@@ -101,7 +101,7 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
       ┌────────────────┐   ┌─────────────────┐   ┌────────────────┐
       │  3-Tier Memory │   │  dbt Semantic   │   │ Real-Time DW   │
       │ Multilingual   │   │      Model      │   │ (Apache Doris  │
-      │ (ChromaDB +    │   │  (`dbt-doris`)  │   │ 3.5M Listings) │
+      │ (Qdrant +      │   │  (`dbt-doris`)  │   │ 3.5M Listings) │
       │  bge-m3 Model) │   │  Bilingual Meta │   │                │
       └────────────────┘   └─────────────────┘   └────────────────┘
 ```
@@ -115,7 +115,7 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
 | **Model 2: SQL Generator & Fixer** | **Qwen 2.5-Coder** *(32B / 14B)* | Sinh SQL chuẩn MySQL cho Apache Doris từ Query Plan và Schema nén; tự sửa lỗi cú pháp dựa trên định tuyến từ Short-Term Memory. |
 | **Agent Orchestrator** | **LangGraph** | Quản lý stateful graph, tích hợp vòng lặp sửa lỗi 3-Tier Memory, ngắt interrupt cho HITL và luồng phân rã Complex Query. |
 | **Data Warehouse** | **Apache Doris Standalone** | Real-time MPP OLAP DW lưu trữ dạng cột, nạp toàn bộ 3,5 triệu dòng Parquet, tương thích hoàn toàn giao thức MySQL, đáp ứng truy vấn sub-second. |
-| **Bilingual Data Profiling Graph** | **`bge-m3` + ChromaDB** *(Update 2 & 3)* | Đánh chỉ mục song ngữ (Anh-Việt) cho Node Profiling và Edge Profiling bằng Hybrid Search (Vector `bge-m3` + BM25 + Jaccard) để liên kết schema. |
+| **Bilingual Data Profiling Graph** | **`bge-m3` + Qdrant** *(LlamaIndex)* | Đánh chỉ mục song ngữ (Anh-Việt) cho Node Profiling và Edge Profiling bằng Hybrid Search (Vector `bge-m3` + BM25 + Jaccard) để liên kết schema. |
 | **Semantic Layer** | **dbt-core + dbt-doris** | Định nghĩa các chỉ số kinh doanh BĐS (*Đơn giá/m², Tỷ lệ chênh lệch giá, Phân phối diện tích*) làm Single Source of Truth kèm chú thích song ngữ. |
 | **Error Translator** | **Short-Term Memory Translator** *(Update 4)* | Tự động dịch lỗi DB bằng tiếng Anh (`Unknown column`, `Syntax error`) sang chỉ dẫn sửa lỗi bằng tiếng Việt cho LLM. |
 | **Backend API** | **FastAPI + Async Python** | Cung cấp endpoint SSE stream log suy nghĩ của Agent, middleware RBAC Supabase JWT và connection pool kết nối Doris. |
@@ -131,7 +131,7 @@ Hệ thống sử dụng bộ dữ liệu thực tế quy mô lớn **`tinixai/v
 *   **Apache Doris (FE + BE Standalone trong Docker)**: **~ 2.0 – 2.5 GB**
 *   **Backend (FastAPI + LangGraph + Uvicorn + FastEmbed `bge-m3`)**: ~ 0.8 GB
 *   **Frontend (Next.js dev server)**: ~ 0.6 GB
-*   **ChromaDB / Vector Store**: ~ 0.3 GB
+*   **Qdrant / Vector Store**: ~ 0.3 GB
 *   👉 **Dự phòng an toàn**: **~ 4.8 – 5.3 GB** (Giúp hệ thống vận hành mượt mà, không bị tràn RAM).
 
 ---
@@ -149,7 +149,7 @@ Bộ tiền xử lý ngữ nghĩa tiếng Việt đặt trước Node 1 trong La
     *   Cột `area` $\rightarrow$ Mô tả: *"Diện tích mặt sàn bất động sản (m²)"*.
     *   Cột `property_type_name` $\rightarrow$ Mô tả: *"Loại hình BĐS (Chung cư, Nhà riêng, Biệt thự, Đất...)"*.
     *   Cột `project_name` $\rightarrow$ Mô tả: *"Tên dự án bất động sản hoặc khu đô thị"*.
-*   **Multilingual Embedding**: Sử dụng mô hình **`bge-m3`** làm nền tảng cho ChromaDB Vector Store, giúp tìm kiếm tương đồng câu hỏi tiếng Việt không bị phân mảnh sub-token như các model Tiếng Anh.
+*   **Multilingual Embedding**: Sử dụng mô hình **`bge-m3`** làm nền tảng cho Qdrant Vector Store, giúp tìm kiếm tương đồng câu hỏi tiếng Việt không bị phân mảnh sub-token như các model Tiếng Anh.
 *   **Edge Profiling Hybrid Search**:
     $$\text{Hybrid Search} = \text{Vector Similarity (bge-m3)} + \text{BM25 Text Search} + \text{Jaccard Keyword Similarity}$$
 
@@ -185,7 +185,7 @@ Dành riêng cho các câu hỏi Mức 3 (YoY, MoM, biến động giá, Window 
 *   [ ] Khởi tạo file `.wslconfig` và deploy cụm Apache Doris Standalone bằng Docker Compose.
 *   [ ] Tạo bảng `real_estate_listings` trên Apache Doris tối ưu Partitioning theo `province_name` và `published_at`.
 *   [ ] Nạp dữ liệu 10 file Parquet vào Apache Doris qua tính năng *Stream Load* hoặc *S3/Local Parquet Table*.
-*   [ ] Tích hợp mô hình Embedding đa ngôn ngữ **`bge-m3`** cho ChromaDB Vector Store.
+*   [x] Tích hợp mô hình Embedding đa ngôn ngữ **`bge-m3`** cho Qdrant Vector Store (LlamaIndex).
 *   [ ] Tự động hóa **Bilingual Data Profiling Graph**: Tạo Node Profiles song ngữ và thiết lập Edge Profiles bằng Hybrid Search.
 
 ### 📍 GIAI ĐOẠN 2: Vietnamese Preprocessor, Plan Validator & Core Dual-Model (Ngày 4 - Ngày 7)

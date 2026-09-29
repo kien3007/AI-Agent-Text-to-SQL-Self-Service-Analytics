@@ -47,9 +47,12 @@ class AppSettings(BaseSettings):
     LLM_TEMPERATURE: float = Field(0.1, description="Độ biến thiên sáng tạo của LLM")
     LLM_MAX_TOKENS: int = Field(2048, description="Độ dài tối đa của phản hồi LLM")
 
-    # 3. Semantic Embedding & Vector Store
+    # 3. Semantic Embedding & Vector Store (LlamaIndex + Qdrant On-premise)
     EMBEDDING_MODEL: str = Field("BAAI/bge-m3", description="Tên mô hình multilingual embedding")
-    CHROMA_PERSIST_DIR: str = Field("./data/chroma_db", description="Thư mục lưu trữ vector database ChromaDB")
+    QDRANT_HOST: str = Field("localhost", description="Địa chỉ Qdrant vector database server")
+    QDRANT_PORT: int = Field(6333, description="Cổng Qdrant HTTP REST API")
+    QDRANT_STORAGE_DIR: str = Field("./data/qdrant_db", description="Thư mục lưu trữ Qdrant On-premise (embedded/disk mode)")
+    VECTOR_DB_BACKEND: str = Field("qdrant", description="Backend Vector DB: 'qdrant'")
     HF_TOKEN: str = Field("", description="Token Hugging Face Hub")
 
     # 4. Web Server & Networking

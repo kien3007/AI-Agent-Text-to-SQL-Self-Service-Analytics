@@ -179,8 +179,16 @@ class DbtManifestLoader:
         for t_name, t_profile in dbt_tables.items():
             cfg.tables[t_name] = t_profile
 
-        # Bổ sung các Semantic Metrics vào danh mục
+        # Bổ sung các Semantic Metrics vào danh mục (bảo toàn cấu hình phụ thuộc nếu đã có)
         for m_name, m_profile in dbt_metrics.items():
+            if m_name in cfg.metrics:
+                existing = cfg.metrics[m_name]
+                if not m_profile.depends_on_columns and existing.depends_on_columns:
+                    m_profile.depends_on_columns = existing.depends_on_columns
+                if not m_profile.depends_on_tables and existing.depends_on_tables:
+                    m_profile.depends_on_tables = existing.depends_on_tables
+                if existing.vn_terms:
+                    m_profile.vn_terms = list(dict.fromkeys(m_profile.vn_terms + existing.vn_terms))
             cfg.metrics[m_name] = m_profile
 
         logger.info(f"Đã đồng bộ {len(dbt_tables)} bảng và {len(dbt_metrics)} metrics từ dbt vào domain '{domain_id}'.")

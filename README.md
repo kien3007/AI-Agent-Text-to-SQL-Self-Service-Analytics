@@ -21,7 +21,7 @@
 ## 🚀 Cài đặt & Khởi động nhanh (Quick Start)
 
 ### 1. Khởi động bằng Docker Compose
-Dự án được cấu hình đầy đủ qua Docker Compose (Backend, Apache Doris FE/BE):
+Dự án được cấu hình đầy đủ qua Docker Compose (FastAPI Backend, Qdrant Vector DB, Apache Doris FE/BE, Next.js Frontend):
 ```bash
 # Build và chạy ngầm toàn bộ dịch vụ
 make up
@@ -32,7 +32,7 @@ make logs
 
 ### 2. Phát triển cục bộ (Local Development)
 ```bash
-# 1. Cài đặt thư viện
+# 1. Cài đặt Backend
 cd backend
 python -m venv .venv
 source .venv/bin/activate  # Hoặc .venv\Scripts\activate trên Windows
@@ -40,23 +40,35 @@ pip install -r requirements.txt
 
 # 2. Cấu hình biến môi trường
 cp .env.example .env
-# Chỉnh sửa file .env với API Key (Qwen-3, Qwen-2.5-Coder) và kết nối Doris
+# Chỉnh sửa file .env với API Key (Qwen-3, Qwen-2.5-Coder), Qdrant URL và Doris connection
 
-# 3. Chạy Backend server (FastAPI)
+# 3. Chạy Vector DB (Qdrant)
+docker compose up -d qdrant
+
+# 4. Chạy Backend server (FastAPI trên port 8000)
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# 5. Chạy Frontend (Next.js 15 trên port 3000)
+cd ../frontend
+npm install
+npm run dev
 ```
-> **Lưu ý:** Giao diện frontend sẽ chạy trực tiếp trên cổng `:8000/app` nhờ cơ chế static mounting của FastAPI.
+> **Endpoints truy cập:**
+> - Frontend UI: `http://localhost:3000`
+> - Backend REST / OpenAPI Swagger: `http://localhost:8000/docs`
+> - Qdrant Vector Dashboard: `http://localhost:6333/dashboard`
 
 ---
 
 ## 🏗️ Kiến trúc & Tổ chức thư mục
 
-* `/backend/app/agent/`: Chứa các node LangGraph (Schema, SQL, HITL, Validator) và Graph chính.
-* `/backend/app/api/routers/`: API Endpoints (Chat SSE, Domains, Health Benchmark).
-* `/backend/domains/`: Định nghĩa Data Mesh Config (`domain.yaml`) cho từng nghiệp vụ.
-* `/frontend/public/`: Mã nguồn Vanilla JS/HTML/CSS của giao diện người dùng. Hỗ trợ Chart.js và luồng Chat SSE.
-* `/scripts/`: Script tiện ích (Nạp Parquet vào Doris, Benchmark).
-* `/dbt_project/`: Mô hình semantic (Data lineage qua `manifest.json`).
+* `/backend/app/agent/`: Chứa các node LangGraph (Intent, Schema Linking, SQL Gen, Validator, HITL Gate, Executor, Formatter).
+* `/backend/app/rag/`: LlamaIndex + Qdrant Vector Store, BAAI/bge-m3 Embedding và NetworkX Minimum Steiner Tree.
+* `/backend/app/api/routers/`: FastAPI Endpoints (Chat SSE, Domains, Health Benchmark, Auth RBAC).
+* `/backend/domains/`: Định nghĩa Data Mesh Config (`domain.yaml`, `schema.yaml`, `metrics.yaml`) cho từng nghiệp vụ.
+* `/frontend/`: Giao diện Next.js 15 (React 19, TypeScript, Recharts, SSE streaming, Auth Context).
+* `/infra/dbt/`: Dự án dbt (Data marts, semantic models, data lineage qua `manifest.json`).
+* `/scripts/`: Script tiện ích (Nạp Parquet vào Doris, Benchmark, System Health Check).
 
 ---
 

@@ -1,6 +1,6 @@
 """
 Bilingual Embedding Engine using BAAI/bge-m3 for Cross-Lingual Real Estate Schema Linking.
-Tương thích hoàn toàn với ChromaDB EmbeddingFunction.
+Cung cấp vector embedding đa ngôn ngữ 1024 chiều chuẩn hóa phục vụ LlamaIndex + Qdrant.
 """
 
 import os
@@ -15,11 +15,14 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-from chromadb.api.types import Documents, EmbeddingFunction, Embeddings
 
-class BGEM3EmbeddingFunction(EmbeddingFunction[Documents]):
+Documents = List[str]
+Embeddings = List[List[float]]
+
+
+class BGEM3EmbeddingFunction:
     """
-    ChromaDB Custom Embedding Function sử dụng BAAI/bge-m3.
+    Embedding Function sử dụng BAAI/bge-m3 (1024 chiều).
     Hỗ trợ đối sánh ngữ nghĩa chéo (Cross-lingual Semantic Alignment):
     Câu hỏi Tiếng Việt -> Metadata Tiếng Anh/SQL -> Giá trị danh mục thực tế.
     """
@@ -45,7 +48,7 @@ class BGEM3EmbeddingFunction(EmbeddingFunction[Documents]):
         return self._model
 
     def __call__(self, input: Documents) -> Embeddings:
-        """Sinh vector embedding cho danh sách documents (ChromaDB interface)."""
+        """Sinh vector embedding cho danh sách documents (Callable interface)."""
         if not input:
             return []
         

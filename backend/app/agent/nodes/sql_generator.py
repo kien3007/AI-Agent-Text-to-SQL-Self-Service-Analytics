@@ -9,10 +9,16 @@ from typing import Optional
 from app.agent.state import AgentState
 from app.agent.llm_client import DualModelLLM
 from app.agent.memory.three_tier_memory import ShortTermMemory, LongTermMemory, ThreeTierMemory
+from app.agent.tools.definitions import SQL_GENERATION_TOOL
+
+try:
+    import sqlparse
+except ImportError:
+    sqlparse = None
 
 
 class SQLGeneratorNode:
-    """Node sinh câu truy vấn SQL đảm bảo an toàn và tối ưu."""
+    """Node sinh câu truy vấn SQL đảm bảo an toàn và tối ưu bằng Qwen Function Calling."""
 
     SYSTEM_PROMPT = """Bạn là Chuyên gia Kỹ thuật Dữ liệu cấp cao (Data Engineer & Text-to-SQL Expert) chuyên về Apache Doris và MySQL.
 Nhiệm vụ của bạn là chuyển đổi câu hỏi tự nhiên của người dùng thành câu truy vấn SQL chuẩn xác, an toàn và tối ưu hiệu năng.
@@ -96,17 +102,34 @@ NGUYÊN TẮC BẮT BUỘC:
             ]
             prompt_parts.append("\n".join(feedback_block))
 
-        prompt_parts.append("\nHÃY SINH CÂU TRUY VẤN SQL CHUẨN XÁC TRONG KHỐI MÃ ```sql ... ```:")
+        prompt_parts.append("\nHÃY SINH CÂU TRUY VẤN SQL CHUẨN XÁC QUA FUNCTION CALL `generate_sql_query`:")
         user_prompt = "\n".join(prompt_parts)
 
-        raw_output = self.llm.generate(
-            prompt=user_prompt,
-            system_prompt=self.SYSTEM_PROMPT,
+        # Sử dụng native Function Calling với Qwen 2.5-Coder (tool: generate_sql_query)
+        tool_result = self.llm.call_with_tools(
+            messages=[
+                {"role": "system", "content": self.SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            tools=[SQL_GENERATION_TOOL],
+            tool_choice={"type": "function", "function": {"name": "generate_sql_query"}},
             role="coder",
             temperature=0.0
         )
 
-        extracted_sql = self._extract_clean_sql(raw_output)
+        extracted_sql = ""
+        # 1. Ưu tiên trích xuất trực tiếp từ Function Call arguments JSON
+        if tool_result.get("tool_calls"):
+            args = tool_result["tool_calls"][0].get("arguments", {})
+            extracted_sql = args.get("sql", "")
+
+        # 2. Fallback nếu model trả về raw text
+        if not extracted_sql:
+            raw_content = tool_result.get("content") or ""
+            extracted_sql = self._extract_clean_sql(raw_content)
+        else:
+            extracted_sql = self._extract_clean_sql(extracted_sql)
+
         state.sql_query = extracted_sql
         return state
 
@@ -137,18 +160,20 @@ NGUYÊN TẮC BẮT BUỘC:
         if not sql:
             return sql
 
-        try:
-            import sqlparse
-            formatted = sqlparse.format(
-                sql,
-                reindent=True,
-                keyword_case="upper",
-                indent_width=4,
-                comma_first=False
-            ).strip().rstrip(";")
-            return formatted
-        except Exception:
-            # Fallback regex format nếu sqlparse không khả dụng
+        if sqlparse:
+            try:
+                formatted = sqlparse.format(
+                    sql,
+                    reindent=True,
+                    keyword_case="upper",
+                    indent_width=4,
+                    comma_first=False
+                ).strip().rstrip(";")
+                return formatted
+            except Exception:
+                pass
+
+        # Fallback regex format nếu sqlparse không khả dụng
             clauses = ["SELECT", "FROM", "WHERE", "GROUP BY", "HAVING", "ORDER BY", "LIMIT", "LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "JOIN"]
             formatted = sql
             for c in clauses:

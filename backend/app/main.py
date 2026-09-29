@@ -45,17 +45,17 @@ app.include_router(health_router, prefix="/api")
 app.include_router(domains_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
 
-# Gắn thư mục Frontend tĩnh
-frontend_public_dir = Path(backend_dir).parent / "frontend"
-if frontend_public_dir.exists():
-    app.mount("/app", StaticFiles(directory=str(frontend_public_dir), html=True), name="frontend")
+# Gắn thư mục Frontend tĩnh nếu đã được build (static export)
+frontend_out_dir = Path(backend_dir).parent / "frontend" / "out"
+if frontend_out_dir.exists():
+    app.mount("/app", StaticFiles(directory=str(frontend_out_dir), html=True), name="frontend")
 
 
 @app.get("/")
 def root(request: Request):
     """Điểm chạm gốc cung cấp thông tin hệ thống và tài liệu OpenAPI hoặc chuyển hướng đến UI."""
     accept = request.headers.get("accept", "")
-    if "text/html" in accept and frontend_public_dir.exists():
+    if "text/html" in accept and frontend_out_dir.exists():
         return RedirectResponse(url="/app/")
     return {
         "message": "Chào mừng đến với AI-Agent Text-to-SQL Self-Service Analytics API!",

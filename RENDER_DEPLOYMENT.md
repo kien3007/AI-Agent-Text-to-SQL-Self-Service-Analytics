@@ -10,7 +10,7 @@ Hệ thống **AI-Agent Text-to-SQL Self-Service Analytics** đã được cấu
 graph LR
     User([Người dùng / Trình duyệt]) -->|HTTPS| Frontend[text2sql-frontend<br/>Next.js 16 + React 19<br/>Web Service]
     Frontend -->|Next.js Rewrites / API Proxy| Backend[text2sql-backend<br/>FastAPI + LangGraph<br/>Docker Web Service]
-    Backend --> Chroma[(ChromaDB Vector Store)]
+    Backend --> Qdrant[(Qdrant Vector Store)]
     Backend -->|LLM Gateway| LLM[(OpenAI / vLLM / Together)]
     Backend -->|SQL Query| Doris[(Apache Doris / MySQL)]
 ```
@@ -73,4 +73,4 @@ Nhấn **"Apply"**. Render sẽ tự động:
 
 ## 💡 Lưu Ý Khi Sử Dụng Gói Free Của Render
 1. **Chế độ ngủ (Spin-down khi rảnh):** Trên gói Free, nếu dịch vụ không nhận request trong 15 phút, Render sẽ tạm đưa container về chế độ ngủ. Lần truy cập tiếp theo sẽ mất khoảng 30–50 giây để khởi động lại (cold start).
-2. **Persistent Storage:** Gói Free của Render sử dụng ephemeral storage (dữ liệu trong container sẽ được làm mới khi redeploy). Nếu cần lưu trữ vector database ChromaDB lâu dài giữa các lần deploy, bạn có thể nâng cấp Backend lên gói `Starter` và gắn một Render Disk vào thư mục `/app/backend/data`.
+2. **Persistent Storage:** Gói Free của Render sử dụng ephemeral storage (dữ liệu trong container sẽ được làm mới khi redeploy). Nếu cần lưu trữ vector database Qdrant lâu dài giữa các lần deploy, bạn có thể nâng cấp Backend lên gói `Starter` và gắn một Render Disk vào thư mục `/app/data/qdrant_db`.

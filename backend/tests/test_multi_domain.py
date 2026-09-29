@@ -1,6 +1,7 @@
 import os
 import sys
 import unittest
+from typing import Any, List, Dict
 
 # Đảm bảo import backend
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -10,15 +11,12 @@ if backend_dir not in sys.path:
 
 from app.core.domain_manager import DomainManager
 from app.rag.profiling_graph import BilingualDataProfilingGraph
-from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
-
-
-class MockEmbedding(EmbeddingFunction):
+class MockEmbedding:
     """Mock embedding function trả về vector cố định để test nhanh không phụ thuộc network."""
     def name(self) -> str:
         return "mock_embedding"
 
-    def __call__(self, input: Documents) -> Embeddings:
+    def __call__(self, input: Any) -> Any:
         return [[0.0] * 128 for _ in input]
 
 

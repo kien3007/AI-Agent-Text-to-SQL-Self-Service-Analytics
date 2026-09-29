@@ -245,12 +245,12 @@ export default function ImpactAnalysisPanel({
                   )}
 
                   <div className="max-h-60 overflow-y-auto flex flex-col gap-1 pr-1 no-scrollbar">
-                    {filteredTables.map((t) => {
-                      const name = getTableName(t);
+                    {filteredTables.map((t, tIdx) => {
+                      const name = getTableName(t) || `tbl-${tIdx}`;
                       const isSelected = name === selectedTable;
                       return (
                         <button
-                          key={name}
+                          key={`table-select-${name}-${tIdx}`}
                           type="button"
                           onClick={() => {
                             setSelectedTable(name);
@@ -411,11 +411,11 @@ export default function ImpactAnalysisPanel({
                     <div className="h-px bg-[var(--border-subtle)] my-1" />
 
                     {/* Column List */}
-                    {filteredColumns.map((col) => {
+                    {filteredColumns.map((col, cIdx) => {
                       const isSelected = col.name === selectedColumn;
                       return (
                         <button
-                          key={col.name}
+                          key={`col-select-${col.name || 'col'}-${cIdx}`}
                           type="button"
                           onClick={() => {
                             setSelectedColumn(col.name);

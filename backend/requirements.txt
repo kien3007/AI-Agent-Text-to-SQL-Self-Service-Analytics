@@ -4,7 +4,8 @@ pydantic
 pydantic-settings
 python-dotenv
 httpx
-chromadb
+torch
+sentence-transformers
 pyyaml
 sse-starlette
 pandas
@@ -16,3 +17,7 @@ networkx
 PyJWT
 DBUtils
 sqlparse
+langgraph
+llama-index-core
+llama-index-vector-stores-qdrant
+qdrant-client

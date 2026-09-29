@@ -11,8 +11,12 @@ dataset/vietnam-real-estates/.cache/
 data/*.parquet
 data/*.csv
 data/*.db
-data/*.duckdb
+data/*.sqlite3
+backend/data/*.sqlite3
+data/chroma/
 data/chroma_db/
+backend/data/chroma_db/
+data/qdrant_db/
 dataset/*.parquet
 dataset/*.csv
 dataset/*.db

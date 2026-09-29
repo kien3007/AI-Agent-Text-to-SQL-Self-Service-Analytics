@@ -11,7 +11,7 @@ import os
 import re
 import json
 import logging
-from typing import Dict, Any, List, Optional, Callable
+from typing import Dict, Any, List, Optional, Callable, Union
 
 logger = logging.getLogger("DualModelLLM")
 
@@ -19,6 +19,7 @@ logger = logging.getLogger("DualModelLLM")
 class DualModelLLM:
     """
     Gateway điều phối Dual-Model LLM cho hệ thống Text-to-SQL.
+    Hỗ trợ cả Text Generation và Native OpenAI / Qwen Function Calling.
     """
 
     def __init__(
@@ -35,6 +36,14 @@ class DualModelLLM:
         self.coder_model = coder_model or os.getenv("MODEL_CODER", "Qwen/Qwen2.5-Coder-32B-Instruct")
         self.timeout = timeout
         self._mock_handler: Optional[Callable[[str, str, str], str]] = None
+
+    def _is_live_configured(self) -> bool:
+        """Kiểm tra xem có cấu hình endpoint LLM thật sự khả dụng hay không."""
+        if not self.base_url:
+            return False
+        if not self.api_key or self.api_key.startswith("hf_mock_") or self.api_key == "EMPTY":
+            return False
+        return True
 
     def set_mock_handler(self, handler: Optional[Callable[[str, str, str], str]]) -> None:
         """Cho phép gán handler giả lập phục vụ unit test."""
@@ -55,7 +64,7 @@ class DualModelLLM:
             return self._mock_handler(prompt, system_prompt or "", role)
 
         # Nếu có cấu hình endpoint thực tế thì gọi qua httpx
-        if self.base_url:
+        if self._is_live_configured():
             try:
                 import httpx
                 model_name = self.coder_model if role == "coder" else self.reasoner_model
@@ -86,6 +95,160 @@ class DualModelLLM:
 
         # Fallback Deterministic Generator
         return self._fallback_generate(prompt, system_prompt or "", role)
+
+    def call_with_tools(
+        self,
+        messages: List[Dict[str, str]],
+        tools: List[Dict[str, Any]],
+        tool_choice: Union[str, Dict[str, Any]] = "auto",
+        role: str = "coder",
+        temperature: float = 0.0,
+        max_tokens: int = 2048
+    ) -> Dict[str, Any]:
+        """
+        Gửi yêu cầu kèm Function Calling (Tools) tới Qwen/OpenAI endpoint.
+        Trả về kết quả có cấu trúc:
+        {
+            "type": "tool_call" | "text",
+            "tool_calls": [ {"id": ..., "name": ..., "arguments": dict} ],
+            "content": Optional[str]
+        }
+        """
+        # Nếu có mock handler từ unit test
+        if self._mock_handler:
+            prompt_content = "\n".join(m.get("content", "") for m in messages if m.get("role") == "user")
+            sys_content = "\n".join(m.get("content", "") for m in messages if m.get("role") == "system")
+            mock_text = self._mock_handler(prompt_content, sys_content, role)
+            return self._synthesize_tool_call_from_text(mock_text, tools, role)
+
+        # Kết nối endpoint thực tế nếu có
+        if self._is_live_configured():
+            try:
+                import httpx
+                model_name = self.coder_model if role == "coder" else self.reasoner_model
+                headers = {
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                }
+                payload = {
+                    "model": model_name,
+                    "messages": messages,
+                    "tools": tools,
+                    "tool_choice": tool_choice,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens
+                }
+
+                url = self.base_url.rstrip("/") + "/chat/completions"
+                with httpx.Client(timeout=self.timeout) as client:
+                    resp = client.post(url, headers=headers, json=payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    choice = data["choices"][0]
+                    msg = choice.get("message", {})
+
+                    if msg.get("tool_calls"):
+                        parsed_calls = []
+                        for tc in msg["tool_calls"]:
+                            fn = tc.get("function", {})
+                            name = fn.get("name", "")
+                            raw_args = fn.get("arguments", "{}")
+                            try:
+                                parsed_args = json.loads(raw_args) if isinstance(raw_args, str) else raw_args
+                            except Exception:
+                                parsed_args = {"raw": raw_args}
+                            parsed_calls.append({
+                                "id": tc.get("id", "call_default"),
+                                "name": name,
+                                "arguments": parsed_args
+                            })
+                        return {
+                            "type": "tool_call",
+                            "tool_calls": parsed_calls,
+                            "content": msg.get("content")
+                        }
+
+                    # Nếu model trả về plain text
+                    return {
+                        "type": "text",
+                        "content": msg.get("content", "").strip(),
+                        "tool_calls": []
+                    }
+            except Exception as e:
+                logger.warning(f"Không thể kết nối Function Calling endpoint ({e}), sử dụng deterministic fallback.")
+
+        # Fallback Deterministic Tool Call
+        return self._fallback_tool_call(messages, tools, role)
+
+    def _synthesize_tool_call_from_text(
+        self,
+        text: str,
+        tools: List[Dict[str, Any]],
+        role: str
+    ) -> Dict[str, Any]:
+        """Chuyển đổi text thô từ mock_handler thành cấu trúc tool_call chuẩn."""
+        tool_names = [t.get("function", {}).get("name") for t in tools]
+
+        if "generate_sql_query" in tool_names:
+            match = re.search(r"```(?:sql)?\s*(.*?)\s*```", text, re.DOTALL | re.IGNORECASE)
+            sql_clean = match.group(1).strip() if match else text.strip()
+            return {
+                "type": "tool_call",
+                "tool_calls": [
+                    {
+                        "id": "mock_call_sql_001",
+                        "name": "generate_sql_query",
+                        "arguments": {
+                            "sql": sql_clean,
+                            "tables_used": ["real_estate_listings"],
+                            "explanation": "Câu lệnh SQL được sinh tự động."
+                        }
+                    }
+                ],
+                "content": text
+            }
+
+        if "ask_clarification" in tool_names:
+            return {
+                "type": "tool_call",
+                "tool_calls": [
+                    {
+                        "id": "mock_call_clarify_001",
+                        "name": "ask_clarification",
+                        "arguments": {
+                            "question": text,
+                            "missing_fields": ["khu vực"],
+                            "suggested_options": ["Hà Nội", "Hồ Chí Minh"]
+                        }
+                    }
+                ],
+                "content": text
+            }
+
+        return {
+            "type": "text",
+            "content": text,
+            "tool_calls": []
+        }
+
+    def _fallback_tool_call(
+        self,
+        messages: List[Dict[str, str]],
+        tools: List[Dict[str, Any]],
+        role: str
+    ) -> Dict[str, Any]:
+        """Tự động sinh tool call giả lập deterministic khi chạy offline/test."""
+        user_prompt = ""
+        sys_prompt = ""
+        for m in messages:
+            if m.get("role") == "system":
+                sys_prompt = m.get("content", "")
+            elif m.get("role") == "user":
+                user_prompt = m.get("content", "")
+
+        raw_output = self.generate(user_prompt, system_prompt=sys_prompt, role=role)
+        return self._synthesize_tool_call_from_text(raw_output, tools, role)
+
 
     def _fallback_generate(self, prompt: str, system_prompt: str, role: str) -> str:
         """

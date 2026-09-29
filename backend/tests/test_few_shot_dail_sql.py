@@ -12,13 +12,13 @@ backend_dir = os.path.abspath(os.path.join(current_dir, ".."))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
+from typing import Any, List
 
-class MockEmbedding(EmbeddingFunction):
+class MockEmbedding:
     def name(self) -> str:
         return "mock_embedding"
 
-    def __call__(self, input: Documents) -> Embeddings:
+    def __call__(self, input: Any) -> Any:
         return [[0.0] * 1024 for _ in input]
 
 

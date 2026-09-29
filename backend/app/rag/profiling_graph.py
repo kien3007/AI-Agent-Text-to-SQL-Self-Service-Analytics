@@ -1,6 +1,6 @@
 """
 Bilingual Data Profiling Graph (Đồ thị hồ sơ dữ liệu song ngữ & Schema Linking Đa Domain).
-Sử dụng BAAI/bge-m3 + ChromaDB + NetworkX để liên kết ngữ nghĩa câu hỏi người dùng
+Sử dụng BAAI/bge-m3 + LlamaIndex + Qdrant + NetworkX để liên kết ngữ nghĩa câu hỏi người dùng
 với CSDL Apache Doris, hỗ trợ đa bảng và tự động suy luận phép nối JOIN qua thuật toán Minimum Steiner Tree.
 """
 
@@ -9,8 +9,9 @@ import sys
 import re
 from typing import Dict, Any, List, Set, Optional, Tuple
 import networkx as nx
-import chromadb
-from chromadb.config import Settings
+from llama_index.core import VectorStoreIndex, Document, StorageContext
+from app.rag.llamaindex_embedding import LlamaIndexBGEM3Embedding
+from app.rag.qdrant_provider import get_qdrant_client, get_qdrant_vector_store
 
 # Đảm bảo UTF-8
 if sys.platform == "win32":
@@ -35,7 +36,7 @@ from app.schemas.schema_context import SchemaContext, ColumnContext, MetricConte
 
 class BilingualDataProfilingGraph:
     """
-    Đồ thị hồ sơ dữ liệu song ngữ kết hợp Vector Store ChromaDB và Graph Network:
+    Đồ thị hồ sơ dữ liệu song ngữ kết hợp LlamaIndex + Qdrant Vector Store và Graph Network:
     1. Quản lý biểu đồ quan hệ giữa Bảng, Cột, Danh mục phân loại và Chỉ số nghiệp vụ.
     2. Nạp cấu hình động theo Domain (BĐS, E-commerce, Y tế...).
     3. Tự động suy luận đường dẫn JOIN tối ưu qua giải thuật Minimum Steiner Tree trên NetworkX.
@@ -46,11 +47,14 @@ class BilingualDataProfilingGraph:
         self,
         domain_id: Optional[str] = None,
         domain_config: Optional[DomainConfig] = None,
-        chroma_dir: Optional[str] = None,
-        embedding_function: Optional[Any] = None
+        embedding_function: Optional[Any] = None,
+        vector_backend: Optional[str] = None,
+        qdrant_client: Optional[Any] = None,
+        in_memory: bool = False,
+        **kwargs: Any
     ):
-        self.chroma_dir = chroma_dir or settings.CHROMA_PERSIST_DIR
-        os.makedirs(self.chroma_dir, exist_ok=True)
+        self.in_memory = in_memory
+        self.qdrant_client = qdrant_client
 
         self.domain_manager = DomainManager()
         if domain_config:
@@ -66,44 +70,53 @@ class BilingualDataProfilingGraph:
         self.domain_id = self.domain.domain_id
         self.glossary = VietnameseBusinessGlossary(domain_manager=self.domain_manager)
         self.embedding_fn = embedding_function or BGEM3EmbeddingFunction()
+        self.llama_embed = LlamaIndexBGEM3Embedding(embedding_function=self.embedding_fn)
 
-        # Khởi tạo persistent Chroma client
-        self.client = chromadb.PersistentClient(path=self.chroma_dir)
+        # LlamaIndex / Qdrant stores & indexes
+        self.schema_store = None
+        self.metrics_store = None
+        self.cat_store = None
+        self.schema_index = None
+        self.metrics_index = None
+        self.cat_index = None
 
         # In-memory Knowledge Graph cho Columns & Tables
         self.graph = nx.DiGraph()
         # Đồ thị vô hướng giữa các bảng để giải thuật Steiner Tree
         self.table_graph = nx.Graph()
 
-        # Collections
-        self.col_schema = None
-        self.col_categories = None
-        self.col_metrics = None
-
         self._init_collections()
         self._build_in_memory_graph()
 
     def _init_collections(self):
-        """Khởi tạo hoặc lấy các collection trong ChromaDB phân tách theo domain."""
+        """Khởi tạo collection trong Qdrant On-premise (LlamaIndex) phân tách theo domain."""
         prefix = "real_estate" if self.domain_id == "real_estate" else self.domain_id
 
-        self.col_schema = self.client.get_or_create_collection(
-            name=f"{prefix}_schema_profiles",
-            embedding_function=self.embedding_fn,
-            metadata={"description": f"Hồ sơ ngữ nghĩa cột của domain {self.domain_id}"}
-        )
+        if self.qdrant_client is None:
+            self.qdrant_client = get_qdrant_client(in_memory=self.in_memory)
 
-        self.col_categories = self.client.get_or_create_collection(
-            name=f"{prefix}_category_profiles",
-            embedding_function=self.embedding_fn,
-            metadata={"description": f"Danh mục phân loại thực tế của domain {self.domain_id}"}
-        )
+        # Tự động phát hiện vector dimension (1024 cho bge-m3 hoặc 128 cho MockEmbedding trong unit test)
+        try:
+            probe_vec = self.llama_embed.get_text_embedding("probe")
+            vector_dim = len(probe_vec) if probe_vec else 1024
+        except Exception:
+            vector_dim = 1024
 
-        self.col_metrics = self.client.get_or_create_collection(
-            name=f"{prefix}_metrics_profiles",
-            embedding_function=self.embedding_fn,
-            metadata={"description": f"Các chỉ số phân tích của domain {self.domain_id}"}
-        )
+        schema_col = f"{prefix}_schema_profiles"
+        metrics_col = f"{prefix}_metrics_profiles"
+        cat_col = f"{prefix}_category_profiles"
+
+        self.col_schema_name = schema_col
+        self.col_metrics_name = metrics_col
+        self.col_categories_name = cat_col
+
+        self.schema_store = get_qdrant_vector_store(self.qdrant_client, schema_col, vector_dim=vector_dim)
+        self.metrics_store = get_qdrant_vector_store(self.qdrant_client, metrics_col, vector_dim=vector_dim)
+        self.cat_store = get_qdrant_vector_store(self.qdrant_client, cat_col, vector_dim=vector_dim)
+
+        self.schema_index = VectorStoreIndex.from_vector_store(self.schema_store, embed_model=self.llama_embed)
+        self.metrics_index = VectorStoreIndex.from_vector_store(self.metrics_store, embed_model=self.llama_embed)
+        self.cat_index = VectorStoreIndex.from_vector_store(self.cat_store, embed_model=self.llama_embed)
 
     def _build_in_memory_graph(self):
         """Xây dựng đồ thị tri thức quan hệ Schema & Domain trong NetworkX từ DomainConfig."""
@@ -273,9 +286,14 @@ class BilingualDataProfilingGraph:
 
     def index_all(self, distinct_categories: Optional[Dict[str, Any]] = None, force: bool = False):
         """
-        Lập chỉ mục toàn bộ Metadata, Danh mục và Chỉ số của Domain vào ChromaDB.
+        Lập chỉ mục toàn bộ Metadata, Danh mục và Chỉ số của Domain vào Qdrant qua LlamaIndex.
         """
-        existing_schema_count = self.col_schema.count()
+        try:
+            coll_info = self.qdrant_client.get_collection(self.schema_store.collection_name)
+            existing_schema_count = coll_info.points_count
+        except Exception:
+            existing_schema_count = 0
+
         if existing_schema_count > 0 and not force:
             print(f"[ProfilingGraph] Index của domain '{self.domain_id}' đã tồn tại ({existing_schema_count} items). Bỏ qua.")
             return
@@ -311,7 +329,14 @@ class BilingualDataProfilingGraph:
 
         if schema_docs:
             print(f"[ProfilingGraph] Đang nạp {len(schema_docs)} cột vào schema collection...")
-            self.col_schema.add(documents=schema_docs, ids=schema_ids, metadatas=schema_metadatas)
+            schema_llama_docs = [
+                Document(text=doc, id_=did, metadata=m)
+                for doc, did, m in zip(schema_docs, schema_ids, schema_metadatas)
+            ]
+            storage_ctx = StorageContext.from_defaults(vector_store=self.schema_store)
+            self.schema_index = VectorStoreIndex.from_documents(
+                schema_llama_docs, storage_context=storage_ctx, embed_model=self.llama_embed
+            )
 
         # 2. Lập chỉ mục Chỉ số nghiệp vụ
         metric_docs = []
@@ -334,7 +359,14 @@ class BilingualDataProfilingGraph:
 
         if metric_docs:
             print(f"[ProfilingGraph] Đang nạp {len(metric_docs)} chỉ số nghiệp vụ...")
-            self.col_metrics.add(documents=metric_docs, ids=metric_ids, metadatas=metric_metadatas)
+            metric_llama_docs = [
+                Document(text=doc, id_=did, metadata=m)
+                for doc, did, m in zip(metric_docs, metric_ids, metric_metadatas)
+            ]
+            storage_ctx = StorageContext.from_defaults(vector_store=self.metrics_store)
+            self.metrics_index = VectorStoreIndex.from_documents(
+                metric_llama_docs, storage_context=storage_ctx, embed_model=self.llama_embed
+            )
 
         # 3. Lập chỉ mục Danh mục phân loại nếu có
         cat_docs = []
@@ -369,13 +401,14 @@ class BilingualDataProfilingGraph:
 
         if cat_docs:
             print(f"[ProfilingGraph] Đang nạp {len(cat_docs)} danh mục phân loại thực tế...")
-            batch_size = 200
-            for i in range(0, len(cat_docs), batch_size):
-                self.col_categories.add(
-                    documents=cat_docs[i:i+batch_size],
-                    ids=cat_ids[i:i+batch_size],
-                    metadatas=cat_metadatas[i:i+batch_size]
-                )
+            cat_llama_docs = [
+                Document(text=doc, id_=did, metadata=m)
+                for doc, did, m in zip(cat_docs, cat_ids, cat_metadatas)
+            ]
+            storage_ctx = StorageContext.from_defaults(vector_store=self.cat_store)
+            self.cat_index = VectorStoreIndex.from_documents(
+                cat_llama_docs, storage_context=storage_ctx, embed_model=self.llama_embed
+            )
 
         print(f"[ProfilingGraph] Hoàn thành lập chỉ mục cho domain '{self.domain_id}'!")
 
@@ -457,36 +490,41 @@ class BilingualDataProfilingGraph:
             matched_column_tuples.add(("real_estate_listings", "published_at"))
             matched_column_tuples.add(("real_estate_listings", "price"))
 
-        # 2. Vector Search qua ChromaDB cho Cột
+        # 2. Vector Search qua LlamaIndex (Qdrant) cho Cột
         try:
-            schema_results = self.col_schema.query(query_texts=[user_query], n_results=top_k_cols)
-            if schema_results and schema_results.get("metadatas"):
-                for m in schema_results["metadatas"][0]:
-                    col = m["column_name"]
+            if self.schema_index:
+                retriever = self.schema_index.as_retriever(similarity_top_k=top_k_cols)
+                nodes = retriever.retrieve(user_query)
+                for node in nodes:
+                    m = node.node.metadata
+                    col = m.get("column_name")
                     tbl = m.get("table_name", default_table)
-                    matched_column_tuples.add((tbl, col))
-                    needed_tables.add(tbl)
+                    if col:
+                        matched_column_tuples.add((tbl, col))
+                        needed_tables.add(tbl)
         except Exception as e:
             print(f"[ProfilingGraph] Warning vector query schema: {e}")
 
-        # 3. Vector Search qua ChromaDB cho Chỉ số (Metrics)
+        # 3. Vector Search qua LlamaIndex (Qdrant) cho Chỉ số (Metrics)
         try:
-            metric_results = self.col_metrics.query(query_texts=[user_query], n_results=2)
-            if metric_results and metric_results.get("metadatas"):
-                for m in metric_results["metadatas"][0]:
-                    m_id = m["metric_id"]
-                    if m_id in self.domain.metrics:
+            if self.metrics_index:
+                retriever = self.metrics_index.as_retriever(similarity_top_k=2)
+                nodes = retriever.retrieve(user_query)
+                for node in nodes:
+                    m_id = node.node.metadata.get("metric_id")
+                    if m_id and m_id in self.domain.metrics:
                         m_prof = self.domain.metrics[m_id]
-                        suggested_metrics.append(MetricContext(
-                            name=m_id,
-                            vn_terms=m_prof.vn_terms,
-                            sql_expression=m_prof.sql_expression,
-                            description=m_prof.description
-                        ))
-                        for dep_col in m_prof.depends_on_columns:
-                            matched_column_tuples.add((default_table, dep_col))
-                        for dep_tbl in m_prof.depends_on_tables:
-                            needed_tables.add(dep_tbl)
+                        if not any(sm.name == m_id for sm in suggested_metrics):
+                            suggested_metrics.append(MetricContext(
+                                name=m_id,
+                                vn_terms=m_prof.vn_terms,
+                                sql_expression=m_prof.sql_expression,
+                                description=m_prof.description
+                            ))
+                            for dep_col in m_prof.depends_on_columns:
+                                matched_column_tuples.add((default_table, dep_col))
+                            for dep_tbl in m_prof.depends_on_tables:
+                                needed_tables.add(dep_tbl)
         except Exception as e:
             pass
 
@@ -506,6 +544,15 @@ class BilingualDataProfilingGraph:
                         matched_column_tuples.add((default_table, dep_col))
                     for dep_tbl in m_prof.depends_on_tables:
                         needed_tables.add(dep_tbl)
+
+        # Đảm bảo toàn bộ các cột phụ thuộc của metrics gợi ý đều được liên kết vào schema
+        for sm in suggested_metrics:
+            if sm.name in self.domain.metrics:
+                m_prof = self.domain.metrics[sm.name]
+                for dep_col in m_prof.depends_on_columns:
+                    matched_column_tuples.add((default_table, dep_col))
+                for dep_tbl in m_prof.depends_on_tables:
+                    needed_tables.add(dep_tbl)
 
         # 4. Giải thuật Steiner Tree suy luận phép nối JOIN giữa các bảng
         if not needed_tables:

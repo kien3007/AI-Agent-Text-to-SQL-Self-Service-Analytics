@@ -1,7 +1,7 @@
 """
 Build Profiling Index Script
 Trích xuất toàn bộ metadata từ Apache Doris (3.4M bản ghi) và xây dựng chỉ mục ngữ nghĩa
-Bilingual Data Profiling Graph vào ChromaDB sử dụng BAAI/bge-m3.
+Bilingual Data Profiling Graph vào Qdrant On-premise sử dụng LlamaIndex và BAAI/bge-m3.
 """
 
 import os
@@ -25,7 +25,7 @@ from app.rag.profiling_graph import BilingualDataProfilingGraph
 
 def main():
     print("=" * 70)
-    print("XÂY DỰNG BILINGUAL DATA PROFILING GRAPH (bge-m3 + ChromaDB + Doris)")
+    print("XÂY DỰNG BILINGUAL DATA PROFILING GRAPH (bge-m3 + LlamaIndex + Qdrant)")
     print("=" * 70)
 
     start_time = time.time()
@@ -46,17 +46,16 @@ def main():
     finally:
         doris.close()
 
-    # 2. Khởi tạo BilingualDataProfilingGraph và lập chỉ mục ChromaDB
-    print("\n[2/3] Đang khởi tạo ChromaDB Vector Store & mô hình BAAI/bge-m3...")
-    chroma_dir = os.path.join(root_dir, "data", "chroma_db")
-    profiler = BilingualDataProfilingGraph(chroma_dir=chroma_dir)
+    # 2. Khởi tạo BilingualDataProfilingGraph và lập chỉ mục Qdrant
+    print("\n[2/3] Đang khởi tạo Qdrant Vector Store & mô hình BAAI/bge-m3 qua LlamaIndex...")
+    profiler = BilingualDataProfilingGraph()
 
     print("\n[3/3] Bắt đầu lập chỉ mục toàn bộ Metadata, Columns, Categories & Metrics...")
     profiler.index_all(distinct_categories=categories, force=True)
 
     elapsed = time.time() - start_time
     print(f"\n Hoàn tất xây dựng Index trong {elapsed:.2f} giây!")
-    print(f"Index lưu trữ tại: {chroma_dir}")
+    print("Index lưu trữ tại: Qdrant On-premise")
 
     # 4. Kiểm thử nhanh Schema Linking
     print("\n" + "=" * 70)
