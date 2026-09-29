@@ -97,7 +97,7 @@ jobs:
         run: docker build -t text2sql-backend:ci-check -f backend/Dockerfile backend
 
       - name: Validate Docker Compose Configuration
-        run: docker compose -f docker-compose.full.yml config
+        run: docker compose -f docker-compose.yml config
 
   # =========================================================================
   # 4. CI STATUS SUMMARY
