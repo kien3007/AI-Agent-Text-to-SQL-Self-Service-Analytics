@@ -165,47 +165,39 @@ class LongTermMemory:
             self._seed_initial_plans()
 
     def _seed_initial_plans(self) -> None:
-        """Nạp các mẫu SQL chuẩn tối ưu từ dbt Data Marts và Steiner Tree Joins."""
+        """Nạp các mẫu SQL chuẩn tối ưu từ dbt Data Marts và Steiner Tree Joins cho E-commerce."""
         seed_data = [
-            # Real Estate: dbt Aggregated Monthly Summary Mart
+            # E-commerce: dbt Marts Monthly Summary
             {
-                "query": "Thống kê xu hướng giá chung cư tại Cầu Giấy qua các tháng",
-                "domain_id": "real_estate",
-                "sql": "SELECT published_year_month, avg_price_per_sqm, total_listings FROM fct_district_monthly_summary WHERE district_name = 'Cầu Giấy' AND property_type_name = 'Căn hộ chung cư' ORDER BY published_year_month ASC LIMIT 12;",
-                "tables_used": ["fct_district_monthly_summary"],
-                "description": "Truy vấn bảng dbt Marts tổng hợp theo tháng và quận huyện"
-            },
-            # Real Estate: dbt Curated Analytics Mart
-            {
-                "query": "Tìm các căn chung cư cao cấp trên 10 tỷ tại Hà Nội",
-                "domain_id": "real_estate",
-                "sql": "SELECT listing_title, project_name, district_name, price_vnd, area_sqm, price_segment FROM fct_real_estate_analytics WHERE province_name = 'Hà Nội' AND price_segment = 'Siêu cao cấp (> 15 tỷ)' ORDER BY price_vnd DESC LIMIT 10;",
-                "tables_used": ["fct_real_estate_analytics"],
-                "description": "Truy vấn bảng dbt Fact chi tiết kèm phân khúc giá"
-            },
-            # Real Estate: Raw Listings filter
-            {
-                "query": "Tìm nhà riêng diện tích trên 80m2 tại Quận 1",
-                "domain_id": "real_estate",
-                "sql": "SELECT name, price, area, street_name FROM real_estate_listings WHERE district_name = 'Quận 1' AND property_type_name = 'Nhà' AND area >= 80 ORDER BY price ASC LIMIT 20;",
-                "tables_used": ["real_estate_listings"],
-                "description": "Lọc nhà riêng theo diện tích và quận trên bảng thô"
+                "query": "Thống kê doanh thu và số lượng đơn hàng theo tháng",
+                "domain_id": "ecommerce",
+                "sql": "SELECT report_month, status, total_records, total_gross_revenue FROM fct_orders_monthly_summary ORDER BY report_month DESC LIMIT 12;",
+                "tables_used": ["fct_orders_monthly_summary"],
+                "description": "Truy vấn bảng dbt Marts tổng hợp theo tháng cho orders"
             },
             # E-commerce: Multi-table JOIN (Steiner Tree)
             {
                 "query": "Thống kê tổng doanh thu GMV và số lượng đơn hàng theo khách hàng",
                 "domain_id": "ecommerce",
-                "sql": "SELECT c.customer_name, COUNT(o.id) AS total_orders, SUM(o.total_amount) AS gmv FROM customers c LEFT JOIN orders o ON c.id = o.customer_id GROUP BY c.customer_name ORDER BY gmv DESC LIMIT 10;",
+                "sql": "SELECT c.customer_name, COUNT(o.order_id) AS total_orders, SUM(o.total_amount) AS gmv FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_name ORDER BY gmv DESC LIMIT 10;",
                 "tables_used": ["customers", "orders"],
                 "description": "Multi-table JOIN tính GMV khách hàng"
             },
-            # Healthcare: Multi-table JOIN
+            # Vietnam E-commerce: Shopee Orders Filter
             {
-                "query": "Thống kê số lượng bệnh nhân theo từng loại chẩn đoán",
-                "domain_id": "healthcare",
-                "sql": "SELECT d.diagnosis_code, d.description, COUNT(DISTINCT e.patient_id) AS total_patients FROM diagnoses d JOIN encounters e ON d.encounter_id = e.id GROUP BY d.diagnosis_code, d.description ORDER BY total_patients DESC LIMIT 10;",
-                "tables_used": ["diagnoses", "encounters"],
-                "description": "Multi-table JOIN thống kê bệnh nhân theo chẩn đoán"
+                "query": "Tìm các đơn hàng Shopee đã hoàn tất gần đây",
+                "domain_id": "vietnam_ecommerce",
+                "sql": "SELECT order_id, shop_name, order_status, total_amount FROM stg_shopee_orders WHERE order_status = 'COMPLETED' ORDER BY created_at DESC LIMIT 20;",
+                "tables_used": ["stg_shopee_orders"],
+                "description": "Lọc đơn hàng Shopee theo trạng thái"
+            },
+            # Vietnam E-commerce: TikTok / Shopee GMV by Shop
+            {
+                "query": "Thống kê tổng doanh thu GMV theo từng shop",
+                "domain_id": "vietnam_ecommerce",
+                "sql": "SELECT shop_name, COUNT(order_id) AS total_orders, SUM(total_amount) AS total_gmv FROM stg_shopee_orders GROUP BY shop_name ORDER BY total_gmv DESC LIMIT 10;",
+                "tables_used": ["stg_shopee_orders"],
+                "description": "Tính tổng GMV theo cửa hàng"
             }
         ]
         for item in seed_data:

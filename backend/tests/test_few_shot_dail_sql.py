@@ -42,29 +42,28 @@ class TestFewShotDailSQL(unittest.TestCase):
         self.assertGreaterEqual(len(self.ltm.good_plans), 4)
 
         domains = {p["domain_id"] for p in self.ltm.good_plans}
-        self.assertIn("real_estate", domains)
         self.assertIn("ecommerce", domains)
-        self.assertIn("healthcare", domains)
+        self.assertIn("vietnam_ecommerce", domains)
 
-        # Kiểm tra sự xuất hiện của dbt Marts trong seed
+        # Kiểm tra sự xuất hiện của dbt Marts và Steiner Tree trong seed
         sqls = [p["sql"] for p in self.ltm.good_plans]
-        self.assertTrue(any("fct_district_monthly_summary" in s for s in sqls))
-        self.assertTrue(any("fct_real_estate_analytics" in s for s in sqls))
+        self.assertTrue(any("fct_orders_monthly_summary" in s for s in sqls))
+        self.assertTrue(any("stg_shopee_orders" in s for s in sqls))
 
     def test_dynamic_few_shot_retrieval(self):
         """Kiểm tra hàm get_relevant_few_shots tìm đúng ví dụ mẫu phù hợp ngữ cảnh."""
-        # 1. Câu hỏi về xu hướng thị trường -> Tìm ra fct_district_monthly_summary
-        results_re = self.ltm.get_relevant_few_shots(
-            query="Thống kê biến động giá chung cư Cầu Giấy",
-            domain_id="real_estate",
+        # 1. Câu hỏi Shopee -> Tìm ra stg_shopee_orders
+        results_vn = self.ltm.get_relevant_few_shots(
+            query="Tìm các đơn hàng Shopee đã hoàn tất",
+            domain_id="vietnam_ecommerce",
             top_k=1
         )
-        self.assertEqual(len(results_re), 1)
-        self.assertIn("fct_district_monthly_summary", results_re[0]["sql"])
+        self.assertEqual(len(results_vn), 1)
+        self.assertIn("stg_shopee_orders", results_vn[0]["sql"])
 
         # 2. Câu hỏi E-commerce GMV -> Tìm ra customers JOIN orders
         results_ecom = self.ltm.get_relevant_few_shots(
-            query="Tính doanh thu GMV của khách hàng",
+            query="Thống kê tổng doanh thu GMV của khách hàng",
             domain_id="ecommerce",
             top_k=1
         )
@@ -85,13 +84,13 @@ class TestFewShotDailSQL(unittest.TestCase):
 
         node = SQLGeneratorNode(llm=llm, long_term_memory=self.ltm)
         state = AgentState(
-            user_query="Biến động giá chung cư Cầu Giấy qua các tháng",
-            domain_id="real_estate"
+            user_query="Thống kê doanh thu và số lượng đơn hàng theo tháng",
+            domain_id="ecommerce"
         )
         state.schema_context = SchemaContext(
-            selected_tables=["fct_district_monthly_summary"],
+            selected_tables=["fct_orders_monthly_summary"],
             relevant_columns=[],
-            prompt_context="### SCHEMA: fct_district_monthly_summary"
+            prompt_context="### SCHEMA: fct_orders_monthly_summary"
         )
 
         node(state)
@@ -99,7 +98,7 @@ class TestFewShotDailSQL(unittest.TestCase):
         self.assertEqual(len(captured_prompts), 1)
         sent_prompt = captured_prompts[0]
         self.assertIn("DYNAMIC FEW-SHOT TỪ LONG-TERM MEMORY", sent_prompt)
-        self.assertIn("fct_district_monthly_summary", sent_prompt)
+        self.assertIn("fct_orders_monthly_summary", sent_prompt)
 
     def test_auto_learning_loop_e2e(self):
         """Kiểm tra vòng tự học (Continuous Auto-Learning Loop): Query mới thành công -> Trở thành Good Plan."""
@@ -108,9 +107,16 @@ class TestFewShotDailSQL(unittest.TestCase):
             use_explain=False
         )
 
+        def mock_coder(prompt: str, system_prompt: str, role: str) -> str:
+            if role == "coder":
+                return "```sql\nSELECT 1 AS result;\n```"
+            return "Phân tích mẫu kết quả."
+
+        orchestrator.llm.set_mock_handler(mock_coder)
+
         initial_count = len(orchestrator.memory.long_term.good_plans)
 
-        new_query = "Tìm biệt thự tại Tây Hồ giá trên 30 tỷ"
+        new_query = "Truy vấn kiểm tra doanh thu mẫu"
         state = orchestrator.invoke(new_query)
 
         # Kiểm tra câu query đã được thực thi và tự động lưu vào Good Plans
@@ -119,8 +125,8 @@ class TestFewShotDailSQL(unittest.TestCase):
 
         # Kiểm tra câu hỏi tiếp theo có thể truy xuất lại câu vừa học
         matched = orchestrator.memory.long_term.get_relevant_few_shots(
-            query="Mua biệt thự Tây Hồ",
-            domain_id="real_estate",
+            query="Truy vấn kiểm tra doanh thu",
+            domain_id=state.domain_id,
             top_k=2
         )
         matched_queries = [m["query"] for m in matched]

@@ -1,9 +1,9 @@
-name: 'real_estate_analytics'
+name: 'analytics_project'
 version: '1.0.0'
 config-version: 2
 
-# Chỉ định profile kết nối CSDL DuckDB
-profile: 'duckdb_profile'
+# Profile được chọn theo biến môi trường DBT_PROFILE (mặc định duckdb_profile cho dev/test)
+profile: "{{ env_var('DBT_PROFILE', 'duckdb_profile') }}"
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -17,10 +17,8 @@ clean-targets:
   - "dbt_packages"
 
 models:
-  real_estate_analytics:
+  analytics_project:
     staging:
       +materialized: view
-      +schema: staging
     marts:
       +materialized: table
-      +schema: analytics

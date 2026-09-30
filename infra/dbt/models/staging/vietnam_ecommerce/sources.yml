@@ -1,0 +1,10 @@
+version: 2
+sources:
+- name: vietnam_ecommerce
+  schema: vietnam_ecommerce
+  description: Nguồn dữ liệu gốc cho domain Thương Mại Điện Tử
+  tables:
+  - name: shopee_orders
+    description: Dữ liệu đơn hàng bán qua sàn Shopee
+    meta:
+      vn_name: Đơn Hàng Shopee

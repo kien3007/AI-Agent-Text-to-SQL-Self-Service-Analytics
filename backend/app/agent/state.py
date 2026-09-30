@@ -46,6 +46,7 @@ class AgentState(BaseModel):
     validation_result: Optional[ValidationResult] = Field(None, description="Kết quả kiểm định an toàn và cú pháp SQL")
     retry_count: int = Field(0, description="Số lần đã thử sửa lỗi cú pháp / logic (Self-correction count)")
     max_retries: int = Field(3, description="Số lần thử sửa lỗi tối đa trước khi dừng")
+    error_message: Optional[str] = Field(None, description="Thông điệp lỗi nếu quá trình thực thi thất bại")
     error_history: List[Dict[str, Any]] = Field(default_factory=list, description="Lịch sử các lỗi ngắn hạn đã gặp trong phiên")
     
     # Cổng kiểm duyệt người dùng (Human-In-The-Loop)

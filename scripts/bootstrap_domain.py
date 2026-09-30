@@ -14,6 +14,13 @@ import sys
 import argparse
 import shutil
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 # Đảm bảo import backend
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.abspath(os.path.join(current_dir, ".."))
@@ -40,13 +47,15 @@ def main():
     args = parser.parse_args()
 
     dm = DomainManager()
-    domains_dir = os.path.join(backend_dir, "app", "domains")
-    backup_dir = os.path.join(backend_dir, "app", ".domains_backup")
+    domains_dir = dm.domains_dir
+    backup_dir = os.path.join(backend_dir, ".domains_backup")
 
     # 1. Khôi phục từ backup
     if args.restore:
         if not os.path.exists(backup_dir):
-            print(f"[ERROR] Không tìm thấy thư mục backup tại: {backup_dir}")
+            print(f"[INFO] Không tìm thấy thư mục backup tại: {backup_dir}")
+            print("[INFO] Bạn có thể tự động tạo domain mới từ CSDL bằng lệnh:")
+            print("       python scripts/bootstrap_domain.py --db-name warehouse --domain-id ecommerce --display-name \"Thương Mại Điện Tử\" --auto-dbt")
             return
         for item in os.listdir(backup_dir):
             src = os.path.join(backup_dir, item)

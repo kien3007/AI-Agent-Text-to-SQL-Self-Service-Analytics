@@ -1,0 +1,58 @@
+version: 2
+metrics:
+- name: total_total_order_value_shopee_orders
+  label: Tổng total_order_value (Đơn Hàng Shopee)
+  description: Tổng total_order_value (Đơn Hàng Shopee)
+  type: simple
+  type_params:
+    measure:
+      name: total_total_order_value_shopee_orders
+      agg: sum
+      expr: SUM(total_order_value)
+  meta:
+    vn_terms:
+    - tổng total_order_value
+    - sum total_order_value
+    domain: vietnam_ecommerce
+- name: avg_total_order_value_shopee_orders
+  label: Trung Bình total_order_value (Đơn Hàng Shopee)
+  description: Trung Bình total_order_value (Đơn Hàng Shopee)
+  type: simple
+  type_params:
+    measure:
+      name: avg_total_order_value_shopee_orders
+      agg: average
+      expr: AVG(total_order_value)
+  meta:
+    vn_terms:
+    - trung bình total_order_value
+    - average total_order_value
+    domain: vietnam_ecommerce
+- name: total_item_count_shopee_orders
+  label: Tổng item_count (Đơn Hàng Shopee)
+  description: Tổng item_count (Đơn Hàng Shopee)
+  type: simple
+  type_params:
+    measure:
+      name: total_item_count_shopee_orders
+      agg: sum
+      expr: SUM(item_count)
+  meta:
+    vn_terms:
+    - tổng item_count
+    - sum item_count
+    domain: vietnam_ecommerce
+- name: avg_item_count_shopee_orders
+  label: Trung Bình item_count (Đơn Hàng Shopee)
+  description: Trung Bình item_count (Đơn Hàng Shopee)
+  type: simple
+  type_params:
+    measure:
+      name: avg_item_count_shopee_orders
+      agg: average
+      expr: AVG(item_count)
+  meta:
+    vn_terms:
+    - trung bình item_count
+    - average item_count
+    domain: vietnam_ecommerce

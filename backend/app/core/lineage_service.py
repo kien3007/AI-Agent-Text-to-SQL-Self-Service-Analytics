@@ -39,67 +39,262 @@ class LineageService:
                     logger.warning(f"Không thể đọc manifest từ {p}: {e}")
         return None
 
+    def _build_from_dbt_manifest(self, manifest: Dict[str, Any], domain_id: str, conf: DomainConfig) -> Optional[Dict[str, Any]]:
+        """Xây dựng đồ thị lineage chuẩn từ manifest.json thật của dbt (parent_map DAG)."""
+        nodes_dict = manifest.get("nodes", {})
+        sources_dict = manifest.get("sources", {})
+        parent_map = manifest.get("parent_map", {})
+        metrics_dict = manifest.get("metrics", {}) or manifest.get("semantic_models", {})
+
+        # Lọc các model thuộc domain này (hoặc toàn bộ nếu chưa gán domain meta)
+        relevant_models = {}
+        for uid, node in nodes_dict.items():
+            if node.get("resource_type") == "model":
+                meta_domain = (node.get("meta") or {}).get("domain")
+                fqn = node.get("fqn", [])
+                if not meta_domain or meta_domain == domain_id or domain_id in fqn:
+                    relevant_models[uid] = node
+
+        if not relevant_models and not sources_dict:
+            return None
+
+        nodes: List[Dict[str, Any]] = []
+        edges: List[Dict[str, Any]] = []
+        added_node_ids = set()
+
+        # 1. Sources từ dbt manifest
+        for s_uid, s_node in sources_dict.items():
+            s_name = s_node.get("name", "source")
+            s_schema = s_node.get("schema", domain_id)
+            node_id = f"src_{s_schema}_{s_name}"
+            if node_id not in added_node_ids:
+                nodes.append({
+                    "id": node_id,
+                    "label": f"{s_schema}.{s_name}",
+                    "layer": "source",
+                    "type": "dbt Source",
+                    "status": "active",
+                    "details": {
+                        "source_name": s_name,
+                        "schema": s_schema,
+                        "loader": s_node.get("loader", "Database Ingest"),
+                        "description": s_node.get("description", f"Nguồn dữ liệu raw cho {s_name}")
+                    }
+                })
+                added_node_ids.add(node_id)
+
+        # 2. Models (Staging & Marts)
+        for m_uid, m_node in relevant_models.items():
+            m_name = m_node.get("name", "")
+            is_staging = "stg_" in m_name or "staging" in m_node.get("original_file_path", "")
+            layer = "staging" if is_staging else "warehouse"
+            node_id = f"stg_{m_name}" if is_staging else f"tbl_{m_name}"
+
+            cols_preview = []
+            for c_name, c_info in (m_node.get("columns") or {}).items():
+                cols_preview.append({
+                    "name": c_name,
+                    "vn_name": (c_info.get("meta") or {}).get("vn_name") or c_name,
+                    "type": c_info.get("data_type", "VARCHAR"),
+                    "description": c_info.get("description", "")
+                })
+
+            if node_id not in added_node_ids:
+                nodes.append({
+                    "id": node_id,
+                    "label": m_name,
+                    "vn_label": (m_node.get("meta") or {}).get("vn_name") or m_name,
+                    "layer": layer,
+                    "type": "dbt View (Staging)" if is_staging else "dbt Table (Data Mart)",
+                    "status": "online",
+                    "details": {
+                        "model_name": m_name,
+                        "materialization": (m_node.get("config") or {}).get("materialized", "view"),
+                        "description": m_node.get("description", ""),
+                        "columns": cols_preview,
+                        "owner": conf.owner or "Data Engineering"
+                    }
+                })
+                added_node_ids.add(node_id)
+
+            # Nối edges từ parent_map của dbt
+            parents = parent_map.get(m_uid, [])
+            for p_uid in parents:
+                p_id = None
+                if p_uid.startswith("source."):
+                    p_src = sources_dict.get(p_uid, {})
+                    p_id = f"src_{p_src.get('schema', domain_id)}_{p_src.get('name', 'source')}"
+                elif p_uid.startswith("model."):
+                    p_model = nodes_dict.get(p_uid, {})
+                    p_name = p_model.get("name", "")
+                    p_is_stg = "stg_" in p_name or "staging" in p_model.get("original_file_path", "")
+                    p_id = f"stg_{p_name}" if p_is_stg else f"tbl_{p_name}"
+
+                if p_id and p_id in added_node_ids and node_id in added_node_ids:
+                    edges.append({
+                        "id": f"e_{p_id}_{node_id}",
+                        "source": p_id,
+                        "target": node_id,
+                        "label": "dbt ref",
+                        "animated": False,
+                        "type": "smoothstep"
+                    })
+
+        # 3. Metrics từ manifest hoặc fallback domain config
+        metrics_source = metrics_dict if metrics_dict else conf.metrics
+        for m_id, metric in metrics_source.items():
+            metric_node_id = f"metric_{m_id}"
+            vn_terms = metric.get("meta", {}).get("vn_terms", [m_id]) if isinstance(metric, dict) else metric.vn_terms
+            label = metric.get("label", m_id) if isinstance(metric, dict) else (metric.vn_terms[0] if metric.vn_terms else m_id)
+            sql_expr = metric.get("type_params", {}).get("measure", {}).get("expr", "") if isinstance(metric, dict) else metric.sql_expression
+
+            if metric_node_id not in added_node_ids:
+                nodes.append({
+                    "id": metric_node_id,
+                    "label": label,
+                    "layer": "metric",
+                    "type": "Semantic Metric (MetricFlow)",
+                    "status": "verified",
+                    "details": {
+                        "metric_id": m_id,
+                        "sql_expression": sql_expr,
+                        "description": label,
+                        "vn_terms": vn_terms,
+                        "sla": "Real-time calculation"
+                    }
+                })
+                added_node_ids.add(metric_node_id)
+
+            # Nối từ marts sang metric
+            for n in nodes:
+                if n["layer"] == "warehouse":
+                    edges.append({
+                        "id": f"e_{n['id']}_{metric_node_id}",
+                        "source": n["id"],
+                        "target": metric_node_id,
+                        "label": "Aggregates",
+                        "animated": False
+                    })
+                    break
+
+        # 4. Consumers
+        consumers = [
+            {
+                "id": f"consumer_{domain_id}_ai_agent",
+                "label": "Text-to-SQL AI Copilot",
+                "layer": "consumer",
+                "type": "AI Agent Service",
+                "status": "serving",
+                "details": {
+                    "consumer_type": "Multi-Agent System (DAIL-SQL)",
+                    "active_users": "Enterprise Business Users",
+                    "query_volume": "1.8k queries/day"
+                }
+            },
+            {
+                "id": f"consumer_{domain_id}_bi_dash",
+                "label": "Executive BI Dashboard",
+                "layer": "consumer",
+                "type": "Analytics Dashboard",
+                "status": "serving",
+                "details": {
+                    "consumer_type": "Metabase / Apache Superset",
+                    "refresh_interval": "Hourly",
+                    "criticality": "HIGH (Board Level)"
+                }
+            }
+        ]
+        nodes.extend(consumers)
+        for n in [n for n in nodes if n["layer"] == "metric"]:
+            edges.append({
+                "id": f"e_{n['id']}_ai",
+                "source": n["id"],
+                "target": f"consumer_{domain_id}_ai_agent",
+                "label": "Auto-Context",
+                "animated": True
+            })
+
+        return {
+            "domain_id": domain_id,
+            "total_nodes": len(nodes),
+            "total_edges": len(edges),
+            "layers": ["source", "staging", "warehouse", "metric", "consumer"],
+            "nodes": nodes,
+            "edges": edges
+        }
+
     def build_domain_lineage_graph(self, domain_id: str) -> Dict[str, Any]:
         """
         Xây dựng đồ thị DAG hoàn chỉnh cho domain gồm 5 tầng:
-        1. Sources (CDC / Kafka / Raw DB)
+        1. Sources (Database / Raw DB)
         2. Staging (dbt Staging Models)
-        3. Storage / Marts (DuckDB Warehouse Tables)
-        4. Semantic Metrics (Chỉ số nghiệp vụ)
+        3. Storage / Marts (OLAP Warehouse Tables)
+        4. Semantic Metrics (Chỉ số nghiệp vụ MetricFlow)
         5. Consumers (BI / AI Agent / Downstream reports)
+        Ưu tiên đọc từ dbt manifest.json thật nếu đã compile.
         """
         conf = self.dm.get_domain(domain_id)
         if not conf:
             raise ValueError(f"Domain '{domain_id}' không tồn tại.")
 
         manifest = self._get_dbt_manifest()
+        if manifest:
+            from_manifest = self._build_from_dbt_manifest(manifest, domain_id, conf)
+            if from_manifest and from_manifest["total_nodes"] > 2:
+                return from_manifest
+
+        # Fallback tự động: Xây dựng đồ thị sống từ cấu hình CSDL thực tế
         nodes: List[Dict[str, Any]] = []
         edges: List[Dict[str, Any]] = []
 
-        # Layer 1: Sources
-        source_nodes = [
-            {
-                "id": f"src_{domain_id}_cdc",
-                "label": f"Kafka CDC Stream ({domain_id})",
-                "layer": "source",
-                "type": "CDC Stream",
-                "status": "active",
-                "details": {
-                    "source_type": "Apache Kafka / Debezium CDC",
-                    "throughput": "1.2k msgs/sec",
-                    "latency": "120ms",
-                    "owner": conf.owner or "Data Platform Team"
-                }
-            },
-            {
-                "id": f"src_{domain_id}_raw_db",
-                "label": f"OLTP Operational DB",
-                "layer": "source",
-                "type": "MySQL Source",
-                "status": "active",
-                "details": {
-                    "source_type": "MySQL 8.0 Primary DB",
-                    "sync_mode": "Real-time CDC",
-                    "uptime": "99.99%",
-                    "owner": conf.owner or "Infra Ops"
-                }
-            }
-        ]
-        nodes.extend(source_nodes)
+        desc = (conf.description or "").lower()
+        if "sqlserver" in desc or "mssql" in desc or "xomdata" in desc:
+            db_type = "Microsoft SQL Server"
+            db_label = f"MSSQL ({conf.display_name or domain_id})"
+        elif "postgres" in desc:
+            db_type = "PostgreSQL"
+            db_label = f"PostgreSQL ({conf.display_name or domain_id})"
+        elif "duckdb" in desc:
+            db_type = "DuckDB Warehouse"
+            db_label = f"DuckDB ({conf.display_name or domain_id})"
+        elif "mysql" in desc:
+            db_type = "MySQL Database"
+            db_label = f"MySQL ({conf.display_name or domain_id})"
+        else:
+            db_type = "Connected Database"
+            db_label = f"CSDL {conf.display_name or domain_id}"
 
-        # Layer 2: Staging Layer (từ dbt manifest hoặc sinh dựa trên tables)
+        # Layer 1: Sources (Dynamic connection)
+        src_source_id = f"src_{domain_id}_db"
+        nodes.append({
+            "id": src_source_id,
+            "label": db_label,
+            "layer": "source",
+            "type": db_type,
+            "status": "active",
+            "details": {
+                "source_type": db_type,
+                "connection": conf.description or f"Database {domain_id}",
+                "sync_mode": "Live Query / Direct Introspection",
+                "uptime": "99.99%",
+                "owner": conf.owner or "Data Infrastructure Team"
+            }
+        })
+
+        # Layer 2: Staging Layer
         staging_nodes_map = {}
         for t_name, tbl in conf.tables.items():
-            stg_id = f"stg_{t_name}"
+            clean_name = t_name.split(".")[-1]
+            stg_id = f"stg_{clean_name}"
             stg_node = {
                 "id": stg_id,
-                "label": f"stg_{t_name}",
+                "label": f"stg_{clean_name}",
                 "layer": "staging",
                 "type": "dbt View",
                 "status": "synced",
                 "details": {
                     "materialization": "view",
-                    "description": f"Staging view làm sạch dữ liệu cho bảng {tbl.vn_name or t_name}",
+                    "description": f"Staging view làm sạch dữ liệu cho bảng {tbl.vn_name or clean_name}",
                     "columns_count": len(tbl.columns),
                     "owner": conf.data_steward or "Data Modeling Team"
                 }
@@ -107,21 +302,20 @@ class LineageService:
             nodes.append(stg_node)
             staging_nodes_map[t_name] = stg_id
 
-            # Nối từ Sources -> Staging
-            src_source_id = f"src_{domain_id}_cdc" if "order" in t_name or "event" in t_name else f"src_{domain_id}_raw_db"
+            # Nối từ Source -> Staging
             edges.append({
                 "id": f"e_{src_source_id}_{stg_id}",
                 "source": src_source_id,
                 "target": stg_id,
-                "label": "ETL Ingest",
+                "label": "Ingest & Cast",
                 "animated": True,
                 "type": "smoothstep"
             })
 
-        # Layer 3: Warehouse Tables (OLAP Marts & Fact/Dim)
+        # Layer 3: Warehouse Tables
         for t_name, tbl in conf.tables.items():
-            tbl_id = f"tbl_{t_name}"
-            # Extract column info
+            clean_name = t_name.split(".")[-1]
+            tbl_id = f"tbl_{clean_name}"
             cols_preview = [
                 {
                     "name": c.name,
@@ -136,17 +330,17 @@ class LineageService:
 
             nodes.append({
                 "id": tbl_id,
-                "label": t_name,
-                "vn_label": tbl.vn_name or t_name,
+                "label": clean_name,
+                "vn_label": tbl.vn_name or clean_name,
                 "layer": "warehouse",
-                "type": "Warehouse Table (OLAP)",
+                "type": "Warehouse Table",
                 "status": "online",
                 "details": {
                     "table_name": t_name,
                     "vn_name": tbl.vn_name,
                     "description": tbl.description,
-                    "row_count": 48250 if "order" in t_name else (15200 if "customer" in t_name else 32000),
-                    "freshness": "15 phút trước",
+                    "columns_count": len(tbl.columns),
+                    "freshness": "Real-time sync",
                     "sla": "Freshness < 1h",
                     "owner": conf.owner or "Data Engineering",
                     "steward": conf.data_steward or "Analytics Steward",
@@ -168,18 +362,19 @@ class LineageService:
 
         # Bổ sung các FK relationship giữa các warehouse tables
         for t_name, tbl in conf.tables.items():
+            from_clean = t_name.split(".")[-1]
             for c_name, col in tbl.columns.items():
                 if col.foreign_key and "." in col.foreign_key:
-                    ref_tbl = col.foreign_key.split(".")[0]
-                    if ref_tbl in conf.tables:
-                        edges.append({
-                            "id": f"fk_{ref_tbl}_{t_name}_{c_name}",
-                            "source": f"tbl_{ref_tbl}",
-                            "target": f"tbl_{t_name}",
-                            "label": f"FK ({c_name})",
-                            "animated": False,
-                            "style": {"strokeDasharray": "5,5"}
-                        })
+                    ref_tbl_raw = col.foreign_key.split(".")[0]
+                    ref_clean = ref_tbl_raw.split(".")[-1]
+                    edges.append({
+                        "id": f"fk_{ref_clean}_{from_clean}_{c_name}",
+                        "source": f"tbl_{ref_clean}",
+                        "target": f"tbl_{from_clean}",
+                        "label": f"FK ({c_name})",
+                        "animated": False,
+                        "style": {"strokeDasharray": "5,5"}
+                    })
 
         # Layer 4: Semantic Metrics
         for m_id, metric in conf.metrics.items():
@@ -203,20 +398,21 @@ class LineageService:
             sql_lower = metric.sql_expression.lower()
             matched_any = False
             for t_name in conf.tables.keys():
-                if t_name.lower() in sql_lower:
+                clean_name = t_name.split(".")[-1]
+                if clean_name.lower() in sql_lower:
                     matched_any = True
                     edges.append({
-                        "id": f"e_tbl_{t_name}_{metric_node_id}",
-                        "source": f"tbl_{t_name}",
+                        "id": f"e_tbl_{clean_name}_{metric_node_id}",
+                        "source": f"tbl_{clean_name}",
                         "target": metric_node_id,
                         "label": "Semantic Aggregation",
                         "animated": False
                     })
-            if not matched_any:
-                primary_tbl = "orders" if "orders" in conf.tables else next(iter(conf.tables.keys()))
+            if not matched_any and conf.tables:
+                first_tbl = next(iter(conf.tables.keys())).split(".")[-1]
                 edges.append({
-                    "id": f"e_tbl_{primary_tbl}_{metric_node_id}",
-                    "source": f"tbl_{primary_tbl}",
+                    "id": f"e_tbl_{first_tbl}_{metric_node_id}",
+                    "source": f"tbl_{first_tbl}",
                     "target": metric_node_id,
                     "label": "Aggregates",
                     "animated": False

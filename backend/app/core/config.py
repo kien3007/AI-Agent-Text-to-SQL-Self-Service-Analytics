@@ -33,7 +33,7 @@ class AppSettings(BaseSettings):
 
     # 1. Warehouse OLAP Engine (DuckDB)
     WAREHOUSE_BACKEND: str = Field("duckdb", description="Động cơ Data Warehouse: 'duckdb' in-process siêu nhẹ")
-    DUCKDB_PATH: str = Field("./data/warehouse.duckdb", description="Đường dẫn file DuckDB database")
+    DUCKDB_PATH: str = Field(str(workspace_dir / "data" / "warehouse.duckdb"), description="Đường dẫn tuyệt đối file DuckDB database")
 
     # 2. Dual-Model LLM Gateway
     LLM_BASE_URL: str = Field("", description="OpenAI-compatible API base URL (vLLM, Ollama, Together, OpenAI...)")
@@ -47,7 +47,7 @@ class AppSettings(BaseSettings):
     EMBEDDING_MODEL: str = Field("BAAI/bge-m3", description="Tên mô hình multilingual embedding")
     QDRANT_HOST: str = Field("localhost", description="Địa chỉ Qdrant vector database server")
     QDRANT_PORT: int = Field(6333, description="Cổng Qdrant HTTP REST API")
-    QDRANT_STORAGE_DIR: str = Field("./data/qdrant_db", description="Thư mục lưu trữ Qdrant On-premise (embedded/disk mode)")
+    QDRANT_STORAGE_DIR: str = Field(str(workspace_dir / "data" / "qdrant_db"), description="Đường dẫn tuyệt đối lưu trữ Qdrant On-premise")
     VECTOR_DB_BACKEND: str = Field("qdrant", description="Backend Vector DB: 'qdrant'")
     HF_TOKEN: str = Field("", description="Token Hugging Face Hub")
 
@@ -61,6 +61,12 @@ class AppSettings(BaseSettings):
     HITL_SCAN_TABLETS_THRESHOLD: int = Field(50, description="Ngưỡng cảnh báo số lượng tablets scan")
     HITL_ROW_COUNT_THRESHOLD: int = Field(1000000, description="Ngưỡng cảnh báo số dòng quét ước tính")
     HITL_ESTIMATED_BYTES_MB_THRESHOLD: int = Field(500, description="Ngưỡng cảnh báo dung lượng quét ước tính (MB)")
+
+    # 6. Supabase Self-Hosted Authentication
+    SUPABASE_URL: str = Field("http://localhost:54321", description="Supabase API Gateway URL")
+    SUPABASE_JWT_SECRET: str = Field("super-secret-jwt-token-with-at-least-32-characters-long", description="Secret xác thực JWT Supabase")
+    SUPABASE_ANON_KEY: str = Field("", description="Khóa công khai anon của Supabase")
+    SUPABASE_SERVICE_ROLE_KEY: str = Field("", description="Khóa quản trị service_role của Supabase")
 
     model_config = SettingsConfigDict(
         env_file=str(workspace_dir / ".env") if (workspace_dir / ".env").exists() else None,

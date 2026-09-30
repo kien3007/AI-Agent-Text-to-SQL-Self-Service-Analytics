@@ -12,10 +12,10 @@ from pydantic import BaseModel, Field
 class ColumnProfile(BaseModel):
     """Hồ sơ định nghĩa một cột trong bảng CSDL."""
     name: str = Field(..., description="Tên cột kỹ thuật trong CSDL")
-    vn_name: str = Field(..., description="Tên tiếng Việt hiển thị / nghiệp vụ")
+    vn_name: Optional[str] = Field(None, description="Tên tiếng Việt hiển thị / nghiệp vụ")
     en_name: Optional[str] = Field(None, description="Tên tiếng Anh")
     data_type: str = Field(..., description="Kiểu dữ liệu SQL (VARCHAR, DOUBLE, DATETIME...)")
-    description: str = Field(..., description="Mô tả ý nghĩa nghiệp vụ của cột")
+    description: Optional[str] = Field(None, description="Mô tả ý nghĩa nghiệp vụ của cột")
     synonyms: List[str] = Field(default_factory=list, description="Từ đồng nghĩa, từ khóa tìm kiếm liên quan")
     is_partition_or_dist: bool = Field(False, description="Cột có dùng làm Partition hoặc Distributed key không")
     is_primary_key: bool = Field(False, description="Cột có phải Primary Key không")
@@ -55,12 +55,21 @@ class TableProfile(BaseModel):
 class MetricProfile(BaseModel):
     """Chỉ số nghiệp vụ phân tích (Business Analytics Metric)."""
     metric_id: str = Field(..., description="Mã định danh chỉ số (VD: avg_price_per_sqm, gmv)")
-    vn_terms: List[str] = Field(..., description="Thuật ngữ tiếng Việt gọi chỉ số này")
+    vn_terms: List[str] = Field(default_factory=list, description="Thuật ngữ tiếng Việt gọi chỉ số này")
     en_terms: List[str] = Field(default_factory=list, description="Thuật ngữ tiếng Anh")
     sql_expression: str = Field(..., description="Biểu thức SQL (VD: ROUND(AVG(price / NULLIF(area, 0)), 0))")
-    description: str = Field(..., description="Ý nghĩa và công thức tính")
+    description: Optional[str] = Field(None, description="Ý nghĩa và công thức tính")
     depends_on_tables: List[str] = Field(default_factory=list, description="Các bảng cần thiết để tính metric")
     depends_on_columns: List[str] = Field(default_factory=list, description="Các cột cần thiết để tính metric")
+
+    def __init__(self, **data: Any):
+        if "name" in data and "metric_id" not in data:
+            data["metric_id"] = data["name"]
+        super().__init__(**data)
+
+    @property
+    def name(self) -> str:
+        return self.metric_id
 
 
 class PriceSegmentProfile(BaseModel):

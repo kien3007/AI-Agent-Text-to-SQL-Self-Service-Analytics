@@ -267,7 +267,7 @@ class AgentOrchestrator:
             tables = state.schema_context.selected_tables if state.schema_context else []
             self.memory.long_term.save_plan(
                 user_query=state.user_query,
-                domain_id=state.domain_id or "real_estate",
+                domain_id=state.domain_id or "default",
                 sql=state.sql_query,
                 is_successful=True,
                 tables_used=tables

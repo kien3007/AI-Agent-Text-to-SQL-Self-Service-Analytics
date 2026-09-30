@@ -1,14 +1,13 @@
 {{ config(materialized='view') }}
 
-WITH source_data AS (
-    SELECT * FROM customers
+WITH source AS (
+    SELECT * FROM {{ source('ecommerce', 'customers') }}
 ),
 cleaned AS (
     SELECT
-        COALESCE(id, 0) AS id,
-        TRIM(name) AS name,
-        TRIM(province) AS province
-    FROM source_data
-    WHERE id IS NOT NULL
+        COALESCE(customer_id, 0) AS customer_id,
+        TRIM(CAST(customer_name AS VARCHAR(255))) AS customer_name
+    FROM source
+    WHERE customer_id IS NOT NULL
 )
 SELECT * FROM cleaned

@@ -1,16 +1,15 @@
 {{ config(materialized='view') }}
 
-WITH source_data AS (
-    SELECT * FROM orders
+WITH source AS (
+    SELECT * FROM {{ source('ecommerce', 'orders') }}
 ),
 cleaned AS (
     SELECT
-        COALESCE(id, 0) AS id,
-        COALESCE(customer_id, 0) AS customer_id,
-        TRIM(status) AS status,
+        COALESCE(order_id, 0) AS order_id,
+        CAST(order_date AS DATE) AS order_date,
         total_amount,
-        CAST(created_at AS DATE) AS created_at
-    FROM source_data
-    WHERE id IS NOT NULL
+        TRIM(CAST(status AS VARCHAR(255))) AS status
+    FROM source
+    WHERE order_id IS NOT NULL
 )
 SELECT * FROM cleaned

@@ -1,0 +1,22 @@
+version: 2
+models:
+- name: fct_shopee_orders_summary
+  description: Bảng Data Mart tổng hợp theo tháng cho Đơn Hàng Shopee
+  meta:
+    vn_name: Báo cáo Đơn Hàng Shopee
+    domain: vietnam_ecommerce
+  columns:
+  - name: report_month
+    description: Tháng thống kê (YYYY-MM-01)
+  - name: total_records
+    description: Tổng số bản ghi trong tháng
+  - name: order_status
+    description: Chiều phân loại order_status
+  - name: total_total_order_value
+    description: Tổng total_order_value (Đơn Hàng Shopee)
+  - name: avg_total_order_value
+    description: Trung Bình total_order_value (Đơn Hàng Shopee)
+  - name: total_item_count
+    description: Tổng item_count (Đơn Hàng Shopee)
+  - name: avg_item_count
+    description: Trung Bình item_count (Đơn Hàng Shopee)

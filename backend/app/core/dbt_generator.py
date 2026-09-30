@@ -1,462 +1,600 @@
 """
-Autonomous dbt Auto-Adapter (Cỗ Máy dbt Tự Thích Ứng & Chống Mù Quáng Nghiệp Vụ).
-Tự động phân tích DomainConfig từ bất kỳ CSDL nào được nạp vào,
-áp dụng 4 Tầng Guardrails thông minh để sinh ra toàn bộ dbt pipeline:
-- Staging models (làm sạch dữ liệu, ép kiểu, lọc null)
-- Data Marts models (tổng hợp thời gian, gom nhóm dimensions, tính metric)
-- Semantic Metrics (khai báo chỉ số nghiệp vụ chuẩn)
-- Tự động cấu hình profiles.yml và đồng bộ manifest vào AI Agent.
+Autonomous dbt Auto-Adapter — Sinh dbt Pipeline Thật Từ DomainConfig.
+Tạo toàn bộ cấu trúc dbt project chuẩn:
+  - sources.yml       : khai báo nguồn dữ liệu gốc
+  - staging/stg_*.sql : làm sạch và chuẩn hóa
+  - staging/stg_*.yml : tests và metadata (vn_name, synonyms trong meta:)
+  - marts/fct_*.sql   : tổng hợp theo thời gian
+  - marts/metrics.yml : MetricFlow semantic metrics (ASCII name + meta.vn_terms)
+Sau đó gọi `dbt compile` thật để sinh manifest.json.
 """
 
 import os
+import sys
 import re
+import subprocess
 import yaml
 import logging
-from typing import Dict, Any, List, Optional, Tuple, Set
+from typing import Dict, Any, List, Optional, Tuple
 
 from app.schemas.domain import DomainConfig, TableProfile, ColumnProfile, MetricProfile
-from app.core.dbt_loader import DbtManifestLoader
 
 logger = logging.getLogger("AutoDbtGenerator")
 
 
 class AutoDbtGenerator:
     """
-    Bộ sinh tự động pipeline dbt với các nguyên tắc chống mù quáng ngữ cảnh (Anti-Blindness Guardrails).
+    Sinh dbt pipeline thật từ DomainConfig bất kỳ.
+    Nguyên tắc tiếng Việt:
+      - Tên model/metric: ASCII (tuân thủ MetricFlow identifier rules)
+      - vn_name, synonyms, vn_terms: tiếng Việt → đặt trong meta: block
     """
 
-    # Guardrail 1: Blacklist các bảng kỹ thuật, bảng tạm, bảng log
+    # Guardrail 1: Bảng kỹ thuật/rác bị bỏ qua
     BLACKLIST_TABLE_PATTERNS = [
         r"^log_", r"_log$", r"^audit_", r"_audit$", r"^temp_", r"^tmp_",
         r"^session_", r"_session$", r"^cache_", r"_cache$",
-        r"^alembic_", r"^flyway_", r"^schema_migrations$"
+        r"^alembic_", r"^flyway_", r"^schema_migrations$", r"^sysdiagrams$",
+        r"^MSreplication_", r"^sys_",
     ]
 
-    # Guardrail 2: Thứ tự ưu tiên mốc thời gian (Lifecycle Timestamp Priority)
-    # Ưu tiên các mốc hoàn tất giao dịch trước mốc khởi tạo đơn thuần
-    TIMESTAMP_PRIORITY_PATTERNS = [
+    # Guardrail 2: Ưu tiên timestamp theo vòng đời giao dịch
+    TIMESTAMP_PRIORITY = [
         (r"(delivered|completed|success|finished)_at", 100),
         (r"(paid|settled|disbursed)_at", 90),
-        (r"(published|posted)_at", 80),
+        (r"(published|posted|approved)_at", 80),
         (r"(shipped|dispatched)_at", 70),
         (r"(order|transaction|invoice)_date", 60),
         (r"(created|inserted|registered)_at", 50),
-        (r"(date|time|timestamp)", 40)
-    ]
-
-    # Guardrail 4: Từ khóa nhận diện Dimensions cốt lõi (Low-Medium Cardinality)
-    CORE_DIMENSION_PATTERNS = [
-        r"(category|type|status|tier|segment|district|province|city|state|channel|payment_method|department)"
+        (r"(date|time|timestamp|year|month)", 40),
     ]
 
     def __init__(self, dbt_dir: Optional[str] = None):
-        """Khởi tạo với đường dẫn tới thư mục dbt project."""
         if dbt_dir:
             self.dbt_dir = os.path.abspath(dbt_dir)
         else:
-            base_infra = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "infra"))
-            self.dbt_dir = os.path.join(base_infra, "dbt")
+            base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "infra"))
+            self.dbt_dir = os.path.join(base, "dbt")
 
-        self.models_dir = os.path.join(self.dbt_dir, "models")
+        self.models_dir  = os.path.join(self.dbt_dir, "models")
         self.staging_dir = os.path.join(self.models_dir, "staging")
-        self.marts_dir = os.path.join(self.models_dir, "marts")
+        self.marts_dir   = os.path.join(self.models_dir, "marts")
+        self.target_dir  = os.path.join(self.dbt_dir, "target")
 
     # =========================================================================
-    # 1. BỘ PHÂN LOẠI & HEURISTICS NGỮ NGHĨA (SEMANTIC INFERENCE)
+    # 1. HELPERS
     # =========================================================================
 
     def is_ignorable_table(self, table_name: str) -> bool:
-        """Guardrail 1: Kiểm tra xem bảng có phải là bảng rác/bảng kỹ thuật không."""
-        tbl_lower = table_name.lower()
-        for pat in self.BLACKLIST_TABLE_PATTERNS:
-            if re.search(pat, tbl_lower):
-                return True
-        return False
+        tbl = table_name.lower().split(".")[-1]  # strip schema prefix
+        return any(re.search(p, tbl) for p in self.BLACKLIST_TABLE_PATTERNS)
+
+    def _safe_name(self, name: str) -> str:
+        """Chuyển tên bất kỳ thành ASCII identifier hợp lệ cho dbt."""
+        # Giữ ký tự alphanum + underscore, bỏ schema prefix
+        base = name.split(".")[-1]
+        safe = re.sub(r"[^a-zA-Z0-9_]", "_", base).lower().strip("_")
+        if safe and safe[0].isdigit():
+            safe = "t_" + safe
+        return safe or "unknown"
 
     def categorize_columns(self, table: TableProfile) -> Dict[str, Any]:
-        """
-        Phân loại toàn bộ các cột trong bảng thành:
-        - Primary Keys / Foreign Keys
-        - Time Columns (có xếp hạng ưu tiên)
-        - Metric Columns (các cột số đo lường)
-        - Dimension Columns (các cột phân loại)
-        """
-        primary_keys = []
-        foreign_keys = []
-        time_columns = []
-        metric_columns = []
-        dimension_columns = []
+        pks, fks, time_cols, metric_cols, dim_cols = [], [], [], [], []
 
         for c_name, col in table.columns.items():
-            name_lower = c_name.lower()
-            dtype_lower = (col.data_type or "").lower()
+            nl = c_name.lower()
+            dt = (col.data_type or "").lower()
+            base_nl = nl.split(".")[-1]
 
-            # 1. Khóa
-            if col.is_primary_key or name_lower == "id" or name_lower == f"{table.table_name}_id":
-                primary_keys.append(c_name)
-            elif col.foreign_key or (name_lower.endswith("_id") and name_lower != "id"):
-                foreign_keys.append(c_name)
+            if col.is_primary_key or base_nl in ("id",) or base_nl == f"{self._safe_name(table.table_name)}_id":
+                pks.append(c_name)
+            elif col.foreign_key or (base_nl.endswith("_id") and base_nl != "id"):
+                fks.append(c_name)
 
-            # 2. Thời gian
-            is_time = any(t in dtype_lower for t in ["date", "time", "timestamp", "year"]) or any(
-                k in name_lower for k in ["_at", "_date", "date_", "time", "timestamp", "year", "month"]
-            )
+            is_time = any(t in dt for t in ["date", "time", "timestamp", "datetime"]) or \
+                      any(k in base_nl for k in ["_at", "_date", "date_", "timestamp", "year", "month"])
             if is_time:
-                # Tính điểm ưu tiên (Guardrail 2)
                 score = 10
-                for pat, p_score in self.TIMESTAMP_PRIORITY_PATTERNS:
-                    if re.search(pat, name_lower):
-                        score = max(score, p_score)
-                time_columns.append((c_name, score))
+                for pat, s in self.TIMESTAMP_PRIORITY:
+                    if re.search(pat, base_nl):
+                        score = max(score, s)
+                time_cols.append((c_name, score))
 
-            # 3. Định lượng (Metrics)
-            is_numeric = any(n in dtype_lower for n in ["int", "decimal", "float", "double", "numeric", "real"])
-            if is_numeric and c_name not in primary_keys and c_name not in foreign_keys:
-                metric_keywords = ["price", "amount", "total", "revenue", "cost", "quantity", "fee", "area", "value", "balance", "rate"]
-                if any(k in name_lower for k in metric_keywords) or not name_lower.endswith("_id"):
-                    metric_columns.append(c_name)
+            is_num = any(n in dt for n in ["int", "decimal", "float", "double", "numeric", "real", "money", "bigint"])
+            if is_num and c_name not in pks and c_name not in fks and not is_time:
+                metric_cols.append(c_name)
 
-            # 4. Phân loại (Dimensions)
-            if c_name not in primary_keys and c_name not in foreign_keys and not is_time and c_name not in metric_columns:
-                dimension_columns.append(c_name)
+            if c_name not in pks and c_name not in fks and not is_time and c_name not in metric_cols:
+                dim_cols.append(c_name)
 
-        # Sắp xếp cột thời gian theo thứ tự ưu tiên giảm dần
-        time_columns.sort(key=lambda x: x[1], reverse=True)
-        sorted_time_cols = [c[0] for c in time_columns]
-
-        # Guardrail 4: Sắp xếp dimensions ưu tiên các cột cốt lõi
-        def dim_priority(dim_name: str) -> int:
-            dim_l = dim_name.lower()
-            for pat in self.CORE_DIMENSION_PATTERNS:
-                if re.search(pat, dim_l):
-                    return 100
-            return 10
-
-        dimension_columns.sort(key=dim_priority, reverse=True)
-
+        time_cols.sort(key=lambda x: x[1], reverse=True)
         return {
-            "primary_keys": primary_keys,
-            "foreign_keys": foreign_keys,
-            "time_columns": sorted_time_cols,
-            "metric_columns": metric_columns,
-            "dimension_columns": dimension_columns
+            "primary_keys": pks,
+            "foreign_keys": fks,
+            "time_columns": [c[0] for c in time_cols],
+            "metric_columns": metric_cols,
+            "dimension_columns": dim_cols,
         }
 
     # =========================================================================
-    # 2. SINH MÃ DBT MODELS (STAGING & MARTS)
+    # 2. SOURCES.YML — Khai báo nguồn raw tables
+    # =========================================================================
+
+    def _generate_sources_yml(self, domain_config: DomainConfig, schema: str) -> str:
+        """Sinh sources.yml khai báo tất cả bảng nguồn của domain."""
+        tables_list = []
+        for t_name, tbl in domain_config.tables.items():
+            if self.is_ignorable_table(t_name):
+                continue
+            raw_name = t_name.split(".")[-1]  # tên bảng thực trong DB
+            entry = {
+                "name": raw_name,
+                "description": tbl.description or f"Bảng nguồn {raw_name}",
+                "meta": {
+                    "vn_name": tbl.vn_name or raw_name,
+                }
+            }
+            tables_list.append(entry)
+
+        sources_dict = {
+            "version": 2,
+            "sources": [{
+                "name": domain_config.domain_id,
+                "schema": schema,
+                "description": f"Nguồn dữ liệu gốc cho domain {domain_config.display_name}",
+                "tables": tables_list
+            }]
+        }
+        return yaml.dump(sources_dict, allow_unicode=True, sort_keys=False)
+
+    # =========================================================================
+    # 3. STAGING MODEL
     # =========================================================================
 
     def generate_staging_model(
         self,
         table: TableProfile,
         domain_id: str,
-        categories: Dict[str, Any]
+        categories: Dict[str, Any],
+        db_dialect: str = "default"
     ) -> Tuple[str, str]:
-        """
-        Sinh mã SQL và YAML cho Staging model:
-        - models/staging/{domain_id}/stg_{table.table_name}.sql
-        - models/staging/{domain_id}/stg_{table.table_name}.yml
-        """
-        t_name = table.table_name
-        stg_name = f"stg_{t_name}"
-        pk = categories["primary_keys"][0] if categories["primary_keys"] else None
+        """Sinh stg_*.sql và stg_*.yml cho một bảng."""
+        raw_name = table.table_name.split(".")[-1]
+        safe     = self._safe_name(raw_name)
+        stg_name = f"stg_{safe}"
+        pk       = categories["primary_keys"][0] if categories["primary_keys"] else None
 
-        # 1. SQL Staging
-        sql_lines = [
-            "{{ config(materialized='view') }}",
-            "",
-            "WITH source_data AS (",
-            f"    SELECT * FROM {t_name}",
-            "),",
-            "cleaned AS (",
-            "    SELECT"
-        ]
-
+        # ── SQL ──────────────────────────────────────────────────────────────
         col_selects = []
         for c_name, col in table.columns.items():
-            dtype = (col.data_type or "").upper()
-            if "VARCHAR" in dtype or "TEXT" in dtype or "CHAR" in dtype:
-                col_selects.append(f"        TRIM({c_name}) AS {c_name}")
-            elif "DATE" in dtype or "TIME" in dtype:
-                col_selects.append(f"        CAST({c_name} AS DATE) AS {c_name}")
-            elif "INT" in dtype or "DECIMAL" in dtype or "FLOAT" in dtype:
-                col_selects.append(f"        COALESCE({c_name}, 0) AS {c_name}")
+            dt = (col.data_type or "").upper()
+            bare = c_name.split(".")[-1]
+            if any(t in dt for t in ["VARCHAR", "NVARCHAR", "TEXT", "CHAR", "NCHAR"]):
+                if db_dialect.lower() in ("sqlserver", "mssql"):
+                    col_selects.append(f"        TRIM(CAST({bare} AS VARCHAR(255))) AS {bare}")
+                else:
+                    col_selects.append(f"        TRIM(CAST({bare} AS VARCHAR)) AS {bare}")
+            elif any(t in dt for t in ["DATETIME", "DATE", "TIMESTAMP"]):
+                col_selects.append(f"        CAST({bare} AS DATE) AS {bare}")
+            elif any(t in dt for t in ["INT", "DECIMAL", "FLOAT", "MONEY", "NUMERIC", "BIGINT"]):
+                col_selects.append(f"        COALESCE({bare}, 0) AS {bare}")
             else:
-                col_selects.append(f"        {c_name}")
+                col_selects.append(f"        {bare}")
 
-        sql_lines.append(",\n".join(col_selects))
-        sql_lines.append("    FROM source_data")
-        if pk:
-            sql_lines.append(f"    WHERE {pk} IS NOT NULL")
-        sql_lines.append(")")
-        sql_lines.append("SELECT * FROM cleaned")
-        sql_content = "\n".join(sql_lines) + "\n"
+        where_clause = f"\n    WHERE {pk.split('.')[-1]} IS NOT NULL" if pk else ""
+        select_clause = ",\n".join(col_selects)
 
-        # 2. YAML Staging Tests
-        yml_dict = {
-            "version": 2,
-            "models": [
-                {
-                    "name": stg_name,
-                    "description": f"Bảng staging làm sạch dữ liệu từ bảng nguồn {t_name}.",
-                    "columns": []
-                }
-            ]
-        }
+        sql = f"""{{{{ config(materialized='view') }}}}
+
+WITH source AS (
+    SELECT * FROM {{{{ source('{domain_id}', '{raw_name}') }}}}
+),
+cleaned AS (
+    SELECT
+{select_clause}
+    FROM source{where_clause}
+)
+SELECT * FROM cleaned
+"""
+
+        # ── YAML ─────────────────────────────────────────────────────────────
         cols_yaml = []
-        for c_name in table.columns:
-            c_entry = {
-                "name": c_name,
-                "description": f"Cột {c_name} đã được chuẩn hóa."
+        for c_name, col in table.columns.items():
+            bare = c_name.split(".")[-1]
+            c_entry: Dict[str, Any] = {
+                "name": bare,
+                "description": col.description or col.vn_name or bare,
+                "meta": {
+                    "vn_name": col.vn_name or bare,
+                    "synonyms": col.synonyms or [],
+                }
             }
-            if pk and c_name == pk:
+            if pk and bare == pk.split(".")[-1]:
                 c_entry["tests"] = ["unique", "not_null"]
             cols_yaml.append(c_entry)
-        yml_dict["models"][0]["columns"] = cols_yaml
 
-        yml_content = yaml.dump(yml_dict, allow_unicode=True, sort_keys=False)
-        return sql_content, yml_content
+        yml_dict = {
+            "version": 2,
+            "models": [{
+                "name": stg_name,
+                "description": table.description or f"Bảng staging từ {raw_name}",
+                "meta": {
+                    "vn_name": table.vn_name or raw_name,
+                    "domain": domain_id,
+                },
+                "columns": cols_yaml
+            }]
+        }
+        return sql, yaml.dump(yml_dict, allow_unicode=True, sort_keys=False)
+
+    # =========================================================================
+    # 4. MARTS MODEL + METRICS
+    # =========================================================================
 
     def generate_marts_model(
         self,
         table: TableProfile,
         domain_id: str,
-        categories: Dict[str, Any]
-    ) -> Optional[Tuple[str, str, Dict[str, Any]]]:
-        """
-        Sinh mã SQL và YAML cho Data Mart:
-        Chỉ sinh khi bảng có: Ít nhất 1 Cột thời gian VÀ Ít nhất 1 Cột Metric.
-        Áp dụng Guardrail 4: Giới hạn Top 2-3 dimensions cốt lõi.
-        """
-        time_cols = categories["time_columns"]
+        categories: Dict[str, Any],
+        db_dialect: str = "default",
+    ) -> Optional[Tuple[str, str, List[Dict[str, Any]]]]:
+        """Sinh fct_*.sql, fct_*.yml và danh sách MetricFlow metrics."""
+        time_cols   = categories["time_columns"]
         metric_cols = categories["metric_columns"]
-        dim_cols = categories["dimension_columns"]
+        dim_cols    = categories["dimension_columns"]
 
         if not time_cols or not metric_cols:
             return None
 
-        # Guardrail 2: Lấy cột thời gian có độ ưu tiên cao nhất
-        best_time_col = time_cols[0]
-        # Guardrail 4: Giới hạn tối đa 3 dimensions quan trọng nhất
-        selected_dims = dim_cols[:3]
+        raw_name  = table.table_name.split(".")[-1]
+        safe      = self._safe_name(raw_name)
+        stg_name  = f"stg_{safe}"
+        fct_name  = f"fct_{safe}_summary"
+        best_time = time_cols[0].split(".")[-1]
+        sel_dims  = [d.split(".")[-1] for d in dim_cols[:3]]
 
-        t_name = table.table_name
-        stg_name = f"stg_{t_name}"
-        fct_name = f"fct_{t_name}_monthly_summary"
+        # ── SQL ──────────────────────────────────────────────────────────────
+        dim_selects = "".join(f"    {d},\n" for d in sel_dims)
+        metric_lines = []
+        semantic_metrics: List[Dict[str, Any]] = []
 
-        # 1. SQL Marts
-        sql_lines = [
-            "{{ config(materialized='table') }}",
-            "",
-            "SELECT",
-            f"    DATE_FORMAT({best_time_col}, '%Y-%m') AS report_month,"
-        ]
-        for dim in selected_dims:
-            sql_lines.append(f"    {dim},")
-
-        sql_lines.append("    COUNT(*) AS total_records,")
-
-        # Guardrail 3: Công thức kết hợp metrics
-        metric_selects = []
-        semantic_metrics = []
-
-        # Tự động phát hiện cặp price + quantity nếu có
-        has_price = any("price" in m.lower() for m in metric_cols)
-        has_qty = any("quantity" in m.lower() or "qty" in m.lower() for m in metric_cols)
+        # Phát hiện cặp price × quantity
+        has_price = any("price" in m.lower() or "amount" in m.lower() or "tien" in m.lower() for m in metric_cols)
+        has_qty   = any("quantity" in m.lower() or "qty" in m.lower() or "count" in m.lower() for m in metric_cols)
         if has_price and has_qty:
-            p_col = next(m for m in metric_cols if "price" in m.lower())
-            q_col = next(m for m in metric_cols if "quantity" in m.lower() or "qty" in m.lower())
-            metric_selects.append(f"    ROUND(SUM({p_col} * {q_col}), 2) AS total_gross_revenue")
+            p_col = next(m for m in metric_cols if "price" in m.lower() or "amount" in m.lower() or "tien" in m.lower())
+            q_col = next(m for m in metric_cols if "quantity" in m.lower() or "qty" in m.lower() or "count" in m.lower())
+            pb = p_col.split(".")[-1]; qb = q_col.split(".")[-1]
+            metric_lines.append(f"    ROUND(SUM({pb} * {qb}), 2) AS total_gross_revenue,")
             semantic_metrics.append({
-                "name": f"total_gross_revenue_{t_name}",
-                "label": f"Tổng Doanh Thu Gộp ({table.vn_name or t_name})",
-                "sql": f"SUM({p_col} * {q_col})"
+                "name": f"total_gross_revenue_{safe}",
+                "vn_label": f"Tổng Doanh Thu Gộp ({table.vn_name or raw_name})",
+                "vn_terms": ["tổng doanh thu", "gmv", "doanh thu gộp"],
+                "sql": f"SUM({pb} * {qb})",
+                "model": fct_name,
             })
 
         for m_col in metric_cols[:4]:
-            metric_selects.append(f"    ROUND(SUM({m_col}), 2) AS total_{m_col}")
-            metric_selects.append(f"    ROUND(AVG({m_col}), 2) AS avg_{m_col}")
-
+            mb = m_col.split(".")[-1]
+            metric_lines.append(f"    ROUND(SUM({mb}), 2) AS total_{mb},")
+            metric_lines.append(f"    ROUND(AVG({mb}), 2) AS avg_{mb},")
             semantic_metrics.append({
-                "name": f"total_{m_col}_{t_name}",
-                "label": f"Tổng {m_col} ({table.vn_name or t_name})",
-                "sql": f"SUM({m_col})"
+                "name": f"total_{mb}_{safe}",
+                "vn_label": f"Tổng {mb} ({table.vn_name or raw_name})",
+                "vn_terms": [f"tổng {mb}", f"sum {mb}"],
+                "sql": f"SUM({mb})",
+                "model": fct_name,
             })
             semantic_metrics.append({
-                "name": f"avg_{m_col}_{t_name}",
-                "label": f"Trung Bình {m_col} ({table.vn_name or t_name})",
-                "sql": f"AVG({m_col})"
+                "name": f"avg_{mb}_{safe}",
+                "vn_label": f"Trung Bình {mb} ({table.vn_name or raw_name})",
+                "vn_terms": [f"trung bình {mb}", f"average {mb}"],
+                "sql": f"AVG({mb})",
+                "model": fct_name,
             })
 
-        sql_lines.append(",\n".join(metric_selects))
-        sql_lines.append(f"FROM {{{{ ref('{stg_name}') }}}}")
-        sql_lines.append("GROUP BY")
+        metric_block = "\n".join(metric_lines).rstrip(",")
 
-        group_by_indices = [str(i) for i in range(1, len(selected_dims) + 2)]
-        sql_lines.append("    " + ", ".join(group_by_indices))
-        sql_lines.append("ORDER BY report_month DESC")
+        if db_dialect.lower() in ("sqlserver", "mssql"):
+            month_expr = f"DATEFROMPARTS(YEAR({best_time}), MONTH({best_time}), 1)"
+        else:
+            month_expr = f"DATE_TRUNC('month', {best_time})"
 
-        sql_content = "\n".join(sql_lines) + "\n"
+        group_cols = [month_expr] + sel_dims
+        group_by = ", ".join(group_cols)
 
-        # 2. YAML Marts
-        marts_yaml_dict = {
+        sql = f"""{{{{ config(materialized='table') }}}}
+
+SELECT
+    {month_expr} AS report_month,
+{dim_selects}    COUNT(*) AS total_records,
+{metric_block}
+FROM {{{{ ref('{stg_name}') }}}}
+WHERE {best_time} IS NOT NULL
+GROUP BY {group_by}
+ORDER BY report_month DESC
+"""
+
+        # ── YAML ─────────────────────────────────────────────────────────────
+        yml_cols = [
+            {"name": "report_month", "description": "Tháng thống kê (YYYY-MM-01)"},
+            {"name": "total_records", "description": "Tổng số bản ghi trong tháng"},
+        ]
+        for d in sel_dims:
+            yml_cols.append({"name": d, "description": f"Chiều phân loại {d}"})
+        for m in semantic_metrics:
+            yml_cols.append({"name": m["name"].split("_" + safe)[0], "description": m["vn_label"]})
+
+        yml_dict = {
             "version": 2,
-            "models": [
-                {
-                    "name": fct_name,
-                    "description": f"Bảng Data Mart tổng hợp theo tháng cho {table.vn_name or t_name}.",
-                    "columns": [
-                        {"name": "report_month", "description": "Tháng thống kê (YYYY-MM)"},
-                        {"name": "total_records", "description": "Tổng số lượng bản ghi"}
-                    ]
-                }
-            ]
+            "models": [{
+                "name": fct_name,
+                "description": f"Bảng Data Mart tổng hợp theo tháng cho {table.vn_name or raw_name}",
+                "meta": {"vn_name": f"Báo cáo {table.vn_name or raw_name}", "domain": domain_id},
+                "columns": yml_cols,
+            }]
         }
-        for dim in selected_dims:
-            marts_yaml_dict["models"][0]["columns"].append({
-                "name": dim,
-                "description": f"Chiều phân loại {dim}"
-            })
-
-        yml_content = yaml.dump(marts_yaml_dict, allow_unicode=True, sort_keys=False)
-
-        metrics_meta = {
-            "fct_name": fct_name,
-            "metrics": semantic_metrics
-        }
-        return sql_content, yml_content, metrics_meta
+        return sql, yaml.dump(yml_dict, allow_unicode=True, sort_keys=False), semantic_metrics
 
     # =========================================================================
-    # 3. ĐIỀU PHỐI TỔNG THỂ (ORCHESTRATION PIPELINE)
+    # 5. METRICS.YML — MetricFlow Semantic Layer
+    # =========================================================================
+
+    def _generate_metrics_yml(
+        self,
+        all_metrics: List[Dict[str, Any]],
+        domain_id: str,
+    ) -> str:
+        """
+        Sinh metrics.yml chuẩn MetricFlow.
+        Quy tắc tiếng Việt:
+          - name:  ASCII identifier bắt buộc
+          - label: tiếng Việt (hiển thị UI)
+          - meta.vn_terms: tiếng Việt → AI Agent đọc để map câu hỏi
+        """
+        metrics_list = []
+        for m in all_metrics:
+            metrics_list.append({
+                "name": m["name"],           # ASCII — MetricFlow bắt buộc
+                "label": m["vn_label"],      # tiếng Việt — dbt Cloud UI
+                "description": m["vn_label"],
+                "type": "simple",
+                "type_params": {
+                    "measure": {
+                        "name": m["name"],
+                        "agg": "sum" if m["sql"].upper().startswith("SUM") else "average",
+                        "expr": m["sql"],
+                    }
+                },
+                "meta": {
+                    "vn_terms": m["vn_terms"],   # tiếng Việt — AI Agent đọc
+                    "domain": domain_id,
+                }
+            })
+
+        yml_dict = {"version": 2, "metrics": metrics_list}
+        return yaml.dump(yml_dict, allow_unicode=True, sort_keys=False)
+
+    # =========================================================================
+    # 6. ORCHESTRATION — Sinh toàn bộ pipeline
     # =========================================================================
 
     def generate_domain_dbt(
         self,
         domain_config: DomainConfig,
-        auto_compile: bool = True
+        db_schema: Optional[str] = None,
+        db_dialect: str = "sqlserver",
+        run_compile: bool = True,
     ) -> Dict[str, Any]:
         """
-        Tự động sinh toàn bộ dự án dbt cho một DomainConfig:
-        1. Tạo thư mục models/staging/{domain_id} và models/marts/{domain_id}.
-        2. Sinh stg_*.sql và stg_*.yml cho các bảng hợp lệ (loại bỏ bảng rác).
-        3. Sinh fct_*_summary.sql và marts.yml cho các bảng Data Mart.
-        4. Cập nhật profiles.yml sang schema mới.
-        5. Compile dbt và đồng bộ manifest vào DomainManager.
+        Sinh toàn bộ dbt project cho một DomainConfig:
+        1. sources.yml
+        2. staging/stg_*.sql + stg_*.yml
+        3. marts/fct_*.sql + fct_*.yml
+        4. marts/metrics.yml (MetricFlow)
+        5. Chạy `dbt compile` thật → sinh manifest.json
         """
         domain_id = domain_config.domain_id
-        dom_stg_dir = os.path.join(self.staging_dir, domain_id)
-        dom_marts_dir = os.path.join(self.marts_dir, domain_id)
+        schema    = db_schema or domain_id
 
+        dom_stg_dir   = os.path.join(self.staging_dir, domain_id)
+        dom_marts_dir = os.path.join(self.marts_dir, domain_id)
         os.makedirs(dom_stg_dir, exist_ok=True)
         os.makedirs(dom_marts_dir, exist_ok=True)
 
         generated_staging = []
-        generated_marts = []
-        all_semantic_metrics = []
+        generated_marts   = []
+        all_metrics: List[Dict[str, Any]] = []
 
-        # 1. Duyệt từng bảng trong Domain
+        # ── sources.yml ──────────────────────────────────────────────────────
+        sources_content = self._generate_sources_yml(domain_config, schema)
+        sources_path = os.path.join(dom_stg_dir, "sources.yml")
+        with open(sources_path, "w", encoding="utf-8") as f:
+            f.write(sources_content)
+        logger.info(f"[dbt] Đã sinh sources.yml tại {sources_path}")
+
+        # ── Duyệt từng bảng ─────────────────────────────────────────────────
         for t_name, table in domain_config.tables.items():
-            # Guardrail 1: Bỏ qua bảng rác/bảng kỹ thuật
             if self.is_ignorable_table(t_name):
-                logger.info(f"Bỏ qua bảng rác/kỹ thuật: {t_name}")
+                logger.info(f"[dbt] Bỏ qua bảng kỹ thuật: {t_name}")
                 continue
 
             categories = self.categorize_columns(table)
+            safe = self._safe_name(t_name)
 
-            # Sinh Staging model
-            stg_sql, stg_yml = self.generate_staging_model(table, domain_id, categories)
-            stg_sql_path = os.path.join(dom_stg_dir, f"stg_{t_name}.sql")
-            stg_yml_path = os.path.join(dom_stg_dir, f"stg_{t_name}.yml")
+            # Staging
+            stg_sql, stg_yml = self.generate_staging_model(table, domain_id, categories, db_dialect)
+            sql_path = os.path.join(dom_stg_dir, f"stg_{safe}.sql")
+            yml_path = os.path.join(dom_stg_dir, f"stg_{safe}.yml")
+            with open(sql_path, "w", encoding="utf-8") as f: f.write(stg_sql)
+            with open(yml_path, "w", encoding="utf-8") as f: f.write(stg_yml)
+            generated_staging.append(f"stg_{safe}")
 
-            with open(stg_sql_path, "w", encoding="utf-8") as f:
-                f.write(stg_sql)
-            with open(stg_yml_path, "w", encoding="utf-8") as f:
-                f.write(stg_yml)
-
-            generated_staging.append(f"stg_{t_name}")
-
-            # Sinh Data Marts model nếu có đủ điều kiện
-            mart_res = self.generate_marts_model(table, domain_id, categories)
+            # Marts
+            mart_res = self.generate_marts_model(table, domain_id, categories, db_dialect=db_dialect)
             if mart_res:
-                mart_sql, mart_yml, m_meta = mart_res
-                fct_name = m_meta["fct_name"]
-                mart_sql_path = os.path.join(dom_marts_dir, f"{fct_name}.sql")
-                mart_yml_path = os.path.join(dom_marts_dir, f"{fct_name}.yml")
-
-                with open(mart_sql_path, "w", encoding="utf-8") as f:
-                    f.write(mart_sql)
-                with open(mart_yml_path, "w", encoding="utf-8") as f:
-                    f.write(mart_yml)
-
+                mart_sql, mart_yml, metrics = mart_res
+                fct_name = f"fct_{safe}_summary"
+                fct_sql_path = os.path.join(dom_marts_dir, f"{fct_name}.sql")
+                fct_yml_path = os.path.join(dom_marts_dir, f"{fct_name}.yml")
+                with open(fct_sql_path, "w", encoding="utf-8") as f: f.write(mart_sql)
+                with open(fct_yml_path, "w", encoding="utf-8") as f: f.write(mart_yml)
                 generated_marts.append(fct_name)
-                all_semantic_metrics.extend(m_meta["metrics"])
+                all_metrics.extend(metrics)
 
-        # 2. Sinh file semantic metrics marts.yml cho domain
-        if all_semantic_metrics:
-            metrics_file_dict = {
-                "version": 2,
-                "metrics": []
-            }
-            for sm in all_semantic_metrics:
-                metrics_file_dict["metrics"].append({
-                    "name": sm["name"],
-                    "label": sm["label"],
-                    "model": f"ref('{sm['name'].split('_')[-1]}')",
-                    "description": f"Chỉ số {sm['label']} được tự động tạo bởi AutoDbtGenerator.",
-                    "calculation_method": "derived",
-                    "expression": sm["sql"],
-                    "timestamp": "report_month",
-                    "time_grains": ["month"],
-                    "meta": {
-                        "vn_terms": [sm["label"], sm["name"]]
-                    }
-                })
+        # ── metrics.yml (MetricFlow Semantic Layer) ──────────────────────────
+        manifest_path = None
+        if all_metrics:
+            metrics_yml = self._generate_metrics_yml(all_metrics, domain_id)
+            metrics_path = os.path.join(dom_marts_dir, "metrics.yml")
+            with open(metrics_path, "w", encoding="utf-8") as f:
+                f.write(metrics_yml)
+            logger.info(f"[dbt] Đã sinh metrics.yml với {len(all_metrics)} chỉ số.")
 
-            marts_yml_path = os.path.join(dom_marts_dir, "marts.yml")
-            with open(marts_yml_path, "w", encoding="utf-8") as f:
-                yaml.dump(metrics_file_dict, f, allow_unicode=True, sort_keys=False)
+            # Đồng bộ metrics tự sinh vào domain_config
+            for m in all_metrics:
+                m_id = m["name"]
+                domain_config.metrics[m_id] = MetricProfile(
+                    metric_id=m_id,
+                    vn_terms=m.get("vn_terms", [m.get("vn_label", m_id)]),
+                    sql_expression=m.get("sql", ""),
+                    description=m.get("vn_label", "")
+                )
 
-        # 3. Cập nhật profiles.yml
-        self.update_profiles_schema(domain_config.domain_id)
-
-        # 4. Tự động đồng bộ vào DomainManager qua DbtManifestLoader
-        loader = DbtManifestLoader(dbt_project_dir=self.dbt_dir)
-        tables_loaded, metrics_loaded = loader.load_models_and_metrics()
-        loader.sync_to_domain_manager(domain_id=domain_id)
+        # ── Chạy dbt compile thật ────────────────────────────────────────────
+        compile_result = None
+        if run_compile:
+            compile_result, manifest_path = self.run_dbt_compile()
 
         return {
+            "status": "SUCCESS",
             "domain_id": domain_id,
             "staging_models": generated_staging,
             "marts_models": generated_marts,
-            "metrics_count": len(all_semantic_metrics),
-            "status": "SUCCESS"
+            "metrics_count": len(all_metrics),
+            "metrics": [m["name"] for m in all_metrics],
+            "dbt_compile": compile_result,
+            "manifest_path": manifest_path,
         }
 
-    def update_profiles_schema(self, new_schema: str):
-        """Cập nhật tên schema/database trong file profiles.yml."""
-        prof_path = os.path.join(self.dbt_dir, "profiles.yml")
-        if not os.path.exists(prof_path):
-            return
+    # =========================================================================
+    # 7. CHẠY DBT COMPILE THẬT
+    # =========================================================================
+
+    def _resolve_dbt_cmd(self) -> List[str]:
+        """Tìm đường dẫn dbt executable hoặc gọi qua python module."""
+        import shutil
+        dbt_exe = shutil.which("dbt")
+        if dbt_exe:
+            return [dbt_exe]
+        venv_scripts = os.path.join(sys.prefix, "Scripts", "dbt.exe")
+        if os.path.exists(venv_scripts):
+            return [venv_scripts]
+        workspace_dbt = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".venv", "Scripts", "dbt.exe"))
+        if os.path.exists(workspace_dbt):
+            return [workspace_dbt]
+        return [sys.executable, "-m", "dbt.cli.main"]
+
+    def run_dbt_compile(self, extra_args: Optional[List[str]] = None) -> Tuple[Dict[str, Any], Optional[str]]:
+        """
+        Chạy `dbt compile` thật sự bằng subprocess.
+        Trả về (kết quả, đường dẫn manifest.json).
+        """
+        profiles_dir = self.dbt_dir
+        manifest_path = os.path.join(self.target_dir, "manifest.json")
+
+        cmd = self._resolve_dbt_cmd() + [
+            "compile",
+            "--project-dir", self.dbt_dir,
+            "--profiles-dir", profiles_dir,
+            "--no-version-check",
+        ]
+        if extra_args:
+            cmd.extend(extra_args)
+
+        logger.info(f"[dbt] Chạy: {' '.join(cmd)}")
+        try:
+            proc = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                cwd=self.dbt_dir,
+                timeout=300,  # 5 phút timeout
+            )
+            success = proc.returncode == 0
+            result = {
+                "success": success,
+                "returncode": proc.returncode,
+                "stdout": proc.stdout[-3000:] if proc.stdout else "",  # tail 3k chars
+                "stderr": proc.stderr[-2000:] if proc.stderr else "",
+                "manifest_generated": os.path.exists(manifest_path),
+            }
+            if success:
+                logger.info("[dbt] compile thành công — manifest.json đã được cập nhật.")
+            else:
+                logger.error(f"[dbt] compile thất bại:\n{proc.stderr}")
+            return result, manifest_path if success else None
+
+        except FileNotFoundError:
+            msg = "dbt CLI chưa được cài đặt. Chạy: pip install dbt-core"
+            logger.error(f"[dbt] {msg}")
+            return {"success": False, "error": msg, "manifest_generated": False}, None
+
+        except subprocess.TimeoutExpired:
+            msg = "dbt compile quá 5 phút — timeout."
+            logger.error(f"[dbt] {msg}")
+            return {"success": False, "error": msg, "manifest_generated": False}, None
+
+        except Exception as e:
+            logger.error(f"[dbt] Lỗi không xác định: {e}")
+            return {"success": False, "error": str(e), "manifest_generated": False}, None
+
+    def run_dbt_test(self, model_selector: Optional[str] = None) -> Dict[str, Any]:
+        """Chạy `dbt test` để kiểm tra data quality tests."""
+        profiles_dir = self.dbt_dir
+        cmd = self._resolve_dbt_cmd() + [
+            "test",
+            "--project-dir", self.dbt_dir,
+            "--profiles-dir", profiles_dir,
+            "--no-version-check",
+        ]
+        if model_selector:
+            cmd += ["--select", model_selector]
 
         try:
-            with open(prof_path, "r", encoding="utf-8") as f:
-                content = f.read()
-
-            # Thay thế hoặc chèn dòng schema: ...
-            if re.search(r"schema:\s*.*", content):
-                updated = re.sub(
-                    r"schema:\s*.*",
-                    f"schema: {new_schema}",
-                    content
-                )
-            else:
-                updated = re.sub(
-                    r"(dev:\s*\n)",
-                    f"\\1      schema: {new_schema}\n",
-                    content
-                )
-
-            with open(prof_path, "w", encoding="utf-8") as f:
-                f.write(updated)
+            proc = subprocess.run(cmd, capture_output=True, text=True, cwd=self.dbt_dir, timeout=600)
+            return {
+                "success": proc.returncode == 0,
+                "returncode": proc.returncode,
+                "stdout": proc.stdout[-3000:],
+                "stderr": proc.stderr[-2000:],
+            }
+        except FileNotFoundError:
+            return {"success": False, "error": "dbt CLI chưa được cài đặt."}
         except Exception as e:
-            logger.warning(f"Không thể cập nhật profiles.yml: {e}")
+            return {"success": False, "error": str(e)}
+
+    def run_dbt_run(self, model_selector: Optional[str] = None) -> Dict[str, Any]:
+        """Chạy `dbt run` để materialize models vào database."""
+        profiles_dir = self.dbt_dir
+        cmd = self._resolve_dbt_cmd() + [
+            "run",
+            "--project-dir", self.dbt_dir,
+            "--profiles-dir", profiles_dir,
+            "--no-version-check",
+        ]
+        if model_selector:
+            cmd += ["--select", model_selector]
+
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, cwd=self.dbt_dir, timeout=600)
+            return {
+                "success": proc.returncode == 0,
+                "returncode": proc.returncode,
+                "stdout": proc.stdout[-3000:],
+                "stderr": proc.stderr[-2000:],
+            }
+        except FileNotFoundError:
+            return {"success": False, "error": "dbt CLI chưa được cài đặt."}
+        except Exception as e:
+            return {"success": False, "error": str(e)}

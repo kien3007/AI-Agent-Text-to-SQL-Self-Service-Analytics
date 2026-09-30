@@ -1,14 +1,21 @@
 version: 2
 models:
 - name: stg_customers
-  description: Bảng staging làm sạch dữ liệu từ bảng nguồn customers.
+  description: Bảng staging từ customers
+  meta:
+    vn_name: customers
+    domain: ecommerce
   columns:
-  - name: id
-    description: Cột id đã được chuẩn hóa.
+  - name: customer_id
+    description: customer_id
+    meta:
+      vn_name: customer_id
+      synonyms: []
     tests:
     - unique
     - not_null
-  - name: name
-    description: Cột name đã được chuẩn hóa.
-  - name: province
-    description: Cột province đã được chuẩn hóa.
+  - name: customer_name
+    description: customer_name
+    meta:
+      vn_name: customer_name
+      synonyms: []

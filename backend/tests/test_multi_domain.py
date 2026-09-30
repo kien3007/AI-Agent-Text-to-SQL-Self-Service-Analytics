@@ -10,7 +10,10 @@ if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 from app.core.domain_manager import DomainManager
+from app.schemas.domain import DomainConfig, TableProfile, ColumnProfile, MetricProfile, RelationshipProfile
 from app.rag.profiling_graph import BilingualDataProfilingGraph
+
+
 class MockEmbedding:
     """Mock embedding function trả về vector cố định để test nhanh không phụ thuộc network."""
     def name(self) -> str:
@@ -22,49 +25,160 @@ class MockEmbedding:
 
 class TestMultiDomainIntegration(unittest.TestCase):
     """
-    Bộ kiểm thử tích hợp Đa Domain Toàn diện (Real Estate, E-commerce, Healthcare).
-    Kiểm tra tự động phát hiện domain, định tuyến câu hỏi và suy luận phép JOIN Steiner Tree.
+    Bộ kiểm thử tích hợp Đa Domain Toàn diện (E-commerce, Healthcare, Finance).
+    Kiểm tra đăng ký dynamic domains, định tuyến câu hỏi và suy luận phép JOIN Steiner Tree.
     """
 
     @classmethod
     def setUpClass(cls):
         cls.dm = DomainManager()
-        # Đảm bảo nạp lại toàn bộ các domain trong thư mục domains/
-        cls.dm.reload_domains()
+        cls.dm.reset()
 
-    def test_domain_manager_auto_discovery(self):
-        """Kiểm tra DomainManager tự động phát hiện và nạp cả 3 domain YAML."""
+        # Tạo dynamic domain Ecommerce
+        cls.ecom_domain = DomainConfig(
+            domain_id="ecommerce",
+            display_name="Thương Mại Điện Tử",
+            description="Dữ liệu đơn hàng, sản phẩm và khách hàng",
+            domain_keywords=["đơn hàng", "sản phẩm", "doanh thu", "khách hàng", "hủy đơn", "thanh toán", "order", "gmv"],
+            tables={
+                "orders": TableProfile(
+                    table_name="orders",
+                    columns={
+                        "id": ColumnProfile(name="id", data_type="BIGINT", is_primary_key=True),
+                        "total_amount": ColumnProfile(name="total_amount", data_type="DOUBLE")
+                    },
+                    primary_key=["id"]
+                ),
+                "order_items": TableProfile(
+                    table_name="order_items",
+                    columns={
+                        "id": ColumnProfile(name="id", data_type="BIGINT", is_primary_key=True),
+                        "order_id": ColumnProfile(name="order_id", data_type="BIGINT"),
+                        "product_id": ColumnProfile(name="product_id", data_type="BIGINT")
+                    },
+                    primary_key=["id"]
+                ),
+                "products": TableProfile(
+                    table_name="products",
+                    columns={
+                        "id": ColumnProfile(name="id", data_type="BIGINT", is_primary_key=True),
+                        "name": ColumnProfile(name="name", data_type="VARCHAR")
+                    },
+                    primary_key=["id"]
+                )
+            },
+            relationships=[
+                RelationshipProfile(
+                    from_table="order_items",
+                    from_column="order_id",
+                    to_table="orders",
+                    to_column="id",
+                    relationship_type="MANY_TO_ONE",
+                    join_condition="order_items.order_id = orders.id"
+                ),
+                RelationshipProfile(
+                    from_table="order_items",
+                    from_column="product_id",
+                    to_table="products",
+                    to_column="id",
+                    relationship_type="MANY_TO_ONE",
+                    join_condition="order_items.product_id = products.id"
+                )
+            ],
+            metrics={
+                "gmv": MetricProfile(
+                    name="gmv",
+                    metric_name="gmv",
+                    sql_expression="SUM(total_amount)",
+                    vn_terms=["gmv", "doanh thu"]
+                )
+            }
+        )
+
+        # Tạo dynamic domain Healthcare
+        cls.health_domain = DomainConfig(
+            domain_id="healthcare",
+            display_name="Y Tế & Bệnh Viện",
+            description="Dữ liệu bệnh nhân, chẩn đoán và hồ sơ bệnh án",
+            domain_keywords=["bệnh nhân", "bác sĩ", "chẩn đoán", "bệnh án", "khám bệnh", "nằm viện", "toa thuốc"],
+            tables={
+                "patients": TableProfile(
+                    table_name="patients",
+                    columns={
+                        "id": ColumnProfile(name="id", data_type="BIGINT", is_primary_key=True),
+                        "name": ColumnProfile(name="name", data_type="VARCHAR")
+                    },
+                    primary_key=["id"]
+                ),
+                "encounters": TableProfile(
+                    table_name="encounters",
+                    columns={
+                        "id": ColumnProfile(name="id", data_type="BIGINT", is_primary_key=True),
+                        "patient_id": ColumnProfile(name="patient_id", data_type="BIGINT")
+                    },
+                    primary_key=["id"]
+                ),
+                "diagnoses": TableProfile(
+                    table_name="diagnoses",
+                    columns={
+                        "id": ColumnProfile(name="id", data_type="BIGINT", is_primary_key=True),
+                        "encounter_id": ColumnProfile(name="encounter_id", data_type="BIGINT"),
+                        "disease_name": ColumnProfile(name="disease_name", data_type="VARCHAR")
+                    },
+                    primary_key=["id"]
+                )
+            },
+            relationships=[
+                RelationshipProfile(
+                    from_table="encounters",
+                    from_column="patient_id",
+                    to_table="patients",
+                    to_column="id",
+                    relationship_type="MANY_TO_ONE",
+                    join_condition="encounters.patient_id = patients.id"
+                ),
+                RelationshipProfile(
+                    from_table="diagnoses",
+                    from_column="encounter_id",
+                    to_table="encounters",
+                    to_column="id",
+                    relationship_type="MANY_TO_ONE",
+                    join_condition="diagnoses.encounter_id = encounters.id"
+                )
+            ],
+            metrics={
+                "avg_stay": MetricProfile(
+                    name="avg_stay",
+                    metric_name="avg_stay",
+                    sql_expression="AVG(stay_days)",
+                    vn_terms=["thời gian nằm viện"]
+                )
+            }
+        )
+
+        cls.dm.register_domain(cls.ecom_domain)
+        cls.dm.register_domain(cls.health_domain)
+
+    def test_domain_manager_dynamic_registry(self):
+        """Kiểm tra DomainManager quản trị thành công các dynamic domain."""
         domains = self.dm.list_domains()
-        self.assertIn("real_estate", domains, "Phải nạp thành công domain 'real_estate'")
         self.assertIn("ecommerce", domains, "Phải nạp thành công domain 'ecommerce'")
         self.assertIn("healthcare", domains, "Phải nạp thành công domain 'healthcare'")
 
-        # Kiểm tra chi tiết domain ecommerce
         ecom = self.dm.get_domain("ecommerce")
-        self.assertEqual(len(ecom.tables), 5, "Domain ecommerce phải có đủ 5 bảng")
-        self.assertEqual(len(ecom.relationships), 4, "Domain ecommerce phải có 4 quan hệ khóa ngoại")
+        self.assertEqual(len(ecom.tables), 3)
+        self.assertEqual(len(ecom.relationships), 2)
         self.assertIn("gmv", ecom.metrics)
-
-        # Kiểm tra chi tiết domain healthcare
-        health = self.dm.get_domain("healthcare")
-        self.assertEqual(len(health.tables), 5, "Domain healthcare phải có đủ 5 bảng")
-        self.assertEqual(len(health.relationships), 4, "Domain healthcare phải có 4 quan hệ khóa ngoại")
-        self.assertIn("avg_length_of_stay", health.metrics)
 
     def test_domain_router_intent_classification(self):
         """Kiểm tra Domain Router tự động phân loại đúng câu hỏi người dùng vào domain mục tiêu."""
         test_cases = [
-            # 1. Bất Động Sản
-            ("Tìm mua chung cư 2PN Cầu Giấy dưới 3 tỷ", "real_estate"),
-            ("Giá đất thổ cư Thủ Đức sổ đỏ phân khúc bình dân", "real_estate"),
-            ("Nhà hẻm xe hơi Bình Thạnh hướng đông nam", "real_estate"),
-
-            # 2. Thương Mại Điện Tử
+            # 1. Thương Mại Điện Tử
             ("Có bao nhiêu đơn hàng bị hủy trong tháng trước và tổng doanh thu gmv là bao nhiêu?", "ecommerce"),
             ("Doanh thu bán hàng và số lượng sản phẩm theo ngành hàng tháng này", "ecommerce"),
             ("Top 10 khách hàng có giá trị giỏ hàng thanh toán cao nhất", "ecommerce"),
 
-            # 3. Y Tế & Bệnh Viện
+            # 2. Y Tế & Bệnh Viện
             ("Báo cáo thời gian nằm viện trung bình của bệnh nhân điều trị nội trú", "healthcare"),
             ("Top 5 chẩn đoán bệnh phổ biến nhất tại khoa tim mạch tháng này", "healthcare"),
             ("Số lượng bệnh nhân tiếp nhận khám và kết quả xét nghiệm", "healthcare"),
@@ -80,9 +194,8 @@ class TestMultiDomainIntegration(unittest.TestCase):
 
     def test_ecommerce_steiner_tree_join_inference(self):
         """Kiểm tra Steiner Tree suy luận đúng chuỗi JOIN 3 bảng trong domain E-commerce."""
-        ecom_domain = self.dm.get_domain("ecommerce")
         profiler = BilingualDataProfilingGraph(
-            domain_config=ecom_domain,
+            domain_config=self.ecom_domain,
             embedding_function=MockEmbedding()
         )
 
@@ -101,9 +214,8 @@ class TestMultiDomainIntegration(unittest.TestCase):
 
     def test_healthcare_steiner_tree_join_inference(self):
         """Kiểm tra Steiner Tree suy luận đúng chuỗi JOIN 3 bảng trong domain Healthcare."""
-        health_domain = self.dm.get_domain("healthcare")
         profiler = BilingualDataProfilingGraph(
-            domain_config=health_domain,
+            domain_config=self.health_domain,
             embedding_function=MockEmbedding()
         )
 

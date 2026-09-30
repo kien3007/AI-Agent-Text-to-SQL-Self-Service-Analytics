@@ -1,9 +1,50 @@
+# profiles.yml — Cấu hình kết nối CSDL cho dbt
+# Đặt file này tại: infra/dbt/profiles.yml
+# Chạy dbt với: dbt run --profiles-dir ./infra/dbt
+
+# ─────────────────────────────────────────
+# 1. SQL Server / Azure SQL
+# ─────────────────────────────────────────
+sqlserver_profile:
+  target: dev
+  outputs:
+    dev:
+      type: sqlserver
+      driver: "ODBC Driver 17 for SQL Server"
+      server: "{{ env_var('DBT_MSSQL_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_MSSQL_PORT', '1433') | int }}"
+      database: "{{ env_var('DBT_MSSQL_DATABASE', 'analytics') }}"
+      schema: "{{ env_var('DBT_MSSQL_SCHEMA', 'dbo') }}"
+      user: "{{ env_var('DBT_MSSQL_USER', '') }}"
+      password: "{{ env_var('DBT_MSSQL_PASSWORD', '') }}"
+      encrypt: true
+      trust_cert: true
+      threads: 4
+
+# ─────────────────────────────────────────
+# 2. PostgreSQL
+# ─────────────────────────────────────────
+postgres_profile:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DBT_PG_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_PG_PORT', '5432') | int }}"
+      dbname: "{{ env_var('DBT_PG_DATABASE', 'analytics') }}"
+      schema: "{{ env_var('DBT_PG_SCHEMA', 'public') }}"
+      user: "{{ env_var('DBT_PG_USER', 'postgres') }}"
+      password: "{{ env_var('DBT_PG_PASSWORD', '') }}"
+      threads: 4
+
+# ─────────────────────────────────────────
+# 3. DuckDB (local development / testing)
+# ─────────────────────────────────────────
 duckdb_profile:
   target: dev
   outputs:
     dev:
       type: duckdb
-      path: "{{ env_var('DUCKDB_PATH', 'data/warehouse.duckdb') }}"
-      schema: ecommerce
+      path: "{{ env_var('DUCKDB_PATH', '../../data/warehouse.duckdb') }}"
+      schema: main
       threads: 4
-

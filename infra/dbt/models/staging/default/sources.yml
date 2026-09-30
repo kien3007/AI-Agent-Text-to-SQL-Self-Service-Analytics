@@ -1,0 +1,6 @@
+version: 2
+sources:
+- name: default
+  schema: default
+  description: Nguồn dữ liệu gốc cho domain Default Database
+  tables: []

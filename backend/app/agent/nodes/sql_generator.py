@@ -25,7 +25,7 @@ Nhiệm vụ của bạn là chuyển đổi câu hỏi tự nhiên của ngư�
 
 NGUYÊN TẮC BẮT BUỘC:
 1. CHỈ sinh câu lệnh đọc dữ liệu (SELECT hoặc WITH ... SELECT). Tuyệt đối KHÔNG sinh bất kỳ lệnh DDL/DML nào (DROP, DELETE, UPDATE, INSERT, ALTER...).
-2. Chỉ sử dụng chính xác tên Bảng (ví dụ: `real_estate_listings`, tuyệt đối KHÔNG viết thêm từ 'Bảng:' hay 'Table:') và tên Cột được cung cấp trong phần SCHEMA LIÊN KẾT. Không tự bịa thêm tên cột hoặc tên bảng.
+2. Chỉ sử dụng chính xác tên Bảng và tên Cột được cung cấp trong phần SCHEMA LIÊN KẾT (tuyệt đối KHÔNG thêm tiền tố 'Bảng:' hay 'Table:'). Không tự bịa thêm tên cột hoặc tên bảng.
 3. Khi truy vấn đa bảng, BẮT BUỘC tuân thủ các mệnh đề JOIN ... ON ... được gợi ý từ giải thuật Steiner Tree. Tuyệt đối KHÔNG viết CROSS JOIN hoặc liệt kê nhiều bảng sau FROM bằng dấu phẩy.
 4. Tránh chia cho 0: Luôn dùng NULLIF(ten_cot, 0) khi thực hiện phép chia.
 5. Luôn thêm mệnh đề LIMIT hợp lý (mặc định LIMIT 100 nếu người dùng không yêu cầu số lượng cụ thể).
@@ -53,7 +53,7 @@ NGUYÊN TẮC BẮT BUỘC:
         
         prompt_parts = [
             f"CÂU HỎI NGƯỜI DÙNG: \"{state.user_query}\"",
-            f"DOMAIN HIỆN TẠI: {state.domain_id or 'real_estate'}"
+            f"DOMAIN HIỆN TẠI: {state.domain_id or 'default'}"
         ]
 
         if state.schema_context:
@@ -64,7 +64,7 @@ NGUYÊN TẮC BẮT BUỘC:
             target_tables = state.schema_context.selected_tables if state.schema_context else []
             few_shots = self.long_term_memory.get_relevant_few_shots(
                 query=state.user_query,
-                domain_id=state.domain_id or "real_estate",
+                domain_id=state.domain_id or "default",
                 top_k=2,
                 target_tables=target_tables
             )
@@ -102,6 +102,25 @@ NGUYÊN TẮC BẮT BUỘC:
             ]
             prompt_parts.append("\n".join(feedback_block))
 
+        from app.db.warehouse_client import get_warehouse_client
+        target_domain = state.domain_id or "default"
+        try:
+            client = get_warehouse_client(domain_id=target_domain)
+            dialect = getattr(client, "dialect_name", "duckdb").lower()
+        except Exception:
+            dialect = "duckdb"
+        is_mssql = any(d in dialect for d in ("mssql", "sqlserver"))
+
+        if is_mssql:
+            mssql_hints = [
+                "\n### LƯU Ý BẮT BUỘC CHO HỆ QUẢN TRỊ MICROSOFT SQL SERVER (T-SQL):",
+                "- TUYỆT ĐỐI KHÔNG dùng mệnh đề `LIMIT N` ở cuối câu truy vấn. BẮT BUỘC dùng cú pháp `SELECT TOP (N) ...` ở đầu câu lệnh (mặc định TOP (100)).",
+                "- BẮT BUỘC giữ nguyên tiền tố schema cho bảng như trong Schema Context (ví dụ: `vietnam_ecommerce.shopee_orders` hoặc `[vietnam_ecommerce].[shopee_orders]`).",
+                "- Sử dụng các hàm ngày tháng của T-SQL: `YEAR(...)`, `MONTH(...)`, `DATEADD(...)`, `DATEDIFF(...)`.",
+                "- Phép chia: Dùng `1.0 * a / NULLIF(b, 0)` hoặc `CAST(a AS FLOAT) / NULLIF(b, 0)` để tránh chia số nguyên."
+            ]
+            prompt_parts.append("\n".join(mssql_hints))
+
         prompt_parts.append("\nHÃY SINH CÂU TRUY VẤN SQL CHUẨN XÁC QUA FUNCTION CALL `generate_sql_query`:")
         user_prompt = "\n".join(prompt_parts)
 
@@ -130,8 +149,30 @@ NGUYÊN TẮC BẮT BUỘC:
         else:
             extracted_sql = self._extract_clean_sql(extracted_sql)
 
+        if is_mssql and extracted_sql:
+            extracted_sql = self._adapt_to_mssql(extracted_sql)
+
         state.sql_query = extracted_sql
         return state
+
+    def _adapt_to_mssql(self, sql: str) -> str:
+        """Tự động chuẩn hóa câu SQL sang chuẩn cú pháp Microsoft SQL Server (T-SQL)."""
+        clean = sql.strip().rstrip(";")
+        # Chuyển đổi LIMIT N thành SELECT TOP (N)
+        limit_match = re.search(r"\bLIMIT\s+(\d+)\b", clean, flags=re.IGNORECASE)
+        if limit_match:
+            n_rows = limit_match.group(1)
+            clean = re.sub(r"\bLIMIT\s+\d+\b", "", clean, flags=re.IGNORECASE).strip()
+            # Nếu chưa có TOP trong câu lệnh SELECT
+            if not re.search(r"\bSELECT\s+(DISTINCT\s+)?TOP\b", clean, flags=re.IGNORECASE):
+                clean = re.sub(
+                    r"\bSELECT\s+(DISTINCT\s+)?",
+                    rf"SELECT \1TOP ({n_rows}) ",
+                    clean,
+                    count=1,
+                    flags=re.IGNORECASE
+                )
+        return self._format_sql_standard(clean)
 
     def _extract_clean_sql(self, text: str) -> str:
         """Bóc tách chuỗi SQL sạch sẽ từ markdown code block hoặc chuỗi văn bản."""

@@ -1,20 +1,32 @@
-.PHONY: help up down logs build load-data benchmark test
+.PHONY: help up down logs build load-data benchmark test supabase-up supabase-down supabase-logs
 
 help:
 	@echo "Available commands:"
-	@echo "  make up         - Start full stack using docker-compose"
-	@echo "  make down       - Stop and remove containers"
-	@echo "  make logs       - View backend logs"
-	@echo "  make build      - Build backend docker image"
-	@echo "  make load-data  - Initialize and load parquet data into DuckDB warehouse"
-	@echo "  make benchmark  - Run system benchmarks"
-	@echo "  make test       - Run pytest unit/integration tests"
+	@echo "  make up            - Start full stack using docker-compose"
+	@echo "  make down          - Stop and remove containers"
+	@echo "  make logs          - View backend logs"
+	@echo "  make build         - Build backend docker image"
+	@echo "  make load-data     - Initialize and load parquet data into DuckDB warehouse"
+	@echo "  make benchmark     - Run system benchmarks"
+	@echo "  make test          - Run pytest unit/integration tests"
+	@echo "  make supabase-up   - Start self-hosted Supabase stack (Auth, Kong, Studio, DB)"
+	@echo "  make supabase-down - Stop self-hosted Supabase stack"
+	@echo "  make supabase-logs - Follow Supabase logs"
 
 up:
 	docker compose up -d
 
 down:
 	docker compose down
+
+supabase-up:
+	docker compose -f infra/supabase/docker-compose.yml up -d
+
+supabase-down:
+	docker compose -f infra/supabase/docker-compose.yml down
+
+supabase-logs:
+	docker compose -f infra/supabase/docker-compose.yml logs -f
 
 logs:
 	docker compose logs -f backend

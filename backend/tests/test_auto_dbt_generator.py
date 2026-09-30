@@ -94,7 +94,7 @@ class TestAutoDbtGenerator(unittest.TestCase):
 
         # Kiểm tra SQL
         self.assertIn("config(materialized='view')", sql)
-        self.assertIn("TRIM(full_name)", sql)
+        self.assertIn("TRIM(CAST(full_name AS VARCHAR))", sql)
         self.assertIn("CAST(registration_date AS DATE)", sql)
         self.assertIn("WHERE customer_id IS NOT NULL", sql)
 
@@ -133,21 +133,49 @@ class TestAutoDbtGenerator(unittest.TestCase):
         self.assertIn("SUM(unit_price * quantity)", sql)
         self.assertIn("total_gross_revenue", sql)
 
-        # 2. Kiểm tra Guardrail 4: Giới hạn tối đa 3 dimensions (GROUP BY 1, 2, 3, 4)
+        # 2. Kiểm tra Guardrail 4: Giới hạn tối đa 3 dimensions (GROUP BY time_col + max 3 dims)
         self.assertIn("GROUP BY", sql)
-        self.assertIn("1, 2, 3, 4", sql)
+        self.assertIn("category", sql)
+        self.assertIn("status", sql)
+        self.assertIn("city", sql)
+        group_by_clause = sql.split("GROUP BY")[1].split("ORDER BY")[0]
+        self.assertNotIn("warehouse", group_by_clause)
+        self.assertNotIn("shipper", group_by_clause)
 
         # 3. Kiểm tra Semantic Metrics được khai báo
-        metric_names = [m["name"] for m in meta["metrics"]]
+        metric_names = [m["name"] for m in meta]
         self.assertTrue(any("total_gross_revenue" in mn for mn in metric_names))
         self.assertTrue(any("total_unit_price" in mn for mn in metric_names))
 
     def test_end_to_end_auto_dbt_and_agent_sync(self):
         """Kiểm tra toàn bộ luồng tạo dbt cho domain E-commerce và đồng bộ thẳng vào DomainManager."""
-        ecommerce_config = self.dm.get_domain("ecommerce")
+        ecommerce_config = DomainConfig(
+            domain_id="ecommerce",
+            display_name="E-Commerce",
+            description="Hệ thống bán hàng thương mại điện tử",
+            tables={
+                "orders": TableProfile(
+                    table_name="orders",
+                    columns={
+                        "order_id": ColumnProfile(name="order_id", data_type="BIGINT", is_primary_key=True),
+                        "order_date": ColumnProfile(name="order_date", data_type="TIMESTAMP"),
+                        "total_amount": ColumnProfile(name="total_amount", data_type="DOUBLE"),
+                        "status": ColumnProfile(name="status", data_type="VARCHAR")
+                    }
+                ),
+                "customers": TableProfile(
+                    table_name="customers",
+                    columns={
+                        "customer_id": ColumnProfile(name="customer_id", data_type="BIGINT", is_primary_key=True),
+                        "customer_name": ColumnProfile(name="customer_name", data_type="VARCHAR")
+                    }
+                )
+            }
+        )
+        self.dm.register_domain(ecommerce_config)
         self.assertIsNotNone(ecommerce_config)
 
-        res = self.generator.generate_domain_dbt(ecommerce_config)
+        res = self.generator.generate_domain_dbt(ecommerce_config, run_compile=False)
 
         # 1. Kiểm tra kết quả trả về
         self.assertEqual(res["status"], "SUCCESS")
@@ -165,11 +193,11 @@ class TestAutoDbtGenerator(unittest.TestCase):
         self.assertTrue(os.path.exists(marts_path))
         self.assertTrue(os.path.exists(marts_yml))
 
-        # 3. Kiểm tra profiles.yml đã được cập nhật
-        prof_path = os.path.join(self.generator.dbt_dir, "profiles.yml")
-        with open(prof_path, "r", encoding="utf-8") as f:
-            prof_content = f.read()
-        self.assertIn("schema: ecommerce", prof_content)
+        # 3. Kiểm tra sources.yml đã được sinh với schema ecommerce
+        sources_path = os.path.join(self.generator.staging_dir, "ecommerce", "sources.yml")
+        with open(sources_path, "r", encoding="utf-8") as f:
+            sources_content = f.read()
+        self.assertIn("schema: ecommerce", sources_content)
 
         # 4. Kiểm tra đồng bộ vào DomainManager
         updated_domain = self.dm.get_domain("ecommerce")

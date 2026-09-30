@@ -3,27 +3,25 @@
 env/
 venv/
 
-# Datasets (Large files)
-data/vietnam-real-estates/*.parquet
-data/vietnam-real-estates/.cache/
-dataset/vietnam-real-estates/*.parquet
-dataset/vietnam-real-estates/.cache/
-data/*.parquet
-data/*.csv
-data/*.db
-data/*.sqlite3
+# Datasets and Databases (Large binary files)
+*.parquet
+*.csv
+*.db
+*.sqlite3
+*.duckdb
+*.duckdb.wal
 data/*.duckdb
 data/*.duckdb.wal
+data/qdrant_db/
+backend/data/*.duckdb
+backend/data/*.duckdb.wal
 backend/data/*.sqlite3
+backend/data/qdrant_db/
+backend/data/chroma_db/
 data/chroma/
 data/chroma_db/
-backend/data/chroma_db/
-data/qdrant_db/
-dataset/*.parquet
-dataset/*.csv
-dataset/*.db
-dataset/*.duckdb
-template/
+dataset/vietnam-real-estates/
+data/vietnam-real-estates/
 
 # Python
 __pycache__/
@@ -32,9 +30,13 @@ __pycache__/
 *.so
 .pytest_cache/
 
-# Environment variables
+# Environment variables & secrets
 .env
 .env.local
+.env.*.local
+infra/supabase/.env
+infra/supabase/.env.local
+infra/supabase/volumes/db/
 
 # Node / Next.js
 node_modules/
@@ -45,7 +47,14 @@ dist/
 
 # Logs
 *.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# dbt artifacts & state
+infra/dbt/target/
+infra/dbt/dbt_packages/
+infra/dbt/logs/
+infra/dbt/.user.yml

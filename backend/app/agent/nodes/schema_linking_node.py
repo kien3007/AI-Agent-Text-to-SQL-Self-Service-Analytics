@@ -29,7 +29,13 @@ class SchemaLinkingNode:
 
     def execute(self, state: AgentState) -> AgentState:
         state.log_step("schema_linking")
-        domain_id = state.domain_id or "real_estate"
+        domain_id = state.domain_id
+        if not domain_id:
+            try:
+                from app.core.domain_manager import DomainManager
+                domain_id = DomainManager().get_active_domain_config().domain_id
+            except Exception:
+                domain_id = "default"
         graph = self._get_graph(domain_id)
 
         query = state.normalized_query or state.user_query

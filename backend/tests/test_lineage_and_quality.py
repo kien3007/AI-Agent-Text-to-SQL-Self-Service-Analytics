@@ -1,14 +1,47 @@
-"""
-Unit tests for Data Lineage & Data Quality Engine.
-"""
-
+import os
+import sys
 import unittest
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+backend_dir = os.path.abspath(os.path.join(current_dir, ".."))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 from app.core.lineage_service import LineageService
 from app.core.dq_checker import DataQualityChecker
 from app.core.domain_manager import DomainManager
 
 
 class TestLineageAndQuality(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        from app.schemas.domain import DomainConfig, TableProfile, ColumnProfile, MetricProfile
+        dm = DomainManager()
+        ecom = DomainConfig(
+            domain_id="ecommerce",
+            display_name="E-Commerce",
+            description="Dữ liệu thương mại điện tử",
+            tables={
+                "orders": TableProfile(
+                    table_name="orders",
+                    columns={
+                        "order_id": ColumnProfile(name="order_id", data_type="BIGINT", is_primary_key=True),
+                        "status": ColumnProfile(name="status", data_type="VARCHAR"),
+                        "total_amount": ColumnProfile(name="total_amount", data_type="DOUBLE")
+                    }
+                )
+            },
+            metrics={
+                "gmv": MetricProfile(
+                    metric_id="gmv",
+                    sql_expression="SUM(total_amount)",
+                    depends_on_tables=["orders"],
+                    depends_on_columns=["total_amount"]
+                )
+            }
+        )
+        dm.register_domain(ecom)
 
     def test_lineage_service_build_graph(self):
         service = LineageService()

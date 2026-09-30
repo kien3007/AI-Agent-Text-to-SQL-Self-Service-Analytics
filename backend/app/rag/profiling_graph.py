@@ -62,7 +62,7 @@ class BilingualDataProfilingGraph:
         elif domain_id:
             found = self.domain_manager.get_domain(domain_id)
             if not found:
-                raise ValueError(f"Không tìm thấy domain_id: {domain_id}")
+                found = self.domain_manager.get_active_domain_config()
             self.domain = found
         else:
             self.domain = self.domain_manager.get_active_domain_config()
@@ -90,7 +90,7 @@ class BilingualDataProfilingGraph:
 
     def _init_collections(self):
         """Khởi tạo collection trong Qdrant On-premise (LlamaIndex) phân tách theo domain."""
-        prefix = "real_estate" if self.domain_id == "real_estate" else self.domain_id
+        prefix = self.domain_id
 
         if self.qdrant_client is None:
             self.qdrant_client = get_qdrant_client(in_memory=self.in_memory)
@@ -178,19 +178,7 @@ class BilingualDataProfilingGraph:
                 cardinality=rel.cardinality
             )
 
-        # 3. Quan hệ thứ bậc nội tại bảng (nếu là real_estate)
-        if self.domain_id == "real_estate":
-            self.graph.add_edge("Col:district_name", "Col:province_name", relation="CHILD_OF")
-            self.graph.add_edge("Col:ward_name", "Col:district_name", relation="CHILD_OF")
-            self.graph.add_edge("Col:street_name", "Col:district_name", relation="LOCATED_IN")
-            self.graph.add_edge("Col:property_type_name", "Col:bedroom_count", relation="RELEVANT_FOR_APARTMENT")
-            self.graph.add_edge("Col:property_type_name", "Col:bathroom_count", relation="RELEVANT_FOR_APARTMENT")
-            self.graph.add_edge("Col:property_type_name", "Col:balcony_direction", relation="RELEVANT_FOR_APARTMENT")
-            self.graph.add_edge("Col:property_type_name", "Col:frontage_width", relation="RELEVANT_FOR_LAND_HOUSE")
-            self.graph.add_edge("Col:property_type_name", "Col:road_width", relation="RELEVANT_FOR_LAND_HOUSE")
-            self.graph.add_edge("Col:property_type_name", "Col:floor_count", relation="RELEVANT_FOR_HOUSE")
-
-        # 4. Thêm Chỉ số nghiệp vụ (Metrics)
+        # 3. Thêm Chỉ số nghiệp vụ (Metrics)
         for metric_id, m_data in self.domain.metrics.items():
             m_node = f"Metric:{metric_id}"
             self.graph.add_node(
@@ -210,8 +198,8 @@ class BilingualDataProfilingGraph:
         Trả về: (ordered_tables, join_clauses, cardinality_warnings)
         """
         if not target_tables:
-            default_t = next(iter(self.domain.tables.keys())) if self.domain.tables else "real_estate_listings"
-            return [default_t], [], []
+            default_t = next(iter(self.domain.tables.keys())) if self.domain.tables else ""
+            return [default_t], [], [] if default_t else ([], [], [])
 
         if len(target_tables) == 1:
             return list(target_tables), [], []
@@ -373,31 +361,21 @@ class BilingualDataProfilingGraph:
         cat_ids = []
         cat_metadatas = []
 
-        if self.domain_id == "real_estate":
-            prop_types = ["Căn hộ chung cư", "Nhà", "Đất", "Biệt thự/Nhà liền kề", "Shophouse"]
-            for pt in prop_types:
-                cat_docs.append(f"Loại hình bất động sản chuẩn trong CSDL: {pt}. property_type_name = '{pt}'")
-                cat_ids.append(f"prop_{pt}")
-                cat_metadatas.append({"category_type": "property_type", "value": pt})
+        # 3. Lập chỉ mục Danh mục phân loại động (Generic / Multi-Domain)
+        cat_docs = []
+        cat_ids = []
+        cat_metadatas = []
 
-            if distinct_categories:
-                provinces = distinct_categories.get("provinces", [])
-                for p in provinces:
-                    cat_docs.append(f"Tỉnh / Thành phố: {p}. province_name = '{p}'")
-                    cat_ids.append(f"prov_{p}")
-                    cat_metadatas.append({"category_type": "province", "value": p})
-
-                dist_map = distinct_categories.get("district_to_province", {})
-                for d, p in dist_map.items():
-                    cat_docs.append(f"Quận / Huyện: {d} thuộc Tỉnh / Thành phố {p}. district_name = '{d}' AND province_name = '{p}'")
-                    cat_ids.append(f"dist_{d}_{p}")
-                    cat_metadatas.append({"category_type": "district", "value": d, "parent_province": p})
-
-                directions = distinct_categories.get("directions", [])
-                for dir_val in directions:
-                    cat_docs.append(f"Hướng nhà phong thủy: {dir_val}. house_direction LIKE '%{dir_val}%'")
-                    cat_ids.append(f"dir_{dir_val}")
-                    cat_metadatas.append({"category_type": "direction", "value": dir_val})
+        if distinct_categories:
+            for key, val in distinct_categories.items():
+                if isinstance(val, list):
+                    for item in val[:50]:
+                        col_clean = key.split(".")[-1]
+                        doc_text = f"Giá trị phân loại chuẩn của cột '{col_clean}': {item}. {col_clean} = '{item}'"
+                        cat_docs.append(doc_text)
+                        safe_id = re.sub(r'[^a-zA-Z0-9_]', '_', f"cat_{key}_{item}")[:60]
+                        cat_ids.append(safe_id)
+                        cat_metadatas.append({"category_type": col_clean, "value": item, "column": key})
 
         if cat_docs:
             print(f"[ProfilingGraph] Đang nạp {len(cat_docs)} danh mục phân loại thực tế...")
@@ -425,70 +403,43 @@ class BilingualDataProfilingGraph:
         suggested_metrics: List[MetricContext] = []
         needed_tables: Set[str] = set()
 
-        default_table = next(iter(self.domain.tables.keys())) if self.domain.tables else "real_estate_listings"
+        default_table = next(iter(self.domain.tables.keys())) if self.domain.tables else "data"
 
-        # 1. Trích xuất các entity từ Glossary (Domain BĐS)
-        if self.domain_id == "real_estate":
-            needed_tables.add("real_estate_listings")
-            if intent.property_type:
-                matched_column_tuples.add(("real_estate_listings", "property_type_name"))
-                suggested_filters.append(f"property_type_name = '{intent.property_type}'")
-                if intent.property_type == "Căn hộ chung cư":
-                    matched_column_tuples.add(("real_estate_listings", "bedroom_count"))
-                    matched_column_tuples.add(("real_estate_listings", "bathroom_count"))
-                elif intent.property_type in ["Nhà", "Đất"]:
-                    matched_column_tuples.add(("real_estate_listings", "area"))
-                    matched_column_tuples.add(("real_estate_listings", "road_width"))
-                    matched_column_tuples.add(("real_estate_listings", "frontage_width"))
+        # 1. Trích xuất các entity từ Glossary và Schema CSDL
+        if default_table in self.domain.tables:
+            table_cols = self.domain.tables[default_table].columns
+            num_cols = [c for c, p in table_cols.items() if any(nt in (p.data_type or "").upper() for nt in ("INT", "DOUBLE", "FLOAT", "DECIMAL", "NUMERIC", "REAL"))]
+            date_cols = [c for c, p in table_cols.items() if any(dt in (p.data_type or "").upper() or any(w in c.lower() for w in ("date", "time", "published", "created", "at", "year", "month")) for dt in ("DATE", "TIME", "TIMESTAMP"))]
 
-            if intent.province:
-                matched_column_tuples.add(("real_estate_listings", "province_name"))
-                suggested_filters.append(f"province_name = '{intent.province}'")
+            if getattr(intent, "min_price", None) is not None or getattr(intent, "max_price", None) is not None:
+                price_col = next((c for c in num_cols if any(k in c.lower() for k in ("price", "amount", "revenue", "cost", "total", "fee", "val", "tien", "gia"))), num_cols[0] if num_cols else None)
+                if price_col:
+                    matched_column_tuples.add((default_table, price_col))
+                    needed_tables.add(default_table)
+                    if intent.min_price is not None and intent.max_price is not None:
+                        suggested_filters.append(f"{price_col} BETWEEN {intent.min_price} AND {intent.max_price}")
+                    elif intent.max_price is not None:
+                        suggested_filters.append(f"{price_col} <= {intent.max_price}")
+                    elif intent.min_price is not None:
+                        suggested_filters.append(f"{price_col} >= {intent.min_price}")
 
-            if intent.district:
-                matched_column_tuples.add(("real_estate_listings", "district_name"))
-                suggested_filters.append(f"district_name = '{intent.district}'")
-                matched_column_tuples.add(("real_estate_listings", "province_name"))
+            if getattr(intent, "min_area", None) is not None or getattr(intent, "max_area", None) is not None:
+                area_col = next((c for c in num_cols if any(k in c.lower() for k in ("area", "size", "sqm", "m2", "dientich"))), None)
+                if area_col:
+                    matched_column_tuples.add((default_table, area_col))
+                    needed_tables.add(default_table)
+                    if intent.min_area is not None and intent.max_area is not None:
+                        suggested_filters.append(f"{area_col} BETWEEN {intent.min_area} AND {intent.max_area}")
+                    elif intent.max_area is not None:
+                        suggested_filters.append(f"{area_col} <= {intent.max_area}")
+                    elif intent.min_area is not None:
+                        suggested_filters.append(f"{area_col} >= {intent.min_area}")
 
-            if intent.bedroom_count is not None:
-                matched_column_tuples.add(("real_estate_listings", "bedroom_count"))
-                suggested_filters.append(f"bedroom_count = {intent.bedroom_count}")
-
-            if intent.bathroom_count is not None:
-                matched_column_tuples.add(("real_estate_listings", "bathroom_count"))
-                suggested_filters.append(f"bathroom_count = {intent.bathroom_count}")
-
-            if intent.direction:
-                matched_column_tuples.add(("real_estate_listings", "house_direction"))
-                suggested_filters.append(f"house_direction LIKE '%{intent.direction}%'")
-
-            if intent.min_price is not None and intent.max_price is not None:
-                matched_column_tuples.add(("real_estate_listings", "price"))
-                suggested_filters.append(f"price BETWEEN {intent.min_price} AND {intent.max_price}")
-            elif intent.max_price is not None:
-                matched_column_tuples.add(("real_estate_listings", "price"))
-                suggested_filters.append(f"price <= {intent.max_price}")
-            elif intent.min_price is not None:
-                matched_column_tuples.add(("real_estate_listings", "price"))
-                suggested_filters.append(f"price >= {intent.min_price}")
-
-            if intent.min_area is not None and intent.max_area is not None:
-                matched_column_tuples.add(("real_estate_listings", "area"))
-                suggested_filters.append(f"area BETWEEN {intent.min_area} AND {intent.max_area}")
-            elif intent.max_area is not None:
-                matched_column_tuples.add(("real_estate_listings", "area"))
-                suggested_filters.append(f"area <= {intent.max_area}")
-            elif intent.min_area is not None:
-                matched_column_tuples.add(("real_estate_listings", "area"))
-                suggested_filters.append(f"area >= {intent.min_area}")
-
-            if intent.time_range:
-                matched_column_tuples.add(("real_estate_listings", "published_at"))
-                suggested_filters.append(f"published_at BETWEEN '{intent.time_range[1]}' AND '{intent.time_range[2]}'")
-
-            # Luôn bảo đảm có partition key và price cho BĐS
-            matched_column_tuples.add(("real_estate_listings", "published_at"))
-            matched_column_tuples.add(("real_estate_listings", "price"))
+            if getattr(intent, "time_range", None) and date_cols:
+                d_col = date_cols[0]
+                matched_column_tuples.add((default_table, d_col))
+                needed_tables.add(default_table)
+                suggested_filters.append(f"{d_col} BETWEEN '{intent.time_range[1]}' AND '{intent.time_range[2]}'")
 
         # 2. Vector Search qua LlamaIndex (Qdrant) cho Cột
         try:
@@ -505,6 +456,18 @@ class BilingualDataProfilingGraph:
         except Exception as e:
             print(f"[ProfilingGraph] Warning vector query schema: {e}")
 
+        # 2.1 Keyword / Lexical matching fallback cho Columns
+        user_query_clean = user_query.lower()
+        for tbl_name, tbl_prof in self.domain.tables.items():
+            for col_name, col_prof in tbl_prof.columns.items():
+                col_terms = [col_name.lower(), col_name.replace("_", " ").lower()]
+                if col_prof.vn_name:
+                    col_terms.append(col_prof.vn_name.lower())
+                col_terms.extend([s.lower() for s in (col_prof.synonyms or [])])
+                if any(t in user_query_clean for t in col_terms if len(t) > 2):
+                    matched_column_tuples.add((tbl_name, col_name))
+                    needed_tables.add(tbl_name)
+
         # 3. Vector Search qua LlamaIndex (Qdrant) cho Chỉ số (Metrics)
         try:
             if self.metrics_index:
@@ -517,9 +480,9 @@ class BilingualDataProfilingGraph:
                         if not any(sm.name == m_id for sm in suggested_metrics):
                             suggested_metrics.append(MetricContext(
                                 name=m_id,
-                                vn_terms=m_prof.vn_terms,
+                                vn_terms=m_prof.vn_terms or [],
                                 sql_expression=m_prof.sql_expression,
-                                description=m_prof.description
+                                description=m_prof.description or ""
                             ))
                             for dep_col in m_prof.depends_on_columns:
                                 matched_column_tuples.add((default_table, dep_col))
@@ -529,16 +492,15 @@ class BilingualDataProfilingGraph:
             pass
 
         # 3.1 Keyword matching fallback cho domain metrics (Zero-dependency matching)
-        user_query_clean = user_query.lower()
         for m_id, m_prof in self.domain.metrics.items():
             all_terms = (m_prof.vn_terms or []) + (m_prof.en_terms or [])
-            if any(term.lower() in user_query_clean for term in all_terms):
+            if any(term.lower() in user_query_clean for term in all_terms if term):
                 if not any(sm.name == m_id for sm in suggested_metrics):
                     suggested_metrics.append(MetricContext(
                         name=m_id,
-                        vn_terms=m_prof.vn_terms,
+                        vn_terms=m_prof.vn_terms or [],
                         sql_expression=m_prof.sql_expression,
-                        description=m_prof.description
+                        description=m_prof.description or ""
                     ))
                     for dep_col in m_prof.depends_on_columns:
                         matched_column_tuples.add((default_table, dep_col))
@@ -569,8 +531,8 @@ class BilingualDataProfilingGraph:
                     name=col,
                     table_name=tbl,
                     data_type=p.data_type,
-                    vn_name=p.vn_name,
-                    description=p.description,
+                    vn_name=p.vn_name or col,
+                    description=p.description or "",
                     is_partition_or_dist=p.is_partition_or_dist,
                     sample_values=p.sample_values
                 ))
@@ -620,12 +582,14 @@ class BilingualDataProfilingGraph:
             prompt_lines.append(f"\n### GỢI Ý GIỚI HẠN: `LIMIT {intent.limit}`")
 
         partition_hint = None
-        if self.domain_id == "real_estate":
-            partition_hint = (
-                "Bảng được PARTITION BY RANGE(published_at) theo tháng. "
-                "Nếu người dùng hỏi mốc thời gian (tháng trước, quý này...), luôn thêm điều kiện published_at BETWEEN ... để tối ưu số tablet quét."
-            )
-            prompt_lines.append(f"\n> **LƯU Ý HIỆU NĂNG TỐI ƯU TRUY VẤN:** {partition_hint}")
+        for t_name, tbl in self.domain.tables.items():
+            if getattr(tbl, "partition_key", None):
+                partition_hint = (
+                    f"Bảng `{t_name}` được PARTITION theo cột `{tbl.partition_key}`. "
+                    f"Khi người dùng hỏi theo mốc thời gian, hãy thêm điều kiện `{tbl.partition_key}` để tối ưu hiệu năng quét."
+                )
+                prompt_lines.append(f"\n> **LƯU Ý HIỆU NĂNG TỐI ƯU TRUY VẤN:** {partition_hint}")
+                break
 
         prompt_context = "\n".join(prompt_lines)
 

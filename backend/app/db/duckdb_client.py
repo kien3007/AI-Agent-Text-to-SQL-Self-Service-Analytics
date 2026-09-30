@@ -13,11 +13,12 @@ import logging
 from typing import Dict, Any, List, Tuple, Optional
 from pathlib import Path
 import duckdb
+from app.db.base_client import BaseDatabaseClient
 
 logger = logging.getLogger("DuckDBClient")
 
 
-class DuckDBClient:
+class DuckDBClient(BaseDatabaseClient):
     """
     Client kết nối DuckDB tối ưu cho Text-to-SQL Self-Service Analytics.
     Cung cấp:
@@ -54,17 +55,29 @@ class DuckDBClient:
 
         return duckdb.connect(self.db_path, read_only=ro)
 
+    def get_tables(self) -> List[str]:
+        """Lấy danh sách các bảng/views người dùng trong DuckDB."""
+        conn = self.get_connection(read_only=True)
+        try:
+            rows = conn.execute("SHOW TABLES;").fetchall()
+            return [r[0] for r in rows]
+        except Exception:
+            return []
+        finally:
+            conn.close()
+
     def execute_query(self, sql: str, max_rows: int = 1000) -> Tuple[List[str], List[Tuple]]:
         """
-        Thực thi câu truy vấn SELECT an toàn.
+        Thực thi câu truy vấn SQL an toàn.
         Trả về (tên_các_cột, danh_sách_dòng_kết_quả).
         """
         cleaned_sql = sql.strip().strip(";")
-        conn = self.get_connection(read_only=True)
+        is_write = cleaned_sql.lstrip().upper().startswith(("CREATE", "INSERT", "UPDATE", "DELETE", "DROP", "ALTER"))
+        conn = self.get_connection(read_only=False if is_write else self.read_only)
         try:
             rel = conn.sql(cleaned_sql)
             columns = rel.columns if hasattr(rel, "columns") else []
-            rows = rel.fetchmany(max_rows)
+            rows = rel.fetchmany(max_rows) if rel is not None else []
             return columns, list(rows)
         finally:
             conn.close()
@@ -138,74 +151,82 @@ class DuckDBClient:
         finally:
             conn.close()
 
-    def get_distinct_categories(self) -> Dict[str, List[str]]:
+    def get_distinct_categories(
+        self,
+        table_name: Optional[str] = None,
+        categorical_columns: Optional[List[str]] = None,
+        max_distinct: int = 50
+    ) -> Dict[str, Any]:
         """
-        Trích xuất toàn bộ danh mục phân loại thực tế từ real_estate_listings:
-        - Loại hình BĐS (property_type_name)
-        - Tỉnh / Thành phố (province_name)
-        - Quận / Huyện (district_name)
-        - Hướng nhà (house_direction)
-        - Top các dự án phổ biến (project_name)
+        Trích xuất danh mục phân loại thực tế từ CSDL DuckDB.
+        Hỗ trợ:
+        - Động cho bất kỳ bảng và cột phân loại nào (Dynamic / Schema-agnostic).
+        - Tự động phát hiện các cột dạng chuỗi (VARCHAR/TEXT) nếu không truyền danh sách cột.
         """
-        result = {
-            "property_types": [],
-            "provinces": [],
-            "districts": [],
-            "district_to_province": {},
-            "directions": [],
-            "top_projects": []
-        }
-        
+        result: Dict[str, Any] = {}
         conn = self.get_connection(read_only=True)
+
         try:
-            # 1. Property types
-            pt = conn.sql("""
-                SELECT DISTINCT property_type_name 
-                FROM real_estate_listings 
-                WHERE property_type_name IS NOT NULL AND property_type_name != ''
-            """).fetchall()
-            result["property_types"] = [r[0] for r in pt if r[0]]
+            # 1. Nếu chỉ định rõ table_name
+            if table_name:
+                cols_to_check = categorical_columns
+                if not cols_to_check:
+                    # Tự động quét các cột dạng chuỗi trong bảng
+                    col_info = conn.sql(f"""
+                        SELECT column_name, data_type 
+                        FROM duckdb_columns 
+                        WHERE table_name = '{table_name}' AND NOT internal
+                    """).fetchall()
+                    cols_to_check = [
+                        r[0] for r in col_info 
+                        if any(t in str(r[1]).upper() for t in ("VARCHAR", "TEXT", "STRING", "CHAR"))
+                    ]
 
-            # 2. Provinces
-            prov = conn.sql("""
-                SELECT DISTINCT province_name 
-                FROM real_estate_listings 
-                WHERE province_name IS NOT NULL AND province_name != '' 
-                ORDER BY province_name
-            """).fetchall()
-            result["provinces"] = [r[0] for r in prov if r[0]]
+                for col in (cols_to_check or []):
+                    try:
+                        rows = conn.sql(f"""
+                            SELECT DISTINCT "{col}" 
+                            FROM "{table_name}" 
+                            WHERE "{col}" IS NOT NULL AND TRIM(CAST("{col}" AS VARCHAR)) != '' 
+                            LIMIT {max_distinct}
+                        """).fetchall()
+                        result[col] = [str(r[0]).strip() for r in rows if r[0] is not None]
+                    except Exception as col_err:
+                        logger.debug(f"Không thể lấy distinct cho cột {col}: {col_err}")
+                return result
 
-            # 3. Districts
-            dist = conn.sql("""
-                SELECT DISTINCT district_name, province_name 
-                FROM real_estate_listings 
-                WHERE district_name IS NOT NULL AND district_name != ''
-            """).fetchall()
-            result["districts"] = [r[0] for r in dist if r[0]]
-            result["district_to_province"] = {r[0]: r[1] for r in dist if r[0] and r[1]}
+            # 2. Với cơ sở dữ liệu bất kỳ: Tự động khám phá các cột phân loại qua toàn bộ các bảng
+            tables = [r[0] for r in conn.sql("SELECT table_name FROM duckdb_tables WHERE NOT internal").fetchall()]
+            for tbl in tables[:10]: # Giới hạn 10 bảng đầu tiên để đảm bảo hiệu năng
 
-            # 4. Directions
-            dirs = conn.sql("""
-                SELECT DISTINCT house_direction 
-                FROM real_estate_listings 
-                WHERE house_direction IS NOT NULL AND house_direction != ''
-            """).fetchall()
-            valid_dirs = {"Đông", "Tây", "Nam", "Bắc", "Đông Nam", "Tây Nam", "Đông Bắc", "Tây Bắc"}
-            result["directions"] = [r[0].strip() for r in dirs if r[0] and r[0].strip() in valid_dirs]
-
-            # 5. Top Projects
-            proj = conn.sql("""
-                SELECT project_name, COUNT(*) as cnt 
-                FROM real_estate_listings 
-                WHERE project_name IS NOT NULL AND project_name != '' 
-                GROUP BY project_name 
-                ORDER BY cnt DESC 
-                LIMIT 50
-            """).fetchall()
-            result["top_projects"] = [r[0] for r in proj if r[0]]
+                col_info = conn.sql(f"""
+                    SELECT column_name, data_type 
+                    FROM duckdb_columns 
+                    WHERE table_name = '{tbl}' AND NOT internal
+                """).fetchall()
+                str_cols = [
+                    r[0] for r in col_info 
+                    if any(t in str(r[1]).upper() for t in ("VARCHAR", "TEXT", "STRING", "CHAR"))
+                    and not r[0].lower().endswith(("_id", "_guid", "uuid", "description", "content", "image"))
+                ]
+                for c in str_cols[:5]:
+                    try:
+                        vals = conn.sql(f"""
+                            SELECT DISTINCT "{c}" 
+                            FROM "{tbl}" 
+                            WHERE "{c}" IS NOT NULL AND TRIM(CAST("{c}" AS VARCHAR)) != '' 
+                            LIMIT {max_distinct}
+                        """).fetchall()
+                        clean_vals = [str(v[0]).strip() for v in vals if v[0] is not None]
+                        if clean_vals:
+                            result[f"{tbl}.{c}"] = clean_vals
+                            if c not in result:
+                                result[c] = clean_vals
+                    except Exception:
+                        pass
 
         except Exception as e:
-            logger.warning(f"Không thể trích xuất danh mục từ DuckDB ({e}). Sử dụng danh mục mặc định.")
+            logger.warning(f"Không thể trích xuất danh mục từ DuckDB ({e}).")
         finally:
             conn.close()
 

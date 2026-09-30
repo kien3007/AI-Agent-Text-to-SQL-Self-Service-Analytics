@@ -1,0 +1,30 @@
+version: 2
+metrics:
+- name: total_total_amount_orders
+  label: Tổng total_amount (orders)
+  description: Tổng total_amount (orders)
+  type: simple
+  type_params:
+    measure:
+      name: total_total_amount_orders
+      agg: sum
+      expr: SUM(total_amount)
+  meta:
+    vn_terms:
+    - tổng total_amount
+    - sum total_amount
+    domain: ecommerce
+- name: avg_total_amount_orders
+  label: Trung Bình total_amount (orders)
+  description: Trung Bình total_amount (orders)
+  type: simple
+  type_params:
+    measure:
+      name: avg_total_amount_orders
+      agg: average
+      expr: AVG(total_amount)
+  meta:
+    vn_terms:
+    - trung bình total_amount
+    - average total_amount
+    domain: ecommerce

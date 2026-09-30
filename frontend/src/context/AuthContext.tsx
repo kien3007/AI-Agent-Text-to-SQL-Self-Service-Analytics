@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserProfile, AuthContextType, AuthResponse } from '@/types/auth';
+import { supabase } from '@/lib/supabase';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -46,81 +47,137 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Check auth state on load
+  // Lắng nghe trạng thái đăng nhập từ Supabase Auth
   useEffect(() => {
-    const verifyAuth = async () => {
-      if (typeof window === 'undefined') {
-        setIsLoading(false);
-        return;
-      }
+    let isMounted = true;
 
-      const storedToken = localStorage.getItem(TOKEN_KEY);
-      const storedUser = localStorage.getItem(USER_KEY);
-
-      if (!storedToken) {
-        setIsLoading(false);
-        return;
-      }
-
-      setToken(storedToken);
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch {
-          // ignore parsing error
-        }
-      }
-
-      // Ngay lập tức mở khóa UI, không bắt người dùng chờ network request
-      setIsLoading(false);
-
-      // Xác thực token ngầm trong nền (Stale-While-Revalidate)
+    const initAuth = async () => {
+      // 1. Kiểm tra session từ Supabase client trước
       try {
-        const res = await fetch('/api/auth/me', {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        });
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && isMounted) {
+          const sbUser = session.user;
+          const meta = sbUser.user_metadata || {};
+          const isAdm =
+            meta.role === 'admin' ||
+            sbUser.email?.toLowerCase().includes('admin') ||
+            sbUser.email === 'kiennguyen300703@gmail.com';
 
-        if (res.ok) {
-          const userData = await res.json();
           const profile: UserProfile = {
-            user_id: userData.user_id,
-            username: userData.username || userData.user_id,
-            display_name: userData.display_name || userData.username || 'User',
-            role: userData.role || 'analyst',
+            user_id: sbUser.id,
+            username: sbUser.email || sbUser.id,
+            email: sbUser.email,
+            display_name: meta.display_name || sbUser.email?.split('@')[0] || 'User',
+            role: isAdm ? 'admin' : (meta.role || 'analyst'),
           };
-          setUser(profile);
-          localStorage.setItem(USER_KEY, JSON.stringify(profile));
-          syncTokenCookie(storedToken);
-        } else if (res.status === 401 || res.status === 403) {
-          handleClearAuth();
-          router.replace('/login');
+
+          handleSetAuth(session.access_token, profile);
+          setIsLoading(false);
+          return;
         }
       } catch (err) {
-        console.warn('Không thể kiểm tra token với server:', err);
+        console.warn('Lỗi kiểm tra session Supabase:', err);
+      }
+
+      // 2. Fallback: đọc từ localStorage nếu Supabase session chưa load
+      if (typeof window !== 'undefined') {
+        const storedToken = localStorage.getItem(TOKEN_KEY);
+        const storedUser = localStorage.getItem(USER_KEY);
+
+        if (storedToken && storedUser) {
+          try {
+            setToken(storedToken);
+            setUser(JSON.parse(storedUser));
+          } catch {
+            // ignore JSON parse error
+          }
+        }
+      }
+
+      if (isMounted) {
+        setIsLoading(false);
       }
     };
 
-    verifyAuth();
+    initAuth();
 
-    // Listen to 401 events from fetchWithAuth
+    // 3. Đăng ký Listener thay đổi Auth State từ Supabase (Đăng nhập, Đăng xuất, Token refresh)
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        const sbUser = session.user;
+        const meta = sbUser.user_metadata || {};
+        const isAdm =
+          meta.role === 'admin' ||
+          sbUser.email?.toLowerCase().includes('admin') ||
+          sbUser.email === 'kiennguyen300703@gmail.com';
+
+        const profile: UserProfile = {
+          user_id: sbUser.id,
+          username: sbUser.email || sbUser.id,
+          email: sbUser.email,
+          display_name: meta.display_name || sbUser.email?.split('@')[0] || 'User',
+          role: isAdm ? 'admin' : (meta.role || 'analyst'),
+        };
+
+        handleSetAuth(session.access_token, profile);
+      } else if (event === 'SIGNED_OUT') {
+        handleClearAuth();
+      }
+    });
+
     const handleUnauthorized = () => {
       handleClearAuth();
       router.push('/login');
     };
 
     window.addEventListener('auth_unauthorized', handleUnauthorized);
+
     return () => {
+      isMounted = false;
+      authListener?.subscription.unsubscribe();
       window.removeEventListener('auth_unauthorized', handleUnauthorized);
     };
   }, [router]);
 
-  const login = async (username: string, password: string): Promise<void> => {
+  // Đăng nhập: Hỗ trợ cả Supabase Auth và backend API proxy
+  const login = async (usernameOrEmail: string, password: string): Promise<void> => {
+    // 1. Thử đăng nhập trực tiếp qua Supabase Auth nếu là Email
+    if (usernameOrEmail.includes('@')) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: usernameOrEmail,
+          password: password,
+        });
+
+        if (!error && data.session) {
+          const sbUser = data.session.user;
+          const meta = sbUser.user_metadata || {};
+          const isAdm =
+            meta.role === 'admin' ||
+            sbUser.email?.toLowerCase().includes('admin') ||
+            sbUser.email === 'kiennguyen300703@gmail.com';
+
+          const profile: UserProfile = {
+            user_id: sbUser.id,
+            username: sbUser.email || sbUser.id,
+            email: sbUser.email,
+            display_name: meta.display_name || sbUser.email?.split('@')[0] || 'User',
+            role: isAdm ? 'admin' : (meta.role || 'analyst'),
+          };
+
+          handleSetAuth(data.session.access_token, profile);
+          return;
+        }
+      } catch (err) {
+        console.warn('Supabase direct login error, trying backend API:', err);
+      }
+    }
+
+    // 2. Gọi backend API endpoint /api/auth/token (Hỗ trợ proxy Supabase + fallback dev user)
     const res = await fetch('/api/auth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username: usernameOrEmail, password }),
     });
 
     const data: AuthResponse & { detail?: string } = await res.json();
@@ -131,22 +188,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const profile: UserProfile = {
       user_id: data.user_id,
-      username: data.username || username,
-      display_name: data.display_name || username,
+      username: data.username || usernameOrEmail,
+      email: data.email,
+      display_name: data.display_name || usernameOrEmail,
       role: data.role || 'analyst',
     };
 
     handleSetAuth(data.access_token, profile);
   };
 
-  const register = async (username: string, password: string, displayName?: string): Promise<void> => {
+  // Đăng ký tài khoản
+  const register = async (
+    usernameOrEmail: string,
+    password: string,
+    displayName?: string,
+    email?: string
+  ): Promise<void> => {
+    const targetEmail = email || (usernameOrEmail.includes('@') ? usernameOrEmail : undefined);
+    // 1. Thử đăng ký trực tiếp với Supabase nếu có Email
+    if (targetEmail) {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: targetEmail,
+          password,
+          options: {
+            data: {
+              username: usernameOrEmail,
+              display_name: displayName || usernameOrEmail.split('@')[0],
+              role: 'analyst',
+            },
+          },
+        });
+
+        if (!error && data.session) {
+          const sbUser = data.session.user;
+          const meta = sbUser.user_metadata || {};
+          const profile: UserProfile = {
+            user_id: sbUser.id,
+            username: meta.username || sbUser.email || sbUser.id,
+            email: sbUser.email,
+            display_name: displayName || meta.display_name || sbUser.email?.split('@')[0] || 'User',
+            role: 'analyst',
+          };
+          handleSetAuth(data.session.access_token, profile);
+          return;
+        }
+      } catch (err) {
+        console.warn('Supabase direct signup error, trying backend API:', err);
+      }
+    }
+
+    // 2. Gọi backend API /api/auth/register
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        username,
+        username: usernameOrEmail,
         password,
         display_name: displayName,
+        email: targetEmail,
       }),
     });
 
@@ -158,15 +258,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const profile: UserProfile = {
       user_id: data.user_id,
-      username: data.username || username,
-      display_name: data.display_name || username,
+      username: data.username || usernameOrEmail,
+      email: data.email,
+      display_name: data.display_name || usernameOrEmail,
       role: data.role || 'analyst',
     };
 
     handleSetAuth(data.access_token, profile);
   };
 
-  const logout = () => {
+  // Đăng nhập qua OAuth (Google / GitHub)
+  const loginWithOAuth = async (provider: 'google' | 'github') => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : undefined,
+      },
+    });
+    if (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn('Lỗi khi sign out Supabase:', err);
+    }
     handleClearAuth();
     router.replace('/login');
   };
@@ -180,6 +299,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         register,
+        loginWithOAuth,
         logout,
       }}
     >

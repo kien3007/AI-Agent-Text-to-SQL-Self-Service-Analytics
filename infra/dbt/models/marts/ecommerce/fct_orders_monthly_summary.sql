@@ -1,7 +1,7 @@
 {{ config(materialized='table') }}
 
 SELECT
-    DATE_FORMAT(created_at, '%Y-%m') AS report_month,
+    DATE_FORMAT(order_date, '%Y-%m') AS report_month,
     status,
     COUNT(*) AS total_records,
     ROUND(SUM(total_amount), 2) AS total_total_amount,

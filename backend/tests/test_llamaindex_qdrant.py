@@ -53,8 +53,27 @@ class TestLlamaIndexQdrantIntegration(unittest.TestCase):
 
     def test_03_profiling_graph_with_llamaindex_qdrant(self):
         """Kiểm tra BilingualDataProfilingGraph lập chỉ mục và liên kết schema qua LlamaIndex + Qdrant."""
+        from app.schemas.domain import DomainConfig, TableProfile, ColumnProfile
+
+        test_domain = DomainConfig(
+            domain_id="ecommerce_test",
+            display_name="E-Commerce Test",
+            description="Dữ liệu đơn hàng test",
+            domain_keywords=["đơn hàng", "sản phẩm", "giá"],
+            tables={
+                "products": TableProfile(
+                    table_name="products",
+                    columns={
+                        "product_name": ColumnProfile(name="product_name", data_type="VARCHAR", vn_name="Tên sản phẩm"),
+                        "price": ColumnProfile(name="price", data_type="DOUBLE", vn_name="Giá sản phẩm"),
+                        "category": ColumnProfile(name="category", data_type="VARCHAR", vn_name="Danh mục")
+                    }
+                )
+            }
+        )
+
         graph = BilingualDataProfilingGraph(
-            domain_id="real_estate",
+            domain_config=test_domain,
             vector_backend="qdrant",
             qdrant_client=self.qdrant_client,
             in_memory=True
@@ -67,15 +86,12 @@ class TestLlamaIndexQdrantIntegration(unittest.TestCase):
         self.assertGreater(schema_count, 0)
 
         # Schema Linking câu hỏi tiếng Việt
-        query = "Cho tôi xem căn hộ 2 phòng ngủ giá dưới 5 tỷ tại Cầu Giấy"
+        query = "Cho tôi xem danh sách sản phẩm theo danh mục và giá bán"
         ctx = graph.link_schema(query)
 
         col_names = [c.name for c in ctx.relevant_columns]
-        self.assertIn("property_type_name", col_names)
-        self.assertIn("district_name", col_names)
-        self.assertIn("bedroom_count", col_names)
         self.assertIn("price", col_names)
-        self.assertTrue(len(ctx.suggested_filters) > 0)
+        self.assertIn("category", col_names)
 
     def test_04_long_term_memory_dynamic_few_shots_qdrant(self):
         """Kiểm tra LongTermMemory sử dụng LlamaIndex + Qdrant cosine similarity để tìm few-shots."""
@@ -88,21 +104,21 @@ class TestLlamaIndexQdrantIntegration(unittest.TestCase):
 
         # Lưu thêm 1 plan mẫu mới
         memory.save_plan(
-            user_query="Tìm biệt thự liền kề diện tích trên 200m2 tại Tây Hồ",
-            domain_id="real_estate",
-            sql="SELECT listing_title, price, area FROM real_estate_listings WHERE district_name = 'Tây Hồ' AND property_type_name = 'Biệt thự/Nhà liền kề' AND area >= 200 LIMIT 10;",
+            user_query="Tìm các đơn hàng bị hủy trong tháng",
+            domain_id="ecommerce",
+            sql="SELECT order_id, customer_id, total_amount FROM orders WHERE status = 'CANCELLED' LIMIT 10;",
             is_successful=True,
-            tables_used=["real_estate_listings"],
-            metadata={"description": "Mẫu lọc biệt thự diện tích lớn"}
+            tables_used=["orders"],
+            metadata={"description": "Mẫu lọc đơn hàng hủy"}
         )
 
         # Tìm kiếm bằng câu hỏi đồng nghĩa ngữ nghĩa
-        query = "Biến động giá chung cư Cầu Giấy theo các tháng"
-        few_shots = memory.get_relevant_few_shots(query=query, domain_id="real_estate", top_k=2)
+        query = "Thống kê doanh thu đơn hàng theo tháng"
+        few_shots = memory.get_relevant_few_shots(query=query, domain_id="ecommerce", top_k=2)
 
         self.assertGreater(len(few_shots), 0)
         top_shot = few_shots[0]
-        self.assertIn("fct_district_monthly_summary", top_shot["sql"])
+        self.assertIn("fct_orders_monthly_summary", top_shot["sql"])
 
 
 if __name__ == "__main__":

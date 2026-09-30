@@ -80,22 +80,16 @@ class IntentClarifierNode:
         if limit_info:
             entities["limit"] = limit_info[0]
 
-        # 3. Chuẩn hóa sâu theo Glossary (nếu là Real Estate)
-        if state.domain_id == "real_estate":
+        # 3. Chuẩn hóa qua Glossary & Normalizer
+        try:
             glossary_res = self.glossary.normalize(raw_query)
-            state.normalized_query = glossary_res.normalized_query
+            state.normalized_query = glossary_res.normalized_query or raw_query
             intent = glossary_res.intent
-            if intent.property_type:
-                entities["property_type"] = intent.property_type
-            if intent.province:
-                entities["province"] = intent.province
-            if intent.district:
-                entities["district"] = intent.district
-            if intent.bedroom_count is not None:
-                entities["bedroom_count"] = intent.bedroom_count
-            if intent.direction:
-                entities["direction"] = intent.direction
-        else:
+            for attr in ("property_type", "province", "district", "bedroom_count", "direction"):
+                val = getattr(intent, attr, None)
+                if val is not None:
+                    entities[attr] = val
+        except Exception:
             state.normalized_query = raw_query
 
         state.extracted_entities = entities
@@ -109,7 +103,7 @@ class IntentClarifierNode:
                 f"Người dùng vừa hỏi một câu rất mơ hồ: '{raw_query}'. "
                 f"Domain đang xét là: '{state.domain_id}'. "
                 "Hãy đặt một câu hỏi làm rõ (clarification question) ngắn gọn, lịch sự bằng tiếng Việt "
-                "để hỏi người dùng cung cấp thêm tiêu chí cần phân tích (khu vực, loại hình, khoảng giá hoặc mốc thời gian)."
+                "để hỏi người dùng cung cấp thêm tiêu chí lọc hoặc chỉ số cần phân tích phù hợp với nghiệp vụ."
             )
             tool_result = self.llm.call_with_tools(
                 messages=[
@@ -220,8 +214,13 @@ class IntentClarifierNode:
             "thông tin", "xem số liệu"
         ]
         q_clean = query.lower().strip().rstrip("?").rstrip(".").strip()
-        if any(q_clean == phrase or q_clean.startswith(phrase) for phrase in vague_phrases) and not entities:
+        if any(q_clean == phrase for phrase in vague_phrases):
             return True
+
+        # Nếu câu hỏi quá ngắn (<= 3 từ) bắt đầu bằng cụm mơ hồ và không có thực thể nào
+        if len(words) <= 3 and any(q_clean == phrase or q_clean.startswith(phrase) for phrase in vague_phrases) and not entities:
+            return True
+
         if q_clean.endswith("thế nào") or q_clean.endswith("sao") or q_clean.endswith("như thế nào"):
             if not entities:
                 return True

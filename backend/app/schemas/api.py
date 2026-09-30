@@ -35,6 +35,18 @@ class BootstrapRequest(BaseModel):
     auto_dbt: bool = Field(True, description="Có tự động tạo dbt pipeline và semantic metrics không")
 
 
+class DatabaseConnectRequest(BaseModel):
+    """Yêu cầu kết nối CSDL động (PostgreSQL, MySQL, SQLite, DuckDB, SQL Server/MSSQL, vv)."""
+    connection_url: Optional[str] = Field(None, description="URL kết nối (vd: postgresql://..., mssql+pymssql://..., jdbc:sqlserver://...)")
+    db_path: Optional[str] = Field(None, description="Đường dẫn file DuckDB / SQLite")
+    db_name: Optional[str] = Field(None, description="Tên cơ sở dữ liệu")
+    domain_id: Optional[str] = Field(None, description="Mã domain gán cho database")
+    display_name: Optional[str] = Field(None, description="Tên hiển thị tiếng Việt")
+    schema_name: Optional[str] = Field(None, description="Tên schema nghiệp vụ cụ thể (nếu CSDL có nhiều schema)")
+    register_all_schemas: bool = Field(False, description="Tự động quét và đăng ký tất cả business schemas thành các domain độc lập")
+    save_yaml: bool = Field(False, description="Có lưu cấu hình thành file YAML vào domains/ không")
+
+
 class StepLog(BaseModel):
     """Thông tin một bước xử lý của Agent gửi qua SSE."""
     step: str = Field(..., description="Tên bước hiện tại (intent_clarifier, schema_linking...)")

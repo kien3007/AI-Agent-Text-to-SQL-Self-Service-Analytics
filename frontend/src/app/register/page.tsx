@@ -8,6 +8,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import {
   UserPlus,
   User,
+  Mail,
   Key,
   Eye,
   EyeOff,
@@ -28,6 +29,7 @@ export default function RegisterPage() {
 
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -75,7 +77,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await register(username.trim(), password, displayName.trim());
+      await register(username.trim(), password, displayName.trim(), email.trim() || undefined);
       setIsSuccess(true);
       router.replace('/');
     } catch (err: any) {
@@ -173,6 +175,26 @@ export default function RegisterPage() {
               <span className="text-[10px] text-[var(--text-muted)] mt-1 block">
                 Tối thiểu 3 ký tự (chỉ gồm chữ cái, số hoặc dấu gạch dưới).
               </span>
+            </div>
+
+            {/* Email Input (Optional for Supabase) */}
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5">
+                Email doanh nghiệp <span className="text-[10px] font-normal text-[var(--text-muted)]">(Không bắt buộc)</span>
+              </label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none">
+                  <Mail size={16} />
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="analyst@congty.com"
+                  autoComplete="email"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-app)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                />
+              </div>
             </div>
 
             {/* Password Input */}

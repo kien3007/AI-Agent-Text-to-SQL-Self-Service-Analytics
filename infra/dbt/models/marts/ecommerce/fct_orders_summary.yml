@@ -1,0 +1,18 @@
+version: 2
+models:
+- name: fct_orders_summary
+  description: Bảng Data Mart tổng hợp theo tháng cho orders
+  meta:
+    vn_name: Báo cáo orders
+    domain: ecommerce
+  columns:
+  - name: report_month
+    description: Tháng thống kê (YYYY-MM-01)
+  - name: total_records
+    description: Tổng số bản ghi trong tháng
+  - name: status
+    description: Chiều phân loại status
+  - name: total_total_amount
+    description: Tổng total_amount (orders)
+  - name: avg_total_amount
+    description: Trung Bình total_amount (orders)

@@ -1,18 +1,31 @@
 version: 2
 models:
 - name: stg_orders
-  description: Bảng staging làm sạch dữ liệu từ bảng nguồn orders.
+  description: Bảng staging từ orders
+  meta:
+    vn_name: orders
+    domain: ecommerce
   columns:
-  - name: id
-    description: Cột id đã được chuẩn hóa.
+  - name: order_id
+    description: order_id
+    meta:
+      vn_name: order_id
+      synonyms: []
     tests:
     - unique
     - not_null
-  - name: customer_id
-    description: Cột customer_id đã được chuẩn hóa.
-  - name: status
-    description: Cột status đã được chuẩn hóa.
+  - name: order_date
+    description: order_date
+    meta:
+      vn_name: order_date
+      synonyms: []
   - name: total_amount
-    description: Cột total_amount đã được chuẩn hóa.
-  - name: created_at
-    description: Cột created_at đã được chuẩn hóa.
+    description: total_amount
+    meta:
+      vn_name: total_amount
+      synonyms: []
+  - name: status
+    description: status
+    meta:
+      vn_name: status
+      synonyms: []

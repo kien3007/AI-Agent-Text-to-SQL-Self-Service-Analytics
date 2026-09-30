@@ -1,7 +1,7 @@
 version: 2
 models:
 - name: fct_orders_monthly_summary
-  description: Bảng Data Mart tổng hợp theo tháng cho Đơn hàng.
+  description: Bảng Data Mart tổng hợp theo tháng cho orders.
   columns:
   - name: report_month
     description: Tháng thống kê (YYYY-MM)

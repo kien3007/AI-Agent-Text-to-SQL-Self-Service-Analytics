@@ -39,62 +39,57 @@ class TestDbtIntegration(unittest.TestCase):
         dbt_dir = self.loader.dbt_dir
         self.assertTrue(os.path.exists(os.path.join(dbt_dir, "dbt_project.yml")))
         self.assertTrue(os.path.exists(os.path.join(dbt_dir, "profiles.yml")))
-        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "staging", "stg_real_estate.sql")))
-        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "staging", "stg_real_estate.yml")))
-        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "marts", "fct_real_estate_analytics.sql")))
-        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "marts", "fct_district_monthly_summary.sql")))
-        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "marts", "marts.yml")))
+        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "staging", "ecommerce", "stg_orders.sql")))
+        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "staging", "ecommerce", "stg_orders.yml")))
+        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "staging", "ecommerce", "stg_customers.sql")))
+        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "marts", "ecommerce", "fct_orders_monthly_summary.sql")))
+        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "marts", "ecommerce", "fct_orders_monthly_summary.yml")))
+        self.assertTrue(os.path.exists(os.path.join(dbt_dir, "models", "marts", "ecommerce", "marts.yml")))
 
     def test_dbt_models_and_metrics_extraction(self):
         """Kiểm tra trích xuất TableProfile và MetricProfile từ dbt models."""
         tables, metrics = self.loader.load_models_and_metrics()
 
         # Xác thực các bảng
-        self.assertIn("stg_real_estate", tables)
-        self.assertIn("fct_real_estate_analytics", tables)
-        self.assertIn("fct_district_monthly_summary", tables)
-
-        # Kiểm tra cột của bảng Marts chi tiết
-        fct_tbl = tables["fct_real_estate_analytics"]
-        self.assertIn("price_segment", fct_tbl.columns)
-        self.assertIn("area_segment", fct_tbl.columns)
-        self.assertIn("price_per_sqm", fct_tbl.columns)
+        self.assertIn("stg_orders", tables)
+        self.assertIn("stg_customers", tables)
+        self.assertIn("fct_orders_monthly_summary", tables)
 
         # Kiểm tra cột của bảng Marts tổng hợp
-        summary_tbl = tables["fct_district_monthly_summary"]
-        self.assertIn("total_listings", summary_tbl.columns)
-        self.assertIn("avg_price_per_sqm", summary_tbl.columns)
+        summary_tbl = tables["fct_orders_monthly_summary"]
+        self.assertIn("report_month", summary_tbl.columns)
+        self.assertIn("total_records", summary_tbl.columns)
+        self.assertIn("status", summary_tbl.columns)
 
         # Xác thực Semantic Metrics
-        self.assertIn("avg_price_per_sqm", metrics)
-        self.assertIn("total_listings", metrics)
-        self.assertIn("avg_property_price", metrics)
-        self.assertIn("avg_property_area", metrics)
+        self.assertIn("total_total_amount_orders", metrics)
+        self.assertIn("avg_total_amount_orders", metrics)
 
-        metric_price = metrics["avg_price_per_sqm"]
-        self.assertIn("đơn giá trung bình", metric_price.vn_terms)
+        metric_total = metrics["total_total_amount_orders"]
+        self.assertTrue(any("tổng" in term.lower() for term in metric_total.vn_terms))
 
     def test_compile_and_parse_manifest_json(self):
-        """Kiểm tra sinh và đọc file target/manifest.json chuẩn của dbt."""
-        manifest_path = self.loader.compile_manifest_mock()
-        self.assertTrue(os.path.exists(manifest_path))
+        """Kiểm tra đọc metadata dbt (manifest.json hoặc YAML fallback)."""
+        info = self.loader.get_manifest_info()
+        self.assertIsNotNone(info)
+        self.assertIn("exists", info)
 
         tables, metrics = self.loader.load_models_and_metrics()
         self.assertGreaterEqual(len(tables), 3)
-        self.assertGreaterEqual(len(metrics), 4)
+        self.assertGreaterEqual(len(metrics), 2)
 
     def test_sync_dbt_to_domain_manager(self):
         """Kiểm tra đồng bộ metadata dbt trực tiếp vào DomainManager."""
         dm = DomainManager()
-        synced_cfg = self.loader.sync_to_domain_manager(dm, domain_id="real_estate")
+        synced_cfg = self.loader.sync_to_domain_manager(dm, domain_id="ecommerce")
 
         # Kiểm tra bảng Marts đã xuất hiện trong domain_config
-        self.assertIn("fct_district_monthly_summary", synced_cfg.tables)
-        self.assertIn("fct_real_estate_analytics", synced_cfg.tables)
+        self.assertIn("fct_orders_monthly_summary", synced_cfg.tables)
+        self.assertIn("stg_orders", synced_cfg.tables)
 
         # Kiểm tra Semantic Metrics đã được nạp
-        self.assertIn("avg_price_per_sqm", synced_cfg.metrics)
-        self.assertIn("total_listings", synced_cfg.metrics)
+        self.assertIn("total_total_amount_orders", synced_cfg.metrics)
+        self.assertIn("avg_total_amount_orders", synced_cfg.metrics)
 
 
 if __name__ == "__main__":

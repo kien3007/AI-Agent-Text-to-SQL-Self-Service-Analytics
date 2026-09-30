@@ -1,0 +1,36 @@
+version: 2
+models:
+- name: stg_shopee_orders
+  description: Dữ liệu đơn hàng bán qua sàn Shopee
+  meta:
+    vn_name: Đơn Hàng Shopee
+    domain: vietnam_ecommerce
+  columns:
+  - name: order_sn
+    description: Mã đơn hàng
+    meta:
+      vn_name: Mã đơn hàng
+      synonyms: []
+    tests:
+    - unique
+    - not_null
+  - name: order_status
+    description: Trạng thái đơn
+    meta:
+      vn_name: Trạng thái đơn
+      synonyms: []
+  - name: create_time
+    description: Thời gian tạo đơn
+    meta:
+      vn_name: Thời gian tạo đơn
+      synonyms: []
+  - name: total_order_value
+    description: Tổng giá trị đơn
+    meta:
+      vn_name: Tổng giá trị đơn
+      synonyms: []
+  - name: item_count
+    description: Số lượng sản phẩm
+    meta:
+      vn_name: Số lượng sản phẩm
+      synonyms: []

@@ -1,0 +1,14 @@
+version: 2
+sources:
+- name: ecommerce
+  schema: ecommerce
+  description: Nguồn dữ liệu gốc cho domain E-Commerce
+  tables:
+  - name: orders
+    description: Bảng nguồn orders
+    meta:
+      vn_name: orders
+  - name: customers
+    description: Bảng nguồn customers
+    meta:
+      vn_name: customers

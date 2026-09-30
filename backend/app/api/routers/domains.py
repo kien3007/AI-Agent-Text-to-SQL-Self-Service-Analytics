@@ -12,7 +12,7 @@ from app.core.introspection import DatabaseIntrospector
 from app.core.lineage_service import LineageService
 from app.core.dq_checker import DataQualityChecker
 from app.db.warehouse_client import get_warehouse_client
-from app.schemas.api import DomainSwitchRequest, BootstrapRequest
+from app.schemas.api import DomainSwitchRequest, BootstrapRequest, DatabaseConnectRequest
 from app.core.auth import require_admin, UserContext
 
 router = APIRouter(prefix="/domains", tags=["Domains"])
@@ -107,44 +107,158 @@ def switch_active_domain(req: DomainSwitchRequest, admin: UserContext = Depends(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/bootstrap")
-def bootstrap_new_database(req: BootstrapRequest, admin: UserContext = Depends(require_admin)):
-    """
-    Quét CSDL mới (DuckDB/MySQL), tự động sinh Domain YAML và dbt pipeline.
-    """
-    domain_id = req.domain_id or req.db_name.lower().replace("-", "_")
-    display_name = req.display_name or domain_id.replace("_", " ").title()
 
-    client = get_warehouse_client(database=req.db_name)
+@router.post("/{domain_id}/dbt/generate")
+def dbt_generate_pipeline(
+    domain_id: str,
+    db_schema: Optional[str] = None,
+    db_dialect: str = "sqlserver",
+    admin: UserContext = Depends(require_admin)
+):
+    """
+    Sinh toàn bộ dbt pipeline từ DomainConfig đã đăng ký:
+    - sources.yml (khai báo nguồn raw)
+    - staging/stg_*.sql + stg_*.yml
+    - marts/fct_*.sql + fct_*.yml
+    - marts/metrics.yml (MetricFlow Semantic Layer)
+    Sau đó tự động chạy `dbt compile` để sinh manifest.json thật.
+    """
+    dm = DomainManager()
+    conf = dm.get_domain(domain_id)
+    if not conf:
+        raise HTTPException(status_code=404, detail=f"Domain '{domain_id}' không tồn tại.")
+
     try:
-        conn = client.get_connection()
-        introspector = DatabaseIntrospector(connection=conn)
-        domain_config = introspector.introspect_information_schema(
-            database_name=req.db_name,
-            domain_id=domain_id,
-            display_name=display_name
+        gen = AutoDbtGenerator()
+        result = gen.generate_domain_dbt(
+            domain_config=conf,
+            db_schema=db_schema or domain_id,
+            db_dialect=db_dialect,
+            run_compile=True,
         )
-
-        dm = DomainManager()
-        domains_dir = dm.domains_dir
-        out_path = os.path.join(domains_dir, domain_id)
-        introspector.export_to_yaml_folder(domain_config, out_path)
-        dm.reload_domains()
-
-        dbt_summary = None
-        if req.auto_dbt:
-            gen = AutoDbtGenerator()
-            dbt_summary = gen.generate_domain_dbt(domain_config)
+        # Sau khi compile: sync manifest vào DomainManager
+        if result.get("manifest_path"):
+            from app.core.dbt_loader import DbtManifestLoader
+            loader = DbtManifestLoader()
+            loader.sync_to_domain_manager(dm, domain_id=domain_id)
 
         return {
             "status": "success",
             "domain_id": domain_id,
-            "tables_found": len(domain_config.tables),
-            "relationships_found": len(domain_config.relationships),
-            "dbt_generated": dbt_summary
+            **result,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi khi bootstrap CSDL '{req.db_name}': {e}")
+        raise HTTPException(status_code=500, detail=f"Lỗi sinh dbt pipeline: {e}")
+
+
+@router.post("/{domain_id}/dbt/compile")
+def dbt_compile(domain_id: str, admin: UserContext = Depends(require_admin)):
+    """
+    Chạy `dbt compile` để cập nhật manifest.json từ models hiện có.
+    Sau đó tự động sync metadata vào DomainManager.
+    """
+    try:
+        gen = AutoDbtGenerator()
+        result, manifest_path = gen.run_dbt_compile()
+
+        if result.get("success"):
+            dm = DomainManager()
+            from app.core.dbt_loader import DbtManifestLoader
+            loader = DbtManifestLoader()
+            synced = loader.sync_to_domain_manager(dm, domain_id=domain_id)
+            result["synced_tables"] = len(synced.tables)
+            result["synced_metrics"] = len(synced.metrics)
+
+        return {"status": "success" if result.get("success") else "failed", **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi dbt compile: {e}")
+
+
+@router.post("/{domain_id}/dbt/run")
+def dbt_run(
+    domain_id: str,
+    model_selector: Optional[str] = None,
+    admin: UserContext = Depends(require_admin)
+):
+    """
+    Chạy `dbt run` để materialize models vào database.
+    model_selector: chọn model cụ thể (vd: 'stg_don_hang' hoặc 'tag:staging')
+    """
+    try:
+        gen = AutoDbtGenerator()
+        result = gen.run_dbt_run(model_selector=model_selector)
+        return {"status": "success" if result.get("success") else "failed", **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi dbt run: {e}")
+
+
+@router.post("/{domain_id}/dbt/test")
+def dbt_test(
+    domain_id: str,
+    model_selector: Optional[str] = None,
+    admin: UserContext = Depends(require_admin)
+):
+    """Chạy `dbt test` để kiểm tra data quality tests."""
+    try:
+        gen = AutoDbtGenerator()
+        result = gen.run_dbt_test(model_selector=model_selector)
+        return {"status": "success" if result.get("success") else "failed", **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi dbt test: {e}")
+
+
+@router.get("/{domain_id}/dbt/manifest")
+def get_dbt_manifest_info(domain_id: str):
+    """Kiểm tra trạng thái manifest.json hiện tại."""
+    from app.core.dbt_loader import DbtManifestLoader
+    loader = DbtManifestLoader()
+    return loader.get_manifest_info()
+
+
+@router.post("/connect")
+def connect_database(req: DatabaseConnectRequest, admin: UserContext = Depends(require_admin)):
+    """
+    Kết nối động tới bất kỳ CSDL nào (PostgreSQL, MySQL, SQLite, DuckDB, SQL Server).
+    Tự động crawl schema, sinh DomainConfig và Semantic Layer ngay lập tức.
+    """
+    target = req.connection_url or req.db_path or req.db_name
+    if not target:
+        raise HTTPException(status_code=400, detail="Cần cung cấp ít nhất connection_url hoặc db_path/db_name.")
+
+    dm = DomainManager()
+    try:
+        domain_cfg = dm.connect_and_register_database(
+            connection_url_or_client=target,
+            domain_id=req.domain_id,
+            db_name=req.db_name,
+            display_name=req.display_name,
+            schema=req.schema_name,
+            register_all_schemas=req.register_all_schemas,
+            save_yaml=req.save_yaml
+        )
+        return {
+            "status": "connected",
+            "domain_id": domain_cfg.domain_id,
+            "display_name": domain_cfg.display_name,
+            "tables_count": len(domain_cfg.tables),
+            "tables": list(domain_cfg.tables.keys()),
+            "metrics_count": len(domain_cfg.metrics),
+            "relationships_count": len(domain_cfg.relationships),
+            "all_domains": dm.list_domains(),
+            "is_active": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi khi kết nối và khám phá CSDL: {e}")
+
+
+@router.get("/databases/list")
+def list_connected_databases():
+    """Liệt kê toàn bộ các kết nối CSDL và bảng hiện đang kết nối trong hệ thống."""
+    from app.db.warehouse_client import _ROUTER
+    return {
+        "databases": _ROUTER.list_databases()
+    }
+
 
 @router.get("/{domain_id}/lineage")
 def get_domain_lineage(domain_id: str):

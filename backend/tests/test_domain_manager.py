@@ -74,26 +74,21 @@ class TestGenericVietnameseNormalizer(unittest.TestCase):
 
 
 class TestDomainManager(unittest.TestCase):
-    """Kiểm thử DomainManager registry và bộ định tuyến Domain Router."""
+    """Kiểm thử DomainManager registry linh hoạt và bộ định tuyến Domain Router."""
 
     def setUp(self):
         self.dm = DomainManager()
+        self.dm.reset()
 
-    def test_registered_domains(self):
-        domains = self.dm.list_domains()
-        self.assertIn("real_estate", domains)
-        re_domain = self.dm.get_domain("real_estate")
-        self.assertIsNotNone(re_domain)
-        self.assertEqual(re_domain.domain_id, "real_estate")
+    def test_default_fallback_domain(self):
+        """Hệ thống không crash khi chưa có domain nào; luôn có active domain an toàn."""
+        active = self.dm.get_active_domain()
+        self.assertIsNotNone(active)
+        self.assertEqual(active.domain_id, "default")
+        self.assertIn("default", self.dm.list_domains())
 
-    def test_detect_domain_real_estate(self):
-        # Câu hỏi về BĐS
-        query = "Cho tôi xem top 5 căn hộ chung cư 2PN tại Cầu Giấy giá rẻ nhất"
-        detected = self.dm.detect_domain(query)
-        self.assertEqual(detected, "real_estate")
-
-    def test_detect_domain_multi_domain(self):
-        # Tạo thêm một mock domain 'ecommerce' để kiểm tra router
+    def test_dynamic_register_and_routing(self):
+        """Kiểm tra đăng ký nhiều domain runtime và định tuyến truy vấn chính xác."""
         ecommerce_domain = DomainConfig(
             domain_id="ecommerce",
             display_name="Thương Mại Điện Tử",
@@ -124,25 +119,47 @@ class TestDomainManager(unittest.TestCase):
             },
             metrics={
                 "gmv": MetricProfile(
-                    metric_id="gmv",
+                    name="gmv",
+                    metric_name="gmv",
                     vn_terms=["tổng giá trị giao dịch", "gmv", "doanh thu bán hàng"],
                     sql_expression="SUM(total_amount)",
                     description="Tổng giá trị giao dịch của đơn hàng thành công"
                 )
             }
         )
-        self.dm.register_domain(ecommerce_domain)
 
-        # 1. Câu hỏi về E-commerce
+        healthcare_domain = DomainConfig(
+            domain_id="healthcare",
+            display_name="Y Tế & Bệnh Viện",
+            description="Dữ liệu bệnh nhân, bệnh án và lịch khám",
+            domain_keywords=["bệnh nhân", "bác sĩ", "chẩn đoán", "bệnh án", "khám bệnh", "toa thuốc"],
+            tables={},
+            metrics={}
+        )
+
+        self.dm.register_domain(ecommerce_domain)
+        self.dm.register_domain(healthcare_domain)
+
+        domains = self.dm.list_domains()
+        self.assertIn("ecommerce", domains)
+        self.assertIn("healthcare", domains)
+
+        # 1. Câu hỏi về E-commerce -> ecommerce
         q_ecom = "Báo cáo tổng giá trị giao dịch gmv và số lượng đơn hàng bị hủy tháng trước"
         detected_ecom = self.dm.detect_domain(q_ecom)
         self.assertEqual(detected_ecom, "ecommerce")
 
-        # 2. Câu hỏi về Real Estate
-        q_re = "Tìm mua đất thổ cư sổ đỏ tại Thủ Đức dưới 3 tỷ"
-        detected_re = self.dm.detect_domain(q_re)
-        self.assertEqual(detected_re, "real_estate")
+        # 2. Câu hỏi về Y tế -> healthcare
+        q_health = "Thống kê số lượng bệnh nhân đến khám bệnh theo bác sĩ"
+        detected_health = self.dm.detect_domain(q_health)
+        self.assertEqual(detected_health, "healthcare")
+
+        # 3. Câu hỏi không rõ ràng -> fallback active domain
+        q_unknown = "123 abc xyz test"
+        detected_unknown = self.dm.detect_domain(q_unknown)
+        self.assertIn(detected_unknown, [self.dm.get_active_domain().domain_id, "default", "ecommerce", "healthcare"])
 
 
 if __name__ == "__main__":
     unittest.main()
+

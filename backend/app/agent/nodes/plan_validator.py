@@ -41,6 +41,7 @@ class PlanValidator:
         self,
         warehouse_client: Optional[DuckDBClient] = None
     ):
+        self._explicit_client = warehouse_client
         self.warehouse_client = warehouse_client or get_warehouse_client()
 
     def validate(
@@ -94,8 +95,13 @@ class PlanValidator:
         # TẦNG 5: Dry-run EXPLAIN (Nếu có Warehouse Client và chưa bị Block)
         cardinality_est = 0
         tablets_est = 0
-        if use_explain and self.warehouse_client and risk_level != "BLOCKED":
-            explain_res = self.warehouse_client.explain_query(cleaned_sql)
+        client = self._explicit_client or (
+            get_warehouse_client(domain_id=schema_context.domain_id)
+            if schema_context and getattr(schema_context, "domain_id", None)
+            else self.warehouse_client
+        )
+        if use_explain and client and risk_level != "BLOCKED":
+            explain_res = client.explain_query(cleaned_sql)
             if not explain_res.get("success"):
                 err_msg = explain_res.get("error", "")
                 errors.append(f"Lỗi Dry-run EXPLAIN trên CSDL: {err_msg}")
@@ -148,7 +154,7 @@ class PlanValidator:
 
         # 2. JOIN thiếu mệnh đề ON hoặc USING
         join_blocks = re.findall(
-            r"\b(?:INNER\s+|LEFT\s+|RIGHT\s+|FULL\s+)?JOIN\s+([a-zA-Z0-9_]+)(.*?)(?=\b(?:INNER\s+|LEFT\s+|RIGHT\s+|FULL\s+)?JOIN\b|\bWHERE\b|\bGROUP\b|\bORDER\b|\bLIMIT\b|$)",
+            r"\b(?:INNER\s+|LEFT\s+|RIGHT\s+|FULL\s+)?JOIN\s+([a-zA-Z0-9_\.\[\]]+)(.*?)(?=\b(?:INNER\s+|LEFT\s+|RIGHT\s+|FULL\s+)?JOIN\b|\bWHERE\b|\bGROUP\b|\bORDER\b|\bLIMIT\b|$)",
             upper_sql,
             re.DOTALL
         )
@@ -157,7 +163,7 @@ class PlanValidator:
                 return f"Lỗi cú pháp JOIN: Bảng '{tbl}' thiếu mệnh đề liên kết 'ON' hoặc 'USING'."
 
         # 3. Liệt kê nhiều bảng sau FROM bằng dấu phẩy mà không có WHERE nối: FROM orders, customers
-        from_comma_match = re.search(r"\bFROM\s+([a-zA-Z0-9_]+)\s*,\s*([a-zA-Z0-9_]+)", upper_sql)
+        from_comma_match = re.search(r"\bFROM\s+([a-zA-Z0-9_\.\[\]]+)\s*,\s*([a-zA-Z0-9_\.\[\]]+)", upper_sql)
         if from_comma_match and "WHERE" not in upper_sql:
             return f"Cartesian Product: Liệt kê nhiều bảng 'FROM {from_comma_match.group(1)}, {from_comma_match.group(2)}' mà không có mệnh đề WHERE liên kết."
 

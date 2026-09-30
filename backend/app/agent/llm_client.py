@@ -192,6 +192,9 @@ class DualModelLLM:
         if "generate_sql_query" in tool_names:
             match = re.search(r"```(?:sql)?\s*(.*?)\s*```", text, re.DOTALL | re.IGNORECASE)
             sql_clean = match.group(1).strip() if match else text.strip()
+            # Trích xuất bảng thực tế xuất hiện trong câu SQL thay vì hardcode
+            tables_found = re.findall(r"\b(?:FROM|JOIN)\s+([a-zA-Z0-9_]+)", sql_clean, re.IGNORECASE)
+            tables_used = list(dict.fromkeys(tables_found)) if tables_found else ["main_table"]
             return {
                 "type": "tool_call",
                 "tool_calls": [
@@ -200,7 +203,7 @@ class DualModelLLM:
                         "name": "generate_sql_query",
                         "arguments": {
                             "sql": sql_clean,
-                            "tables_used": ["real_estate_listings"],
+                            "tables_used": tables_used,
                             "explanation": "Câu lệnh SQL được sinh tự động."
                         }
                     }
@@ -217,8 +220,8 @@ class DualModelLLM:
                         "name": "ask_clarification",
                         "arguments": {
                             "question": text,
-                            "missing_fields": ["khu vực"],
-                            "suggested_options": ["Hà Nội", "Hồ Chí Minh"]
+                            "missing_fields": ["tiêu chí lọc chi tiết"],
+                            "suggested_options": []
                         }
                     }
                 ],
@@ -253,127 +256,199 @@ class DualModelLLM:
     def _fallback_generate(self, prompt: str, system_prompt: str, role: str) -> str:
         """
         Bộ sinh quy tắc dự phòng thông minh (Rule-based / Template) khi chưa kết nối LLM ngoài.
-        Đảm bảo hệ thống hoạt động chính xác 100% trong môi trường development & unit testing.
+        Tự động phân tích Schema từ Prompt Context, không hardcode bảng/cột nghiệp vụ cụ thể.
         """
         prompt_lower = prompt.lower()
 
         # 1. Coder Role: Sinh SQL từ Schema Context & Steiner Tree JOIN
         if role == "coder":
+            # Phân tích schema động từ prompt context
+            tbl_match = re.search(r"SCHEMA LIÊN KẾT(?: - TÊN BẢNG:\s*`([^`]+)`| ĐA BẢNG\s*\(([^)]+)\)|:\s*`?([^\n`]+)`?)", prompt)
+            table_list = []
+            if tbl_match:
+                tbl_raw = tbl_match.group(1) or tbl_match.group(2) or tbl_match.group(3) or ""
+                table_list = [t.strip().strip("`") for t in tbl_raw.split(",") if t.strip()]
+            if not table_list:
+                table_list = re.findall(r"TÊN BẢNG:\s*`([^`]+)`", prompt)
+            main_table = table_list[0] if table_list else "main_table"
+
+            # Trích xuất danh sách cột và bảng từ prompt context (hỗ trợ cả schema đơn bảng và đa bảng)
+            cols_by_table = {}
+            multi_tbl_cols = re.findall(r"\|\s*`([a-zA-Z0-9_]+)`\s*\|\s*`([a-zA-Z0-9_]+)`\s*\|\s*`([a-zA-Z0-9_()]+)`", prompt)
+            if multi_tbl_cols:
+                for t, c, dt in multi_tbl_cols:
+                    if t not in cols_by_table:
+                        cols_by_table[t] = []
+                    cols_by_table[t].append((c, dt))
+                cols_in_table = [(c, dt) for t, c, dt in multi_tbl_cols]
+            else:
+                cols_in_table = re.findall(r"\|\s*`([a-zA-Z0-9_]+)`\s*\|\s*`([a-zA-Z0-9_()]+)`", prompt)
+                cols_by_table[main_table] = cols_in_table
+
+            col_names = [c[0] for c in cols_in_table]
+            num_cols = [c[0] for c in cols_in_table if any(t in c[1].upper() for t in ("INT", "DOUBLE", "FLOAT", "NUMERIC", "DECIMAL", "REAL", "NUMBER"))]
+            text_cols = [c[0] for c in cols_in_table if any(t in c[1].upper() for t in ("VARCHAR", "TEXT", "STRING", "CHAR")) and not c[0].lower().endswith(("_id", "_guid", "uuid"))]
+
             # Nếu có yêu cầu sửa lỗi (Self-correction feedback)
             if "lần trước câu sql bị lỗi" in prompt_lower or "unknown column" in prompt_lower:
-                if "dien_tich" in prompt_lower or "area" in prompt_lower:
-                    # Thay thế typo dien_tich bằng area
-                    corrected = re.sub(r"\bdien_tich\b", "area", prompt, flags=re.IGNORECASE)
-                    sql_match = re.search(r"SELECT\s+.*?(?:;|$)", corrected, re.IGNORECASE | re.DOTALL)
+                if col_names:
+                    # Thay thế cột lỗi bằng cột hợp lệ gần nhất
+                    sql_match = re.search(r"SELECT\s+.*?(?:;|$)", prompt, re.IGNORECASE | re.DOTALL)
                     if sql_match:
                         return sql_match.group(0).strip()
 
-            # Phân rã bài toán phức tạp (DIN-SQL CTEs)
+            # Tách riêng câu hỏi người dùng
+            user_q_match = re.search(r'CÂU HỎI NGƯỜI DÙNG:\s*"(.*?)"', prompt, re.DOTALL)
+            user_q = user_q_match.group(1).lower() if user_q_match else prompt_lower
+
+            # Phân rã bài toán phức tạp (DIN-SQL CTEs - Period Comparison)
             if "decomposition plan" in prompt_lower or "period_comparison" in prompt_lower:
+                ym_matches = re.findall(r"(\d{1,2})[/_-](\d{4})", prompt)
+                if len(ym_matches) >= 2:
+                    cur_m = f"{ym_matches[0][1]}-{int(ym_matches[0][0]):02d}"
+                    prev_m = f"{ym_matches[1][1]}-{int(ym_matches[1][0]):02d}"
+                else:
+                    cur_m, prev_m = "2026-02", "2026-01"
+
+                # Tự động chọn bảng chứa cột chu kỳ / ngày tháng
+                summary_table = main_table
+                for t, t_cols in cols_by_table.items():
+                    if any(any(k in c[0].lower() for k in ["year_month", "month", "period"]) for c in t_cols):
+                        summary_table = t
+                        break
+                    if any(k in t.lower() for k in ["summary", "monthly", "fct", "mart", "agg"]):
+                        summary_table = t
+
+                t_cols = cols_by_table.get(summary_table, cols_in_table)
+                t_col_names = [c[0] for c in t_cols]
+                t_num_cols = [c[0] for c in t_cols if any(tp in c[1].upper() for tp in ("INT", "DOUBLE", "FLOAT", "NUMERIC", "DECIMAL", "REAL", "NUMBER"))]
+                t_text_cols = [c[0] for c in t_cols if any(tp in c[1].upper() for tp in ("VARCHAR", "TEXT", "STRING", "CHAR")) and not c[0].lower().endswith(("_id", "_guid", "uuid"))]
+
+                # Suy luận cột danh mục phân nhóm phù hợp nhất với câu hỏi
+                cat_col = None
+                for tc in t_text_cols:
+                    tc_l = tc.lower()
+                    if tc_l in ("year_month", "month", "published_at", "date", "created_at", "updated_at"):
+                        continue
+                    if "quận" in user_q and ("district" in tc_l or "quan" in tc_l):
+                        cat_col = tc
+                        break
+                    if "tỉnh" in user_q and ("province" in tc_l or "tinh" in tc_l or "city" in tc_l):
+                        cat_col = tc
+                        break
+                    if "loại" in user_q and ("type" in tc_l or "category" in tc_l):
+                        cat_col = tc
+                        break
+                    if any(w in user_q for w in tc_l.split("_") if len(w) > 2):
+                        cat_col = tc
+                        break
+                if not cat_col:
+                    cat_col = next((c for c in t_text_cols if c.lower() not in ("year_month", "month", "published_at", "date", "description", "name")), t_text_cols[0] if t_text_cols else "category")
+
+                metric_col = next((c for c in t_num_cols if any(k in c.lower() for k in ["price_per_m2", "price", "amount", "revenue", "cost", "gmv", "val", "total"])), t_num_cols[0] if t_num_cols else "metric_val")
+                date_col = next((c for c in t_col_names if any(k in c.lower() for k in ["year_month", "published_at", "month", "date", "period"])), "published_at")
+
+                date_cond_cur = f"{date_col} = '{cur_m}'" if "year_month" in date_col.lower() else f"{date_col} LIKE '{cur_m}%'"
+                date_cond_prev = f"{date_col} = '{prev_m}'" if "year_month" in date_col.lower() else f"{date_col} LIKE '{prev_m}%'"
+
                 cte_sql = (
                     "WITH cur_period AS (\n"
-                    "    SELECT district, AVG(price_per_m2) AS avg_price_cur\n"
-                    "    FROM fct_district_monthly_summary\n"
-                    "    WHERE year_month = '2024-02'\n"
-                    "    GROUP BY district\n"
+                    f"    SELECT {cat_col}, AVG({metric_col}) AS val_cur\n"
+                    f"    FROM {summary_table}\n"
+                    f"    WHERE {date_cond_cur}\n"
+                    f"    GROUP BY {cat_col}\n"
                     "),\n"
                     "prev_period AS (\n"
-                    "    SELECT district, AVG(price_per_m2) AS avg_price_prev\n"
-                    "    FROM fct_district_monthly_summary\n"
-                    "    WHERE year_month = '2024-01'\n"
-                    "    GROUP BY district\n"
+                    f"    SELECT {cat_col}, AVG({metric_col}) AS val_prev\n"
+                    f"    FROM {summary_table}\n"
+                    f"    WHERE {date_cond_prev}\n"
+                    f"    GROUP BY {cat_col}\n"
                     ")\n"
                     "SELECT \n"
-                    "    cur.district,\n"
-                    "    cur.avg_price_cur,\n"
-                    "    prev.avg_price_prev,\n"
-                    "    ROUND((cur.avg_price_cur - prev.avg_price_prev) * 100.0 / NULLIF(prev.avg_price_prev, 0), 2) AS growth_pct\n"
-                    "FROM cur_period cur\n"
-                    "JOIN prev_period prev ON cur.district = prev.district\n"
+                    f"    cur.{cat_col},\n"
+                    "    cur.val_cur,\n"
+                    "    prev.val_prev,\n"
+                    "    ROUND((cur.val_cur - prev.val_prev) * 100.0 / NULLIF(prev.val_prev, 0), 2) AS growth_pct\n"
+                    f"FROM cur_period cur\n"
+                    f"JOIN prev_period prev ON cur.{cat_col} = prev.{cat_col}\n"
                     "ORDER BY growth_pct DESC\n"
                     "LIMIT 100;"
                 )
                 return f"```sql\n{cte_sql}\n```"
 
+            # Phân rã bài toán xếp hạng phân nhóm (Window Ranking)
             if "window_ranking" in prompt_lower:
+                part_col = text_cols[0] if text_cols else (col_names[0] if col_names else "category")
+                order_col = num_cols[0] if num_cols else (col_names[1] if len(col_names) > 1 else "id")
                 cte_sql = (
                     "WITH ranked_items AS (\n"
-                    "    SELECT \n"
-                    "        district, title, price, area,\n"
-                    "        ROW_NUMBER() OVER (PARTITION BY district ORDER BY price DESC) as rnk\n"
-                    "    FROM real_estate_listings\n"
+                    "    SELECT *,\n"
+                    f"        ROW_NUMBER() OVER (PARTITION BY {part_col} ORDER BY {order_col} DESC) as rnk\n"
+                    f"    FROM {main_table}\n"
                     ")\n"
-                    "SELECT district, title, price, area, rnk\n"
-                    "FROM ranked_items\n"
-                    "WHERE rnk <= 3\n"
-                    "LIMIT 100;"
+                    "SELECT * FROM ranked_items WHERE rnk <= 3 LIMIT 100;"
                 )
                 return f"```sql\n{cte_sql}\n```"
 
-            # Trích xuất bảng và join từ prompt context
-            tables = re.findall(r"SCHEMA LIÊN KẾT(?: ĐA BẢNG)?\s*\(([^)]+)\)", prompt)
+            # Trích xuất mệnh đề JOIN và WHERE từ prompt
             join_clauses = re.findall(r"-\s*`(JOIN\s+[^`]+)`", prompt, re.IGNORECASE)
             where_clauses = re.findall(r"-\s*`([^`]+)`", prompt)
-            
-            # Lọc các WHERE clause thực sự
             filters = [c for c in where_clauses if not c.upper().startswith("JOIN")]
 
-            # Tìm gợi ý sắp xếp và giới hạn
             order_by = re.search(r"GỢI Ý SẮP XẾP:\s*`([^`]+)`", prompt)
             limit = re.search(r"GỢI Ý GIỚI HẠN:\s*`([^`]+)`", prompt)
 
-            # Xác định các cột SELECT
-            table_list = [t.strip() for t in tables[0].split(",")] if tables else ["real_estate_listings"]
-            main_table = table_list[0] if table_list else "real_estate_listings"
-
-            # Xác định metrics nếu có
+            # Xác định metric từ Semantic Layer hoặc tự suy luận
             metric_match = re.search(r"CHỈ SỐ NGHIỆP VỤ ĐƯỢC GỢI Ý.*?`([^`]+)`", prompt, re.DOTALL)
-            
-            # Tách riêng câu hỏi người dùng để phân tích ý định chính xác
-            user_q_match = re.search(r'CÂU HỎI NGƯỜI DÙNG:\s*"(.*?)"', prompt, re.DOTALL)
-            user_q = user_q_match.group(1).lower() if user_q_match else prompt_lower
-
-            # Tự động suy luận metric từ câu hỏi người dùng
-            is_sqm = any(k in user_q for k in ["/m2", "m2", "m²", "mét vuông", "met vuong", "đơn giá", "don gia"])
-            if any(k in user_q for k in ["giá bán trung bình", "giá trung bình", "bình quân", "trung bình"]):
-                if is_sqm:
-                    metric_expr = "ROUND(AVG(price / NULLIF(area, 0)), 0) AS avg_price_per_sqm"
+            if metric_match:
+                metric_expr = metric_match.group(1)
+                if "AS" not in metric_expr.upper():
+                    metric_expr = f"{metric_expr} AS metric_value"
+            elif num_cols:
+                is_avg = any(k in user_q for k in ["trung bình", "bình quân", "average", "avg", "mean", "/m2", "m2"])
+                is_sum = any(k in user_q for k in ["tổng", "doanh thu", "sum", "total", "lũy kế"])
+                target_col = num_cols[0]
+                if is_avg:
+                    metric_expr = f"ROUND(AVG({target_col}), 2) AS avg_{target_col}"
+                elif is_sum:
+                    metric_expr = f"ROUND(SUM({target_col}), 2) AS total_{target_col}"
                 else:
-                    metric_expr = "ROUND(AVG(price), 0) AS avg_total_price"
-            elif any(k in user_q for k in ["số lượng tin", "tin đăng", "nguồn cung", "số lượng căn", "tổng số"]):
-                metric_expr = "COUNT(*) AS total_listings"
-            elif metric_match:
-                metric_expr = f"{metric_match.group(1)} AS metric_value"
+                    metric_expr = "COUNT(*) AS total_count"
             else:
-                metric_expr = None
+                metric_expr = "COUNT(*) AS total_count"
 
+            # Xác định cột GROUP BY động
             group_col = None
-            if any(k in user_q for k in ["theo quận", "từng quận", "quận", "huyện", "district"]):
-                group_col = "district_name"
-            elif any(k in user_q for k in ["loại hình", "loại bđs", "property_type"]):
-                group_col = "property_type_name"
-            elif any(k in user_q for k in ["tỉnh", "thành phố", "province"]):
-                group_col = "province_name"
+            if text_cols:
+                for tc in text_cols:
+                    if tc.lower() in user_q or any(w in user_q for w in tc.lower().split("_") if len(w) > 2):
+                        group_col = tc
+                        break
+                if not group_col and (any(k in user_q for k in ["theo", "mỗi", "từng", "nhóm", "group", "by", "thống kê", "phân tích"]) or len(text_cols) == 1):
+                    group_col = text_cols[0]
 
-            # Nếu hỏi top N có giá cao nhất
-            if any(k in user_q for k in ["cao nhất", "lớn nhất", "đắt nhất"]):
+            # Nếu hỏi Top N
+            if any(k in user_q for k in ["cao nhất", "lớn nhất", "đắt nhất", "nhiều nhất"]):
                 limit_num = 10
                 num_match = re.search(r"top\s*(\d+)", user_q)
                 if num_match:
                     limit_num = int(num_match.group(1))
-                sql = f"SELECT name, district_name, price, area FROM {main_table} ORDER BY price DESC LIMIT {limit_num};"
+                order_col = num_cols[0] if num_cols else (col_names[0] if col_names else "id")
+                desc_col = text_cols[0] if text_cols else order_col
+                sql = f"SELECT {desc_col}, {order_col} FROM {main_table} ORDER BY {order_col} DESC LIMIT {limit_num};"
                 return f"```sql\n{sql}\n```"
 
-            if metric_expr:
-                select_metrics = metric_expr if "COUNT" in metric_expr.upper() else f"{metric_expr}, COUNT(*) AS total_listings"
+            # Tạo câu SELECT tổng hợp
+            if metric_expr and (group_col or "thống kê" in user_q or "tổng" in user_q or "trung bình" in user_q or "bao nhiêu" in user_q or "đếm" in user_q):
+                select_metrics = metric_expr if "COUNT" in metric_expr.upper() else f"{metric_expr}, COUNT(*) AS total_count"
                 if group_col:
                     limit_val = limit.group(1) if limit else ("LIMIT 5" if "top 5" in user_q else "LIMIT 100")
                     sql = f"SELECT {group_col}, {select_metrics} FROM {main_table} GROUP BY {group_col} ORDER BY 2 DESC {limit_val};"
                 else:
-                    # Truy vấn tổng hợp tổng thể theo quận huyện
-                    sql = f"SELECT district_name, {select_metrics} FROM {main_table} GROUP BY district_name ORDER BY 2 DESC LIMIT 10;"
+                    sql = f"SELECT {select_metrics} FROM {main_table};"
                 return f"```sql\n{sql}\n```"
 
+            # SELECT danh sách chi tiết
             select_cols = f"{main_table}.*"
             sql_parts = [f"SELECT {select_cols}", f"FROM {main_table}"]
             for jc in join_clauses:
@@ -397,7 +472,7 @@ class DualModelLLM:
         if "làm rõ" in prompt_lower or "clarify" in prompt_lower or "mơ hồ" in prompt_lower:
             return (
                 "Dạ em nhận thấy yêu cầu của anh/chị cần thêm thông tin chi tiết để kết quả phân tích chính xác nhất. "
-                "Anh/chị vui lòng cho em biết thêm khu vực cụ thể (quận/huyện, tỉnh thành) hoặc phân khúc mức giá mong muốn được không ạ?"
+                "Anh/chị vui lòng cho em biết thêm tiêu chí phân loại cụ thể hoặc mốc thời gian/khoảng giá trị mong muốn được không ạ?"
             )
 
         # Mặc định Reasoner sinh nhận định báo cáo

@@ -94,6 +94,12 @@ class TestDuckDBWarehouse(unittest.TestCase):
         self.assertFalse(res_err.is_valid)
         self.assertEqual(res_err.risk_level, "BLOCKED")
 
+    @classmethod
+    def tearDownClass(cls):
+        conn = cls.client.get_connection(read_only=False)
+        conn.execute("DROP TABLE IF EXISTS test_orders;")
+        conn.close()
+
 
 if __name__ == "__main__":
     unittest.main()
