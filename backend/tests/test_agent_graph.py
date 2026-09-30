@@ -58,7 +58,7 @@ class TestAgentStateMachine(unittest.TestCase):
         """)
         cls.client.execute_query("DELETE FROM orders;")
         cls.client.execute_query("""
-            INSERT INTO orders VALUES 
+            INSERT INTO orders (order_id, customer_name, total_amount, area, price, order_status, created_at) VALUES 
             (1, 'Nguyen Van A', 1500000.0, 50.0, 1500000000.0, 'COMPLETED', '2026-03-01 10:00:00'),
             (2, 'Tran Thi B', 2500000.0, 75.0, 2500000000.0, 'COMPLETED', '2026-03-02 11:00:00');
         """)

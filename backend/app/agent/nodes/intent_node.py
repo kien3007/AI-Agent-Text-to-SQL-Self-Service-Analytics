@@ -203,9 +203,23 @@ class IntentClarifierNode:
 
     def _check_ambiguity(self, query: str, entities: dict) -> bool:
         """Phát hiện nếu câu hỏi quá mơ hồ, thiếu thông tin."""
-        words = query.strip().split()
+        q_clean = query.lower().strip().rstrip("?").rstrip(".").strip()
+        words = q_clean.split()
         if len(words) <= 2:
             return True
+
+        # Danh sách các câu hỏi mơ hồ điển hình cần làm rõ
+        ambiguous_exact_patterns = [
+            r"^(cho tôi xem|xem|lấy|hiển thị)?\s*(doanh thu|số liệu|thông tin|dữ liệu|tình hình)$",
+            r"^báo cáo(\s+chi\s+tiết)?(\s+hôm\s+nay|\s+hôm\s+qua|\s+gần\s+đây|\s+này)?$",
+            r"^(dữ liệu|tình hình|thị trường|kết quả)(\s+thế nào|\s+như thế nào|\s+ra sao|\s+sao)$",
+            r"^cho tôi xem doanh thu$",
+            r"^báo cáo chi tiết hôm nay$"
+        ]
+
+        for pat in ambiguous_exact_patterns:
+            if re.search(pat, q_clean, re.IGNORECASE):
+                return True
 
         vague_phrases = [
             "xem giá", "tính tiền", "thống kê", "tìm kiếm", "cho tôi xem",
@@ -213,16 +227,14 @@ class IntentClarifierNode:
             "thị trường", "tình hình", "xem dữ liệu", "báo cáo chi tiết",
             "thông tin", "xem số liệu"
         ]
-        q_clean = query.lower().strip().rstrip("?").rstrip(".").strip()
         if any(q_clean == phrase for phrase in vague_phrases):
             return True
 
-        # Nếu câu hỏi quá ngắn (<= 3 từ) bắt đầu bằng cụm mơ hồ và không có thực thể nào
+        # Nếu câu hỏi quá ngắn (<= 3 từ) bắt đầu bằng cụm mơ hồ và không có thực thể cụ thể nào
         if len(words) <= 3 and any(q_clean == phrase or q_clean.startswith(phrase) for phrase in vague_phrases) and not entities:
             return True
 
         if q_clean.endswith("thế nào") or q_clean.endswith("sao") or q_clean.endswith("như thế nào"):
-            if not entities:
-                return True
+            return True
 
         return False

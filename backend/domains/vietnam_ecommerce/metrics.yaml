@@ -1,0 +1,40 @@
+metrics:
+  shopee_gmv:
+    metric_id: "shopee_gmv"
+    name: "shopee_gmv"
+    vn_terms: ["doanh thu shopee", "gmv shopee", "tiền bán shopee", "tổng doanh thu shopee"]
+    en_terms: ["shopee gmv", "shopee total revenue"]
+    sql_expression: "ROUND(SUM(total_amount), 2)"
+    description: "Tổng doanh thu bán hàng ghi nhận từ sàn Shopee"
+    depends_on_tables: ["stg_shopee_orders"]
+    depends_on_columns: ["total_amount"]
+
+  shopee_completed_orders:
+    metric_id: "shopee_completed_orders"
+    name: "shopee_completed_orders"
+    vn_terms: ["đơn shopee thành công", "đơn giao thành công shopee"]
+    en_terms: ["shopee completed orders"]
+    sql_expression: "COUNT(CASE WHEN order_status = 'COMPLETED' THEN 1 END)"
+    description: "Số lượng đơn hàng Shopee đã giao thành công"
+    depends_on_tables: ["stg_shopee_orders"]
+    depends_on_columns: ["order_status"]
+
+  tiktok_gmv:
+    metric_id: "tiktok_gmv"
+    name: "tiktok_gmv"
+    vn_terms: ["doanh thu tiktok", "tiền bán tiktok", "tổng doanh thu tiktok shop"]
+    en_terms: ["tiktok revenue", "tiktok shop gmv"]
+    sql_expression: "ROUND(SUM(total_amount), 2)"
+    description: "Tổng doanh thu bán hàng ghi nhận từ sàn TikTok Shop"
+    depends_on_tables: ["stg_tiktok_orders"]
+    depends_on_columns: ["total_amount"]
+
+  tiktok_aov:
+    metric_id: "tiktok_aov"
+    name: "tiktok_aov"
+    vn_terms: ["giá trị đơn trung bình tiktok", "doanh thu bình quân tiktok", "aov tiktok"]
+    en_terms: ["tiktok aov", "tiktok average order value"]
+    sql_expression: "ROUND(AVG(total_amount), 2)"
+    description: "Giá trị đơn hàng trung bình trên sàn TikTok Shop"
+    depends_on_tables: ["stg_tiktok_orders"]
+    depends_on_columns: ["total_amount"]

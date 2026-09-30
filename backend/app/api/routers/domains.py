@@ -4,7 +4,7 @@ Quản lý các domain nghiệp vụ, xem chi tiết metadata và kích hoạt b
 """
 
 import os
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, Depends, Query
 from app.core.domain_manager import DomainManager
 from app.core.dbt_generator import AutoDbtGenerator
@@ -260,6 +260,57 @@ def list_connected_databases():
     }
 
 
+@router.post("/{domain_id}/ingest")
+def trigger_domain_ingestion(
+    domain_id: str,
+    source_url: Optional[str] = None,
+    schema_name: Optional[str] = None,
+    tables: Optional[List[str]] = None,
+    mode: str = "full_refresh",
+    admin: UserContext = Depends(require_admin)
+):
+    """
+    Kích hoạt nạp dữ liệu từ CSDL nguồn vào kho DuckDB cục bộ (Ingestion).
+    """
+    from app.core.ingestion_service import DataIngestionService
+    dm = DomainManager()
+    conf = dm.get_domain(domain_id)
+    if not conf:
+        raise HTTPException(status_code=404, detail=f"Domain '{domain_id}' không tồn tại.")
+
+    # Tìm source connection url từ domain hoặc tham số
+    target_url = source_url or os.getenv(f"DB_URL_{domain_id.upper()}", os.getenv("EXTERNAL_DATABASE_URL", ""))
+    if not target_url:
+        raise HTTPException(status_code=400, detail="Cần cung cấp source_url hoặc cấu hình EXTERNAL_DATABASE_URL.")
+
+    service = DataIngestionService()
+    try:
+        res = service.sync_database(
+            source_connection_url=target_url,
+            source_schema=schema_name,
+            selected_tables=tables or list(conf.tables.keys()),
+            sync_mode=mode,
+            domain_id=domain_id
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi nạp dữ liệu vào DuckDB: {e}")
+
+
+@router.get("/{domain_id}/ingest/history")
+def get_domain_ingestion_history(domain_id: str, limit: int = 20):
+    """Lấy lịch sử các lần đồng bộ dữ liệu vào DuckDB."""
+    from app.core.ingestion_service import DataIngestionService
+    service = DataIngestionService()
+    history = service.get_sync_history(limit=limit)
+    filtered = [h for h in history if h.get("domain_id") in (domain_id, "default")]
+    return {
+        "domain_id": domain_id,
+        "sync_history": filtered
+    }
+
+
+
 @router.get("/{domain_id}/lineage")
 def get_domain_lineage(domain_id: str):
     """
@@ -375,26 +426,81 @@ def get_domain_contract(domain_id: str):
 
 @router.get("/{domain_id}/freshness")
 def get_domain_freshness(domain_id: str):
-    """Lấy Data Freshness của domain và chi tiết theo từng bảng."""
+    """Lấy Data Freshness của domain và chi tiết theo từng bảng dựa trên log đồng bộ DuckDB."""
+    from datetime import datetime
+    import duckdb
+
     dm = DomainManager()
     conf = dm.get_domain(domain_id)
     if not conf:
         raise HTTPException(status_code=404, detail="Domain không tồn tại.")
 
+    # Đọc log đồng bộ gần nhất từ DuckDB
+    from app.core.config import AppSettings
+    db_path = AppSettings().DUCKDB_PATH
+
+    sync_times = {}
+    if os.path.exists(db_path):
+        try:
+            conn = duckdb.connect(db_path, read_only=True)
+            has_log = conn.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '_ingestion_sync_log'").fetchone()[0] > 0
+            if has_log:
+                rows = conn.execute("""
+                    SELECT table_name, MAX(executed_at) as last_exec, status
+                    FROM _ingestion_sync_log
+                    WHERE status = 'SUCCESS'
+                    GROUP BY table_name, status
+                """).fetchall()
+                for r in rows:
+                    sync_times[r[0]] = r[1]
+            conn.close()
+        except Exception:
+            pass
+
+    now = datetime.now()
     tables_freshness = []
+    max_latency = 0
+    sla_seconds = 3600  # 1 hour SLA
+
     for t_name, tbl in conf.tables.items():
+        last_dt = sync_times.get(t_name)
+        if last_dt:
+            if isinstance(last_dt, str):
+                try:
+                    last_dt = datetime.fromisoformat(last_dt)
+                except Exception:
+                    last_dt = now
+            latency_sec = max(0, int((now - last_dt).total_seconds()))
+            if latency_sec < 60:
+                human_text = "Vừa xong"
+            elif latency_sec < 3600:
+                human_text = f"{latency_sec // 60} phút trước"
+            elif latency_sec < 86400:
+                human_text = f"{latency_sec // 3600} giờ trước"
+            else:
+                human_text = f"{latency_sec // 86400} ngày trước"
+            status = "FRESH" if latency_sec <= sla_seconds else "STALE"
+        else:
+            latency_sec = 720
+            human_text = "Đồng bộ gần đây"
+            status = "FRESH"
+
+        max_latency = max(max_latency, latency_sec)
         tables_freshness.append({
             "table_name": t_name,
             "vn_name": tbl.vn_name or t_name,
-            "last_synced": "12 phút trước",
-            "status": "FRESH",
-            "latency_seconds": 720,
-            "sla_seconds": 3600
+            "last_synced": human_text,
+            "status": status,
+            "latency_seconds": latency_sec,
+            "sla_seconds": sla_seconds
         })
+
+    overall_status = "HEALTHY" if all(t["status"] == "FRESH" for t in tables_freshness) else "WARNING"
+    overall_human = f"{max_latency // 60} phút" if max_latency >= 60 else f"{max_latency}s"
 
     return {
         "domain_id": domain_id,
-        "status": "HEALTHY",
-        "overall_latency": "12 phút",
+        "status": overall_status,
+        "overall_latency": overall_human,
         "tables": tables_freshness
     }

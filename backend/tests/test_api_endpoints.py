@@ -167,6 +167,47 @@ class TestApiEndpoints(unittest.TestCase):
 
         self.assertNotIn(test_session_id, SESSION_STORE)
 
+    def test_domain_ingestion_endpoints(self):
+        """Kiểm tra endpoint POST /api/domains/{domain_id}/ingest và GET /history."""
+        import tempfile
+        import sqlite3
+
+        # Tạo DB nguồn SQLite tạm thời
+        fd, db_path = tempfile.mkstemp(suffix=".sqlite")
+        os.close(fd)
+        conn = sqlite3.connect(db_path)
+        conn.execute("CREATE TABLE orders (order_id INT, total_amount REAL);")
+        conn.execute("INSERT INTO orders VALUES (1, 100.0), (2, 200.0);")
+        conn.commit()
+        conn.close()
+
+        source_url = f"sqlite:///{db_path.replace(os.sep, '/')}"
+
+        try:
+            # 1. POST Ingestion
+            resp = self.client.post(
+                "/api/domains/ecommerce/ingest",
+                params={"source_url": source_url, "mode": "full_refresh"}
+            )
+            self.assertEqual(resp.status_code, 200)
+            data = resp.json()
+            self.assertEqual(data["status"], "SUCCESS")
+            self.assertGreaterEqual(data["total_rows_ingested"], 2)
+
+            # 2. GET Ingestion History
+            resp_hist = self.client.get("/api/domains/ecommerce/ingest/history")
+            self.assertEqual(resp_hist.status_code, 200)
+            hist_data = resp_hist.json()
+            self.assertEqual(hist_data["domain_id"], "ecommerce")
+            self.assertGreaterEqual(len(hist_data["sync_history"]), 1)
+        finally:
+            if os.path.exists(db_path):
+                try:
+                    os.remove(db_path)
+                except Exception:
+                    pass
+
 
 if __name__ == "__main__":
     unittest.main()
+

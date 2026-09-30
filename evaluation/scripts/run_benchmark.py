@@ -85,7 +85,20 @@ def run_benchmark(dataset_path: str = None, output_dir: str = None) -> Dict[str,
 
             needs_clarification = state.clarification_needed
             sql = state.sql_query or ""
-            is_valid_sql = bool(sql and (not state.validation_result or state.validation_result.is_valid))
+            expected_tables = item.get("expected_tables", [])
+            expected_keywords = item.get("expected_keywords", [])
+
+            # Kiểm tra thực thi trên CSDL thật (DuckDB Warehouse)
+            exec_has_error = bool(getattr(state, "error_message", None))
+            query_has_rows = getattr(state, "query_result", None) is not None
+
+            # Kiểm tra bảng mong đợi
+            tables_missing = [t for t in expected_tables if t.lower() not in sql.lower() and t.lower() not in [u.lower() for u in (getattr(state, "tables_used", []) or [])]]
+            # Kiểm tra từ khóa mong đợi
+            keywords_missing = [kw for kw in expected_keywords if kw.lower() not in sql.lower()]
+
+            syntax_valid = bool(sql and (not state.validation_result or state.validation_result.is_valid))
+            exec_success = not exec_has_error and query_has_rows and syntax_valid
 
             # Check expectations
             test_passed = False
@@ -109,12 +122,21 @@ def run_benchmark(dataset_path: str = None, output_dir: str = None) -> Dict[str,
                     notes = "Chưa phát hiện được tính mơ hồ"
             else:
                 total_sql_queries += 1
-                if is_valid_sql:
+                if exec_success and not tables_missing and not keywords_missing:
                     total_valid_sql += 1
                     test_passed = True
-                    notes = f"Sinh SQL hợp lệ ({len(sql)} ký tự)"
+                    row_cnt = len(state.query_result) if state.query_result else 0
+                    notes = f"Thực thi thành công trên CSDL ({row_cnt} dòng trả về)"
+                elif exec_has_error:
+                    notes = f"Lỗi thực thi DuckDB: {state.error_message}"
+                elif tables_missing:
+                    notes = f"Thiếu bảng mong đợi: {tables_missing}"
+                elif keywords_missing:
+                    notes = f"Thiếu từ khóa mong đợi: {keywords_missing}"
+                elif not syntax_valid:
+                    notes = f"Lỗi cú pháp SQL: {errors or 'SQL rỗng'}"
                 else:
-                    notes = f"Lỗi sinh SQL: {errors or 'SQL rỗng'}"
+                    notes = "Không thu được kết quả hợp lệ"
 
             status_str = "✅ ĐẠT" if test_passed else "⚠️ CẦN XEM LẠI"
             print(f"{status_str} ({elapsed:.2f}s)")

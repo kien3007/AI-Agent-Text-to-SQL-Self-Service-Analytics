@@ -1,0 +1,96 @@
+tables:
+  stg_shopee_orders:
+    table_name: "stg_shopee_orders"
+    vn_name: "Đơn hàng sàn Shopee"
+    description: "Bảng dữ liệu chi tiết đơn hàng bán trên sàn thương mại điện tử Shopee"
+    primary_key: ["order_id"]
+    partition_key: "created_at"
+    columns:
+      order_id:
+        name: "order_id"
+        vn_name: "Mã đơn hàng Shopee"
+        en_name: "Shopee Order ID"
+        data_type: "BIGINT"
+        description: "Mã định danh duy nhất đơn hàng Shopee"
+        is_primary_key: true
+        synonyms: ["mã đơn", "số đơn", "đơn hàng", "đơn"]
+      shop_name:
+        name: "shop_name"
+        vn_name: "Tên gian hàng / Shop"
+        en_name: "Shop Name"
+        data_type: "VARCHAR(100)"
+        description: "Tên gian hàng người bán trên Shopee"
+        synonyms: ["tên shop", "shop", "gian hàng", "cửa hàng"]
+        sample_values: ["Official Store", "Tech Mall", "Fashion House"]
+      order_status:
+        name: "order_status"
+        vn_name: "Trạng thái đơn hàng"
+        en_name: "Order Status"
+        data_type: "VARCHAR(50)"
+        description: "Trạng thái xử lý: COMPLETED, CANCELLED, RETURNED, SHIPPED"
+        synonyms: ["trạng thái", "tình trạng", "đã giao thành công", "hủy", "hoàn trả"]
+        sample_values: ["COMPLETED", "CANCELLED", "RETURNED"]
+      total_amount:
+        name: "total_amount"
+        vn_name: "Tổng giá trị đơn hàng (VNĐ)"
+        en_name: "Total Amount"
+        data_type: "DOUBLE"
+        description: "Tổng số tiền thanh toán của đơn hàng Shopee"
+        synonyms: ["doanh thu", "tiền hàng", "tổng tiền", "giá trị đơn"]
+      created_at:
+        name: "created_at"
+        vn_name: "Thời điểm đặt hàng"
+        en_name: "Order Created Time"
+        data_type: "DATETIME"
+        description: "Thời gian tạo đơn hàng trên sàn"
+        is_partition_or_dist: true
+        synonyms: ["ngày đặt", "thời gian", "ngày"]
+
+  stg_tiktok_orders:
+    table_name: "stg_tiktok_orders"
+    vn_name: "Đơn hàng sàn TikTok Shop"
+    description: "Bảng dữ liệu chi tiết đơn hàng bán trên sàn TikTok Shop"
+    primary_key: ["order_id"]
+    partition_key: "created_at"
+    columns:
+      order_id:
+        name: "order_id"
+        vn_name: "Mã đơn hàng TikTok"
+        en_name: "TikTok Order ID"
+        data_type: "BIGINT"
+        description: "Mã định danh duy nhất đơn hàng TikTok Shop"
+        is_primary_key: true
+        synonyms: ["mã đơn", "số đơn", "đơn hàng", "đơn"]
+      shop_name:
+        name: "shop_name"
+        vn_name: "Tên shop TikTok"
+        en_name: "TikTok Shop Name"
+        data_type: "VARCHAR(100)"
+        description: "Tên gian hàng TikTok Shop"
+        synonyms: ["tên shop", "shop", "gian hàng"]
+        sample_values: ["Beauty World", "GenZ Trends", "Digital Hub"]
+      order_status:
+        name: "order_status"
+        vn_name: "Trạng thái đơn hàng"
+        en_name: "Order Status"
+        data_type: "VARCHAR(50)"
+        description: "Trạng thái: COMPLETED, CANCELLED, PENDING"
+        synonyms: ["trạng thái", "tình trạng"]
+        sample_values: ["COMPLETED", "CANCELLED"]
+      total_amount:
+        name: "total_amount"
+        vn_name: "Tổng giá trị đơn hàng (VNĐ)"
+        en_name: "Total Amount"
+        data_type: "DOUBLE"
+        description: "Tổng doanh thu đơn hàng trên TikTok Shop"
+        synonyms: ["doanh thu", "tiền hàng", "tổng tiền", "giá trị đơn"]
+      created_at:
+        name: "created_at"
+        vn_name: "Thời điểm đặt đơn"
+        en_name: "Order Created Time"
+        data_type: "DATETIME"
+        description: "Thời gian khách chốt đơn trên TikTok Shop"
+        is_partition_or_dist: true
+        synonyms: ["ngày đặt", "thời gian"]
+
+relationships: []

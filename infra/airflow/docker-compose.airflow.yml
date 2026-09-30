@@ -1,0 +1,120 @@
+version: '3.8'
+
+# ==============================================================================
+# 🚀 LIGHTWEIGHT APACHE AIRFLOW (LOCAL EXECUTOR)
+# Tinh gọn, tối ưu RAM (< 1GB), không dùng Celery/Redis, dùng chung mạng local
+# ==============================================================================
+
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: airflow-lean-analytics:2.8.2
+  environment:
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'false'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+    AIRFLOW__WEBSERVER__SECRET_KEY: 'secret_key_airflow_self_service_analytics'
+    # Python & Project paths
+    PYTHONPATH: /opt/airflow/backend
+    DUCKDB_PATH: /opt/airflow/data/warehouse.duckdb
+    EXTERNAL_DATABASE_URL: ${EXTERNAL_DATABASE_URL:-}
+    QDRANT_HOST: ${QDRANT_HOST:-host.docker.internal}
+    QDRANT_PORT: ${QDRANT_PORT:-6333}
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ../../data:/opt/airflow/data
+    - ../../backend:/opt/airflow/backend
+    - ../../infra/dbt:/opt/airflow/infra/dbt
+  depends_on:
+    airflow-postgres:
+      condition: service_healthy
+
+services:
+  # 1. Dedicated ultra-lightweight PostgreSQL for Airflow metadata (chỉ ~30MB RAM)
+  airflow-postgres:
+    image: postgres:15-alpine
+    container_name: airflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "54323:5432"
+    volumes:
+      - airflow-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # 2. Init Container: Migrate database & tạo tài khoản admin (chạy 1 lần rồi tắt)
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow-init
+    command: >
+      bash -c "
+        airflow db init &&
+        airflow users create \
+          --username admin \
+          --password admin \
+          --firstname Data \
+          --lastname Admin \
+          --role Admin \
+          --email admin@example.com || true
+      "
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  # 3. Airflow Webserver: Giao diện web UI quản lý DAGs (port 8080)
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow-webserver
+    restart: unless-stopped
+    command: webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /opt/airflow/airflow-webserver.pid ]"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  # 4. Airflow Scheduler: Bộ lập lịch điều phối task
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow-scheduler
+    restart: unless-stopped
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+volumes:
+  airflow-postgres-data:

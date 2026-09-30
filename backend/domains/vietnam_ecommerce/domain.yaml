@@ -1,0 +1,29 @@
+domain_id: "vietnam_ecommerce"
+display_name: "Thương Mại Điện Tử Việt Nam (Shopee & TikTok Shop)"
+description: "Dữ liệu đơn hàng bán hàng đa kênh trên các sàn thương mại điện tử Shopee, TikTok Shop tại thị trường Việt Nam."
+
+owner: "Omnichannel Growth Team"
+data_steward: "Trần Thị C"
+slack_channel: "#ecom-vn-alerts"
+
+domain_keywords:
+  - "vietnam_ecommerce"
+  - "shopee"
+  - "tiktok"
+  - "tiktok shop"
+  - "sàn"
+  - "sàn shopee"
+  - "sàn tiktok"
+  - "stg_shopee_orders"
+  - "stg_tiktok_orders"
+  - "shop"
+  - "cửa hàng"
+  - "đơn hàng shopee"
+  - "đơn hàng tiktok"
+
+synonyms:
+  "sàn cam": "shopee"
+  "sàn tt": "tiktok shop"
+  "đơn thành công": "đơn hàng hoàn thành COMPLETED"
+  "đơn huỷ": "đơn hàng bị hủy CANCELLED"
+  "đơn trả": "đơn hàng hoàn trả RETURNED"
