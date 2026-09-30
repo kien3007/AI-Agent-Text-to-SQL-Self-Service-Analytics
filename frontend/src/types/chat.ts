@@ -282,6 +282,36 @@ export interface BenchmarkItem {
   id: string;
   query: string;
   complexity: string;
+  category?: string;
   passed: boolean;
-  latency: string;
+  latency?: string;
+  latency_sec?: number;
+  notes?: string;
+  generated_sql?: string;
+  needs_clarification?: boolean;
+  is_blocked?: boolean;
+}
+
+export interface BenchmarkMetrics {
+  valid_sql_rate_percent: number;
+  guardrail_safety_rate_percent: number;
+  clarification_detection_rate_percent: number;
+  avg_latency_sec: number;
+  p50_latency_sec: number;
+  p90_latency_sec: number;
+}
+
+export interface BenchmarkReport {
+  timestamp: string;
+  total_queries: number;
+  metrics: BenchmarkMetrics;
+  breakdown: {
+    sql_queries_evaluated: number;
+    sql_queries_passed: number;
+    guardrail_queries_evaluated: number;
+    guardrail_queries_passed: number;
+    clarification_queries_evaluated: number;
+    clarification_queries_passed: number;
+  };
+  results: BenchmarkItem[];
 }

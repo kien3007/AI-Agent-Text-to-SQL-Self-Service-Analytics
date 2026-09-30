@@ -23,6 +23,7 @@ from app.core.auth import auth_router
 from app.api.routers.health import router as health_router
 from app.api.routers.domains import router as domains_router
 from app.api.routers.chat import router as chat_router
+from app.api.routers.benchmark import router as benchmark_router
 
 app = FastAPI(
     title="AI-Agent Text-to-SQL Self-Service Analytics API",
@@ -44,6 +45,7 @@ app.include_router(auth_router, prefix="/api")        # POST /api/auth/token
 app.include_router(health_router, prefix="/api")
 app.include_router(domains_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
+app.include_router(benchmark_router, prefix="/api")
 
 # Gắn thư mục Frontend tĩnh nếu đã được build (static export)
 frontend_out_dir = Path(backend_dir).parent / "frontend" / "out"

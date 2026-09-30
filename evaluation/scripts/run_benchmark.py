@@ -22,7 +22,7 @@ from app.agent.graph import AgentOrchestrator
 from app.agent.state import AgentState
 
 
-def run_benchmark(dataset_path: str = None, output_dir: str = None) -> Dict[str, Any]:
+def run_benchmark(dataset_path: str = None, output_dir: str = None, limit: int = None) -> Dict[str, Any]:
     if dataset_path is None:
         dataset_path = Path(__file__).resolve().parent.parent / "benchmark" / "golden_dataset.json"
     else:
@@ -37,6 +37,9 @@ def run_benchmark(dataset_path: str = None, output_dir: str = None) -> Dict[str,
 
     with open(dataset_path, "r", encoding="utf-8") as f:
         dataset = json.load(f)
+
+    if limit and limit > 0:
+        dataset = dataset[:limit]
 
     print(f"================================================================")
     print(f"🚀 KHỞI ĐỘNG BENCHMARK TEXT-TO-SQL: {len(dataset)} CÂU HỎI VÀNG")
