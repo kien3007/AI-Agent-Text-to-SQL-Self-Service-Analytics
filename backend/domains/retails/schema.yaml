@@ -1,0 +1,332 @@
+tables:
+  retails.customers:
+    table_name: retails.customers
+    vn_name: Customers
+    description: Bảng/View retails.customers
+    primary_key:
+    - customer_key
+    partition_key: null
+    columns:
+      customer_key:
+        name: customer_key
+        vn_name: Customer Key
+        en_name: Customer Key
+        data_type: INTEGER
+        description: Cột customer_key trong bảng retails.customers
+        synonyms:
+        - customer key
+        is_partition_or_dist: false
+      gender:
+        name: gender
+        vn_name: Gender
+        en_name: Gender
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột gender trong bảng retails.customers
+        synonyms:
+        - gender
+        is_partition_or_dist: false
+      name:
+        name: name
+        vn_name: Name
+        en_name: Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột name trong bảng retails.customers
+        synonyms:
+        - name
+        is_partition_or_dist: false
+      city:
+        name: city
+        vn_name: City
+        en_name: City
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột city trong bảng retails.customers
+        synonyms:
+        - city
+        is_partition_or_dist: false
+      state_code:
+        name: state_code
+        vn_name: State Code
+        en_name: State Code
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state_code trong bảng retails.customers
+        synonyms:
+        - state code
+        is_partition_or_dist: false
+      state:
+        name: state
+        vn_name: State
+        en_name: State
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state trong bảng retails.customers
+        synonyms:
+        - state
+        is_partition_or_dist: false
+      zip_code:
+        name: zip_code
+        vn_name: Zip Code
+        en_name: Zip Code
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột zip_code trong bảng retails.customers
+        synonyms:
+        - zip code
+        is_partition_or_dist: false
+      country:
+        name: country
+        vn_name: Country
+        en_name: Country
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột country trong bảng retails.customers
+        synonyms:
+        - country
+        is_partition_or_dist: false
+      continent:
+        name: continent
+        vn_name: Continent
+        en_name: Continent
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột continent trong bảng retails.customers
+        synonyms:
+        - continent
+        is_partition_or_dist: false
+      birthday:
+        name: birthday
+        vn_name: Birthday
+        en_name: Birthday
+        data_type: DATE
+        description: Cột birthday trong bảng retails.customers
+        synonyms:
+        - birthday
+        is_partition_or_dist: false
+  retails.products:
+    table_name: retails.products
+    vn_name: Products
+    description: Bảng/View retails.products
+    primary_key:
+    - product_key
+    partition_key: null
+    columns:
+      product_key:
+        name: product_key
+        vn_name: Product Key
+        en_name: Product Key
+        data_type: INTEGER
+        description: Cột product_key trong bảng retails.products
+        synonyms:
+        - product key
+        is_partition_or_dist: false
+      product_name:
+        name: product_name
+        vn_name: Product Name
+        en_name: Product Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_name trong bảng retails.products
+        synonyms:
+        - product name
+        is_partition_or_dist: false
+      brand:
+        name: brand
+        vn_name: Brand
+        en_name: Brand
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột brand trong bảng retails.products
+        synonyms:
+        - brand
+        is_partition_or_dist: false
+      color:
+        name: color
+        vn_name: Color
+        en_name: Color
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột color trong bảng retails.products
+        synonyms:
+        - color
+        is_partition_or_dist: false
+      unit_cost_usd:
+        name: unit_cost_usd
+        vn_name: Unit Cost Usd
+        en_name: Unit Cost Usd
+        data_type: DECIMAL(10, 2)
+        description: Cột unit_cost_usd trong bảng retails.products
+        synonyms:
+        - unit cost usd
+        is_partition_or_dist: false
+      unit_price_usd:
+        name: unit_price_usd
+        vn_name: Unit Price Usd
+        en_name: Unit Price Usd
+        data_type: DECIMAL(10, 2)
+        description: Cột unit_price_usd trong bảng retails.products
+        synonyms:
+        - unit price usd
+        is_partition_or_dist: false
+      subcategory_key:
+        name: subcategory_key
+        vn_name: Subcategory Key
+        en_name: Subcategory Key
+        data_type: INTEGER
+        description: Cột subcategory_key trong bảng retails.products
+        synonyms:
+        - subcategory key
+        is_partition_or_dist: false
+      subcategory:
+        name: subcategory
+        vn_name: Subcategory
+        en_name: Subcategory
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột subcategory trong bảng retails.products
+        synonyms:
+        - subcategory
+        is_partition_or_dist: false
+      category_key:
+        name: category_key
+        vn_name: Category Key
+        en_name: Category Key
+        data_type: INTEGER
+        description: Cột category_key trong bảng retails.products
+        synonyms:
+        - category key
+        is_partition_or_dist: false
+      category:
+        name: category
+        vn_name: Category
+        en_name: Category
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột category trong bảng retails.products
+        synonyms:
+        - category
+        is_partition_or_dist: false
+  retails.sales:
+    table_name: retails.sales
+    vn_name: Sales
+    description: Bảng/View retails.sales
+    primary_key:
+    - line_item
+    - order_number
+    partition_key: null
+    columns:
+      order_number:
+        name: order_number
+        vn_name: Order Number
+        en_name: Order Number
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_number trong bảng retails.sales
+        synonyms:
+        - order number
+        is_partition_or_dist: false
+      line_item:
+        name: line_item
+        vn_name: Line Item
+        en_name: Line Item
+        data_type: INTEGER
+        description: Cột line_item trong bảng retails.sales
+        synonyms:
+        - line item
+        is_partition_or_dist: false
+      order_date:
+        name: order_date
+        vn_name: Order Date
+        en_name: Order Date
+        data_type: DATE
+        description: Cột order_date trong bảng retails.sales
+        synonyms:
+        - order date
+        is_partition_or_dist: false
+      delivery_date:
+        name: delivery_date
+        vn_name: Delivery Date
+        en_name: Delivery Date
+        data_type: DATE
+        description: Cột delivery_date trong bảng retails.sales
+        synonyms:
+        - delivery date
+        is_partition_or_dist: false
+      customer_key:
+        name: customer_key
+        vn_name: Customer Key
+        en_name: Customer Key
+        data_type: INTEGER
+        description: Cột customer_key trong bảng retails.sales
+        synonyms:
+        - customer key
+        is_partition_or_dist: false
+      store_key:
+        name: store_key
+        vn_name: Store Key
+        en_name: Store Key
+        data_type: INTEGER
+        description: Cột store_key trong bảng retails.sales
+        synonyms:
+        - store key
+        is_partition_or_dist: false
+      product_key:
+        name: product_key
+        vn_name: Product Key
+        en_name: Product Key
+        data_type: INTEGER
+        description: Cột product_key trong bảng retails.sales
+        synonyms:
+        - product key
+        is_partition_or_dist: false
+      quantity:
+        name: quantity
+        vn_name: Quantity
+        en_name: Quantity
+        data_type: INTEGER
+        description: Cột quantity trong bảng retails.sales
+        synonyms:
+        - quantity
+        is_partition_or_dist: false
+  retails.stores:
+    table_name: retails.stores
+    vn_name: Stores
+    description: Bảng/View retails.stores
+    primary_key:
+    - store_key
+    partition_key: null
+    columns:
+      store_key:
+        name: store_key
+        vn_name: Store Key
+        en_name: Store Key
+        data_type: INTEGER
+        description: Cột store_key trong bảng retails.stores
+        synonyms:
+        - store key
+        is_partition_or_dist: false
+      country:
+        name: country
+        vn_name: Country
+        en_name: Country
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột country trong bảng retails.stores
+        synonyms:
+        - country
+        is_partition_or_dist: false
+      state:
+        name: state
+        vn_name: State
+        en_name: State
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state trong bảng retails.stores
+        synonyms:
+        - state
+        is_partition_or_dist: false
+      square_meters:
+        name: square_meters
+        vn_name: Square Meters
+        en_name: Square Meters
+        data_type: DECIMAL(10, 2)
+        description: Cột square_meters trong bảng retails.stores
+        synonyms:
+        - square meters
+        is_partition_or_dist: false
+      open_date:
+        name: open_date
+        vn_name: Open Date
+        en_name: Open Date
+        data_type: DATE
+        description: Cột open_date trong bảng retails.stores
+        synonyms:
+        - open date
+        is_partition_or_dist: false
+relationships: []

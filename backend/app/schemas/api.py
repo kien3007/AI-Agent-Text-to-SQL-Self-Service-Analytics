@@ -72,3 +72,41 @@ class ChatResponse(BaseModel):
     query_result: Optional[List[Dict[str, Any]]] = None
     execution_time_ms: Optional[float] = None
     steps_executed: List[str] = Field(default_factory=list)
+
+
+class FeedbackRequest(BaseModel):
+    """Phản hồi đánh giá chất lượng câu trả lời từ người dùng."""
+    session_id: Optional[str] = Field(None, description="Mã phiên truy vấn")
+    query: str = Field(..., description="Câu hỏi tự nhiên của người dùng")
+    sql_query: Optional[str] = Field(None, description="Câu lệnh SQL đã sinh")
+    domain_id: Optional[str] = Field(None, description="Mã domain")
+    rating: str = Field(..., description="Đánh giá: 'up' (Hài lòng) hoặc 'down' (Chưa chính xác)")
+    notes: Optional[str] = Field(None, description="Ghi chú phản hồi chi tiết từ người dùng")
+
+
+class IngestRequest(BaseModel):
+    """Yêu cầu kích hoạt đồng bộ dữ liệu vào DuckDB."""
+    source_url: Optional[str] = Field(None, description="URL kết nối CSDL nguồn")
+    schema_name: Optional[str] = Field(None, description="Tên schema nguồn")
+    tables: Optional[List[str]] = Field(None, description="Danh sách bảng cần đồng bộ")
+    mode: str = Field("full_refresh", description="Chế độ đồng bộ: full_refresh hoặc append")
+
+
+class InspectConnectionRequest(BaseModel):
+    """Yêu cầu kiểm tra kết nối CSDL và khám phá danh sách Database & Schema."""
+    connection_url: str = Field(..., description="URL kết nối hoặc file path CSDL")
+    database_name: Optional[str] = Field(None, description="Tên Database đã chọn để tiếp tục lấy Schemas")
+
+
+class InspectConnectionResponse(BaseModel):
+    """Kết quả kiểm tra kết nối, trả về danh sách CSDL và Schemas."""
+    status: str = "success"
+    dialect: str
+    current_database: Optional[str] = None
+    databases: List[str] = Field(default_factory=list)
+    schemas: List[str] = Field(default_factory=list)
+    default_schema: Optional[str] = None
+    effective_url: Optional[str] = None
+    message: Optional[str] = None
+
+

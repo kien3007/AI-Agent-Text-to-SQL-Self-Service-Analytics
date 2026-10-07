@@ -1,0 +1,18 @@
+metrics:
+  total_social_media.posts:
+    metric_id: total_social_media.posts
+    vn_terms:
+    - tổng số Posts
+    - số lượng Posts
+    - số Posts
+    - thống kê Posts
+    en_terms:
+    - total social_media.posts
+    - social_media.posts count
+    - number of social_media.posts
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng social_media.posts
+    depends_on_tables:
+    - social_media.posts
+    depends_on_columns: []
+segments: {}

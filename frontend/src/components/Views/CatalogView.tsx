@@ -11,8 +11,11 @@ import {
   Search,
   ArrowRight,
   Table as TableIcon,
+  Plus,
+  RefreshCw,
 } from "lucide-react";
 import { DomainDetails } from "@/types/chat";
+import ConnectDatabaseModal from "@/components/Modals/ConnectDatabaseModal";
 
 interface CatalogViewProps {
   domainId: string;
@@ -30,10 +33,12 @@ export default function CatalogView({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!domainId) return;
+  // Modal Connect / Ingest state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState<"connect" | "ingest">("connect");
 
-    let isMounted = true;
+  const fetchCatalogData = () => {
+    if (!domainId) return;
     setLoading(true);
     setError(null);
 
@@ -43,24 +48,22 @@ export default function CatalogView({
         return res.json();
       })
       .then((json) => {
-        if (isMounted) {
-          setData(json);
-          if (json.tables && json.tables.length > 0) {
-            const firstTableName = json.tables[0].table_name || json.tables[0].name || "";
-            setSelectedTable(firstTableName);
-          }
+        setData(json);
+        if (json.tables && json.tables.length > 0) {
+          const firstTableName = json.tables[0].table_name || json.tables[0].name || "";
+          setSelectedTable(firstTableName);
         }
       })
       .catch((err) => {
-        if (isMounted) setError(err.message);
+        setError(err.message);
       })
       .finally(() => {
-        if (isMounted) setLoading(false);
+        setLoading(false);
       });
+  };
 
-    return () => {
-      isMounted = false;
-    };
+  useEffect(() => {
+    fetchCatalogData();
   }, [domainId]);
 
   const filteredMetrics = data?.metrics?.filter((m) => {
@@ -115,16 +118,40 @@ export default function CatalogView({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="relative min-w-[220px]">
+          <div className="relative min-w-[200px]">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm bảng, cột hoặc chỉ số..."
+              placeholder="Tìm bảng, cột, chỉ số..."
               className="w-full pl-9 pr-3 py-1.5 rounded-xl text-xs bg-[var(--bg-app)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-all"
             />
           </div>
+
+          <button
+            onClick={() => {
+              setModalTab("ingest");
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border border-[var(--border-subtle)] bg-[var(--bg-app)] hover:bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all shadow-xs"
+            title="Đồng bộ nạp dữ liệu từ nguồn CSDL vào DuckDB"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Đồng Bộ / Ingest</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setModalTab("connect");
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[var(--accent-primary)] hover:opacity-90 text-white transition-all shadow-xs"
+            title="Kết nối cơ sở dữ liệu mới và crawl schema tự động"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Kết Nối CSDL</span>
+          </button>
         </div>
       </div>
 
@@ -301,6 +328,15 @@ export default function CatalogView({
           </div>
         </>
       )}
+
+      {/* Modal Kết Nối CSDL & Nạp Dữ Liệu */}
+      <ConnectDatabaseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        activeDomainId={domainId}
+        initialTab={modalTab}
+        onSuccess={fetchCatalogData}
+      />
     </div>
   );
 }

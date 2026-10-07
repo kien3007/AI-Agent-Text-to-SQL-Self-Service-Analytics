@@ -5,6 +5,9 @@
 3. Long-Term Memory: Lưu trữ tri thức Good Plans / Bad Plans / Common Knowledge chia sẻ giữa các phiên.
 """
 
+import os
+import json
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
 
@@ -161,8 +164,17 @@ class LongTermMemory:
             except Exception as e:
                 self.vector_index = None
 
+        self.storage_file = (
+            Path(__file__).resolve().parent.parent.parent.parent
+            / "data"
+            / "long_term_memory.json"
+        )
+
         if seed_defaults:
             self._seed_initial_plans()
+
+        # Nạp các kế hoạch đã tích lũy và phản hồi người dùng trước đó
+        self._load_persisted_plans()
 
     def _seed_initial_plans(self) -> None:
         """Nạp các mẫu SQL chuẩn tối ưu từ dbt Data Marts và Steiner Tree Joins cho E-commerce."""
@@ -210,6 +222,114 @@ class LongTermMemory:
                 metadata={"description": item.get("description", "")}
             )
 
+    def _index_doc_to_qdrant(self, record: Dict[str, Any]) -> None:
+        """Đưa một kế hoạch tốt vào Qdrant Vector Index nếu có."""
+        if self.vector_index:
+            try:
+                from llama_index.core import Document
+                doc_text = (
+                    f"Yêu cầu: {record['query']}\n"
+                    f"Domain: {record['domain_id']}\n"
+                    f"Bảng: {', '.join(record.get('tables_used', []))}\n"
+                    f"Mô tả: {record.get('metadata', {}).get('description', '')}\n"
+                    f"SQL: {record['sql']}"
+                )
+                doc = Document(
+                    text=doc_text,
+                    metadata={
+                        "query": record["query"],
+                        "domain_id": record["domain_id"],
+                        "sql": record["sql"],
+                        "tables_used": record.get("tables_used", []),
+                        "description": record.get("metadata", {}).get("description", "")
+                    }
+                )
+                self.vector_index.insert(doc)
+            except Exception:
+                pass
+
+    def _sync_to_duckdb(self, record: Dict[str, Any], is_successful: bool) -> None:
+        """Đồng bộ bản ghi tri thức vào bảng DuckDB _agent_memory_plans để lưu trữ và truy vấn phân tích."""
+        try:
+            from app.core.config import AppSettings
+            db_path = AppSettings().DUCKDB_PATH
+            if not os.path.exists(db_path):
+                return
+            import duckdb
+            import hashlib
+            from datetime import datetime
+
+            plan_id = hashlib.md5(f"{record.get('domain_id', '')}:{record['query']}:{record['sql']}".encode()).hexdigest()
+            conn = duckdb.connect(db_path, read_only=False)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS _agent_memory_plans (
+                    plan_id VARCHAR PRIMARY KEY,
+                    query VARCHAR,
+                    domain_id VARCHAR,
+                    sql VARCHAR,
+                    is_successful BOOLEAN,
+                    tables_used VARCHAR,
+                    rating VARCHAR,
+                    source VARCHAR,
+                    updated_at TIMESTAMP
+                )
+            """)
+            tables_str = ", ".join(record.get("tables_used", []))
+            rating_val = record.get("metadata", {}).get("rating", "up" if is_successful else "down")
+            source_val = record.get("metadata", {}).get("source", "agent_auto" if is_successful else "user_feedback")
+
+            conn.execute("""
+                INSERT OR REPLACE INTO _agent_memory_plans 
+                (plan_id, query, domain_id, sql, is_successful, tables_used, rating, source, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, [
+                plan_id,
+                record["query"],
+                record.get("domain_id", "default"),
+                record["sql"],
+                is_successful,
+                tables_str,
+                rating_val,
+                source_val,
+                datetime.now()
+            ])
+            conn.close()
+        except Exception:
+            pass
+
+    def _load_persisted_plans(self) -> None:
+        """Đọc danh sách good_plans và bad_plans đã lưu từ đĩa, phục hồi lại Qdrant index nếu cần."""
+        if hasattr(self, "storage_file") and self.storage_file.exists():
+            try:
+                with open(self.storage_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                for gp in data.get("good_plans", []):
+                    if not any(p["query"] == gp["query"] and p["sql"] == gp["sql"] for p in self.good_plans):
+                        self.good_plans.append(gp)
+                        self._index_doc_to_qdrant(gp)
+                for bp in data.get("bad_plans", []):
+                    if not any(p["query"] == bp["query"] and p["sql"] == bp["sql"] for p in self.bad_plans):
+                        self.bad_plans.append(bp)
+            except Exception as e:
+                import logging
+                logging.getLogger("three_tier_memory").warning(f"Không thể đọc persisted memory plans: {e}")
+
+    def _save_persisted_plans(self) -> None:
+        """Ghi danh sách good_plans và bad_plans vào đĩa."""
+        if hasattr(self, "storage_file"):
+            try:
+                self.storage_file.parent.mkdir(parents=True, exist_ok=True)
+                data = {
+                    "good_plans": self.good_plans,
+                    "bad_plans": self.bad_plans
+                }
+                tmp_file = self.storage_file.with_suffix(".tmp")
+                tmp_file.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+                tmp_file.replace(self.storage_file)
+            except Exception as e:
+                import logging
+                logging.getLogger("three_tier_memory").warning(f"Không thể lưu persisted memory plans: {e}")
+
     def save_plan(
         self,
         user_query: str,
@@ -227,33 +347,47 @@ class LongTermMemory:
             "metadata": metadata or {}
         }
         if is_successful:
+            # Xoá khỏi bad_plans nếu câu này trước đó từng bị đánh dấu bad
+            self.bad_plans = [p for p in self.bad_plans if not (p["query"] == user_query and p["sql"] == sql)]
             if not any(p["query"] == user_query and p["sql"] == sql for p in self.good_plans):
                 self.good_plans.append(record)
-                if self.vector_index:
-                    try:
-                        from llama_index.core import Document
-                        doc_text = (
-                            f"Yêu cầu: {user_query}\n"
-                            f"Domain: {domain_id}\n"
-                            f"Bảng: {', '.join(tables_used or [])}\n"
-                            f"Mô tả: {record['metadata'].get('description', '')}\n"
-                            f"SQL: {sql}"
-                        )
-                        doc = Document(
-                            text=doc_text,
-                            metadata={
-                                "query": user_query,
-                                "domain_id": domain_id,
-                                "sql": sql,
-                                "tables_used": tables_used or [],
-                                "description": record["metadata"].get("description", "")
-                            }
-                        )
-                        self.vector_index.insert(doc)
-                    except Exception:
-                        pass
+                self._index_doc_to_qdrant(record)
         else:
-            self.bad_plans.append(record)
+            # Xoá khỏi good_plans nếu trước đó từng được coi là good plan
+            self.good_plans = [p for p in self.good_plans if not (p["query"] == user_query and p["sql"] == sql)]
+            if not any(p["query"] == user_query and p["sql"] == sql for p in self.bad_plans):
+                self.bad_plans.append(record)
+
+        self._save_persisted_plans()
+        self._sync_to_duckdb(record, is_successful=is_successful)
+
+
+    def get_relevant_bad_plans(
+        self,
+        query: str,
+        domain_id: str,
+        top_k: int = 1
+    ) -> List[Dict[str, Any]]:
+        """
+        Tìm kiếm các câu SQL từng bị người dùng đánh giá sai hoặc thất bại tương tự
+        để đưa vào prompt làm Negative Examples (In-Context Learning), giúp LLM tránh lặp lại lỗi.
+        """
+        candidates = [p for p in self.bad_plans if p.get("domain_id") in (domain_id, "default")]
+        if not candidates:
+            return []
+
+        query_tokens = set(query.lower().split())
+        scored_candidates = []
+        for cand in candidates:
+            cand_tokens = set(cand["query"].lower().split())
+            overlap = len(query_tokens & cand_tokens)
+            union = len(query_tokens | cand_tokens)
+            jaccard = overlap / union if union > 0 else 0.0
+            if jaccard > 0.15:
+                scored_candidates.append((jaccard, cand))
+
+        scored_candidates.sort(key=lambda x: x[0], reverse=True)
+        return [item[1] for item in scored_candidates[:top_k]]
 
     def get_relevant_few_shots(
         self,
@@ -346,11 +480,13 @@ class ThreeTierMemory:
         vector_backend: Optional[str] = None,
         qdrant_client: Optional[Any] = None,
         in_memory: bool = False,
-        embedding_function: Optional[Any] = None
+        embedding_function: Optional[Any] = None,
+        seed_defaults: bool = True
     ):
         self.short_term = ShortTermMemory()
         self.temporary = TemporaryMemory()
         self.long_term = LongTermMemory(
+            seed_defaults=seed_defaults,
             vector_backend=vector_backend,
             qdrant_client=qdrant_client,
             in_memory=in_memory,

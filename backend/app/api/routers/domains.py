@@ -5,14 +5,14 @@ Quản lý các domain nghiệp vụ, xem chi tiết metadata và kích hoạt b
 
 import os
 from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, Body
 from app.core.domain_manager import DomainManager
 from app.core.dbt_generator import AutoDbtGenerator
 from app.core.introspection import DatabaseIntrospector
 from app.core.lineage_service import LineageService
 from app.core.dq_checker import DataQualityChecker
 from app.db.warehouse_client import get_warehouse_client
-from app.schemas.api import DomainSwitchRequest, BootstrapRequest, DatabaseConnectRequest
+from app.schemas.api import DomainSwitchRequest, BootstrapRequest, DatabaseConnectRequest, IngestRequest
 from app.core.auth import require_admin, UserContext
 
 router = APIRouter(prefix="/domains", tags=["Domains"])
@@ -215,6 +215,180 @@ def get_dbt_manifest_info(domain_id: str):
     return loader.get_manifest_info()
 
 
+@router.post("/inspect-connection", response_model=InspectConnectionResponse)
+def inspect_database_connection(req: InspectConnectionRequest, admin: UserContext = Depends(require_admin)):
+    """
+    Khám phá cấu trúc máy chủ CSDL:
+    1. Kiểm tra kết nối tới máy chủ qua Connection URL.
+    2. Liệt kê danh sách các Database có trên máy chủ.
+    3. Liệt kê danh sách các Schema nghiệp vụ trong Database đang chọn.
+    """
+    raw_url = req.connection_url.strip()
+    if not raw_url:
+        raise HTTPException(status_code=400, detail="Vui lòng cung cấp connection_url.")
+
+    from pathlib import Path
+    from app.db.warehouse_client import parse_jdbc_url
+    url_str = parse_jdbc_url(raw_url)
+    clean_l = url_str.lower()
+
+    # 1. DuckDB file
+    if clean_l.endswith(".duckdb") or clean_l.startswith("duckdb:"):
+        import duckdb
+        db_path = url_str.replace("duckdb:///", "").replace("duckdb://", "")
+        if not os.path.isabs(db_path):
+            db_path = str(Path(db_path).resolve())
+        try:
+            conn = duckdb.connect(db_path, read_only=True)
+            try:
+                raw_schemas = [r[0] for r in conn.execute("SELECT DISTINCT schema_name FROM information_schema.schemata").fetchall()]
+                schemas = [s for s in raw_schemas if s.lower() not in ("information_schema", "pg_catalog")]
+                if not schemas:
+                    schemas = ["main"]
+                db_name = Path(db_path).stem or "warehouse"
+                return InspectConnectionResponse(
+                    status="success",
+                    dialect="duckdb",
+                    current_database=db_name,
+                    databases=[db_name],
+                    schemas=schemas,
+                    default_schema=schemas[0] if schemas else "main",
+                    effective_url=url_str,
+                    message=f"Kết nối DuckDB thành công ({len(schemas)} schemas)."
+                )
+            finally:
+                conn.close()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Không thể mở file DuckDB: {e}")
+
+    # 2. SQLite file
+    if clean_l.endswith((".sqlite", ".sqlite3", ".db")) or clean_l.startswith("sqlite:"):
+        db_path = url_str.replace("sqlite:///", "").replace("sqlite://", "")
+        if not os.path.isabs(db_path):
+            db_path = str(Path(db_path).resolve())
+        db_name = Path(db_path).stem or "sqlite_db"
+        return InspectConnectionResponse(
+            status="success",
+            dialect="sqlite",
+            current_database=db_name,
+            databases=[db_name],
+            schemas=["main"],
+            default_schema="main",
+            effective_url=f"sqlite:///{db_path.replace(os.sep, '/')}",
+            message="Kết nối SQLite thành công."
+        )
+
+    # 3. Client-server relational DB qua SQLAlchemy (PostgreSQL, MySQL, MSSQL, SQL Server)
+    from sqlalchemy import create_engine, inspect, text
+    from sqlalchemy.engine import make_url
+
+    try:
+        u = make_url(url_str)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Chuỗi kết nối không hợp lệ: {e}")
+
+    dialect_name = u.get_backend_name().lower()
+    selected_db = req.database_name.strip() if req.database_name and req.database_name.strip() else None
+    active_db = selected_db or u.database or ""
+
+    effective_url = u
+    if selected_db and u.database != selected_db:
+        effective_url = u.set(database=selected_db)
+
+    # Khởi tạo engine với timeout ngắn để phản hồi nhanh
+    connect_args = {}
+    if any(d in dialect_name for d in ("mssql", "sqlserver")):
+        connect_args["timeout"] = 5
+        connect_args["login_timeout"] = 5
+    elif "mysql" in dialect_name:
+        connect_args["connect_timeout"] = 5
+    elif "postgres" in dialect_name:
+        connect_args["connect_timeout"] = 5
+
+    try:
+        engine = create_engine(effective_url, pool_pre_ping=True, connect_args=connect_args)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Lỗi khởi tạo driver CSDL ({dialect_name}): {e}")
+
+    try:
+        databases: List[str] = []
+        try:
+            with engine.connect() as conn:
+                if any(d in dialect_name for d in ("mssql", "sqlserver")):
+                    try:
+                        res = conn.execute(text("SELECT name FROM sys.databases WHERE state_desc = 'ONLINE' AND name NOT IN ('master', 'tempdb', 'model', 'msdb') ORDER BY name"))
+                        databases = [r[0] for r in res.fetchall()]
+                    except Exception:
+                        pass
+                elif "postgres" in dialect_name:
+                    try:
+                        res = conn.execute(text("SELECT datname FROM pg_database WHERE datistemplate = false AND datname NOT IN ('postgres') ORDER BY datname"))
+                        databases = [r[0] for r in res.fetchall()]
+                    except Exception:
+                        pass
+                elif "mysql" in dialect_name:
+                    try:
+                        res = conn.execute(text("SHOW DATABASES"))
+                        sys_dbs = {"information_schema", "performance_schema", "mysql", "sys"}
+                        databases = [r[0] for r in res.fetchall() if str(r[0]).lower() not in sys_dbs]
+                    except Exception:
+                        pass
+        except Exception as conn_err:
+            raise HTTPException(status_code=400, detail=f"Không thể kết nối tới máy chủ CSDL: {conn_err}")
+
+        if active_db and active_db not in databases:
+            databases.insert(0, active_db)
+        elif not databases and active_db:
+            databases = [active_db]
+
+        # Khám phá schemas của database đang active
+        inspector = inspect(engine)
+        raw_schemas: List[str] = []
+        try:
+            raw_schemas = inspector.get_schema_names()
+        except Exception:
+            pass
+
+        system_schemas = {
+            "sys", "information_schema", "guest", "db_owner", "db_securityadmin",
+            "db_ddladmin", "db_backupoperator", "db_datareader", "db_datawriter",
+            "db_denydatareader", "db_denydatawriter", "cdc", "db_accessadmin",
+            "pg_catalog", "pg_toast"
+        }
+        business_schemas = [s for s in raw_schemas if s.lower() not in system_schemas]
+        if not business_schemas and raw_schemas:
+            business_schemas = raw_schemas
+        if not business_schemas:
+            if any(d in dialect_name for d in ("mssql", "sqlserver")):
+                business_schemas = ["dbo"]
+            elif "postgres" in dialect_name:
+                business_schemas = ["public"]
+            else:
+                business_schemas = [active_db or "default"]
+
+        default_schema = "dbo" if "dbo" in business_schemas else ("public" if "public" in business_schemas else business_schemas[0])
+
+        return InspectConnectionResponse(
+            status="success",
+            dialect=dialect_name,
+            current_database=active_db or (databases[0] if databases else None),
+            databases=databases,
+            schemas=business_schemas,
+            default_schema=default_schema,
+            effective_url=str(effective_url.render_as_string(hide_password=False)),
+            message=f"Kết nối máy chủ {dialect_name.upper()} thành công ({len(databases)} CSDL, {len(business_schemas)} schemas)."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Lỗi khi khám phá máy chủ CSDL: {e}")
+    finally:
+        try:
+            engine.dispose()
+        except Exception:
+            pass
+
+
 @router.post("/connect")
 def connect_database(req: DatabaseConnectRequest, admin: UserContext = Depends(require_admin)):
     """
@@ -224,6 +398,16 @@ def connect_database(req: DatabaseConnectRequest, admin: UserContext = Depends(r
     target = req.connection_url or req.db_path or req.db_name
     if not target:
         raise HTTPException(status_code=400, detail="Cần cung cấp ít nhất connection_url hoặc db_path/db_name.")
+
+    # Cập nhật database trong connection_url nếu người dùng đã chọn db_name cụ thể
+    if req.connection_url and req.db_name:
+        try:
+            from sqlalchemy.engine import make_url
+            u = make_url(req.connection_url)
+            if u.database != req.db_name:
+                target = str(u.set(database=req.db_name).render_as_string(hide_password=False))
+        except Exception:
+            pass
 
     dm = DomainManager()
     try:
@@ -240,6 +424,8 @@ def connect_database(req: DatabaseConnectRequest, admin: UserContext = Depends(r
             "status": "connected",
             "domain_id": domain_cfg.domain_id,
             "display_name": domain_cfg.display_name,
+            "database_name": req.db_name or domain_cfg.domain_id,
+            "schema_name": req.schema_name or "default",
             "tables_count": len(domain_cfg.tables),
             "tables": list(domain_cfg.tables.keys()),
             "metrics_count": len(domain_cfg.metrics),
@@ -263,10 +449,11 @@ def list_connected_databases():
 @router.post("/{domain_id}/ingest")
 def trigger_domain_ingestion(
     domain_id: str,
-    source_url: Optional[str] = None,
-    schema_name: Optional[str] = None,
-    tables: Optional[List[str]] = None,
-    mode: str = "full_refresh",
+    req: Optional[IngestRequest] = Body(None),
+    source_url: Optional[str] = Query(None),
+    schema_name: Optional[str] = Query(None),
+    tables: Optional[List[str]] = Query(None),
+    mode: Optional[str] = Query(None),
     admin: UserContext = Depends(require_admin)
 ):
     """
@@ -278,8 +465,13 @@ def trigger_domain_ingestion(
     if not conf:
         raise HTTPException(status_code=404, detail=f"Domain '{domain_id}' không tồn tại.")
 
+    effective_source_url = (req.source_url if req and req.source_url else None) or source_url
+    effective_schema = (req.schema_name if req and req.schema_name else None) or schema_name
+    effective_tables = (req.tables if req and req.tables else None) or tables
+    effective_mode = (req.mode if req and req.mode else None) or mode or "full_refresh"
+
     # Tìm source connection url từ domain hoặc tham số
-    target_url = source_url or os.getenv(f"DB_URL_{domain_id.upper()}", os.getenv("EXTERNAL_DATABASE_URL", ""))
+    target_url = effective_source_url or os.getenv(f"DB_URL_{domain_id.upper()}", os.getenv("EXTERNAL_DATABASE_URL", ""))
     if not target_url:
         raise HTTPException(status_code=400, detail="Cần cung cấp source_url hoặc cấu hình EXTERNAL_DATABASE_URL.")
 
@@ -287,9 +479,9 @@ def trigger_domain_ingestion(
     try:
         res = service.sync_database(
             source_connection_url=target_url,
-            source_schema=schema_name,
-            selected_tables=tables or list(conf.tables.keys()),
-            sync_mode=mode,
+            source_schema=effective_schema,
+            selected_tables=effective_tables or list(conf.tables.keys()),
+            sync_mode=effective_mode,
             domain_id=domain_id
         )
         return res

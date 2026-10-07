@@ -1,0 +1,340 @@
+tables:
+  e_commerce.customer:
+    table_name: e_commerce.customer
+    vn_name: Customer
+    description: Bảng/View e_commerce.customer
+    primary_key:
+    - customer_id
+    partition_key: null
+    columns:
+      customer_id:
+        name: customer_id
+        vn_name: Customer Id
+        en_name: Customer Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột customer_id trong bảng e_commerce.customer
+        synonyms:
+        - customer id
+        is_partition_or_dist: false
+      first_name:
+        name: first_name
+        vn_name: First Name
+        en_name: First Name
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột first_name trong bảng e_commerce.customer
+        synonyms:
+        - first name
+        is_partition_or_dist: false
+      last_name:
+        name: last_name
+        vn_name: Last Name
+        en_name: Last Name
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột last_name trong bảng e_commerce.customer
+        synonyms:
+        - last name
+        is_partition_or_dist: false
+      birth_date:
+        name: birth_date
+        vn_name: Birth Date
+        en_name: Birth Date
+        data_type: DATE
+        description: Cột birth_date trong bảng e_commerce.customer
+        synonyms:
+        - birth date
+        is_partition_or_dist: false
+      marital_status:
+        name: marital_status
+        vn_name: Marital Status
+        en_name: Marital Status
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột marital_status trong bảng e_commerce.customer
+        synonyms:
+        - marital status
+        is_partition_or_dist: false
+      gender:
+        name: gender
+        vn_name: Gender
+        en_name: Gender
+        data_type: NVARCHAR(1) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột gender trong bảng e_commerce.customer
+        synonyms:
+        - gender
+        is_partition_or_dist: false
+      email_address:
+        name: email_address
+        vn_name: Email Address
+        en_name: Email Address
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột email_address trong bảng e_commerce.customer
+        synonyms:
+        - email address
+        is_partition_or_dist: false
+      annual_income:
+        name: annual_income
+        vn_name: Annual Income
+        en_name: Annual Income
+        data_type: INTEGER
+        description: Cột annual_income trong bảng e_commerce.customer
+        synonyms:
+        - annual income
+        is_partition_or_dist: false
+      education_level:
+        name: education_level
+        vn_name: Education Level
+        en_name: Education Level
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột education_level trong bảng e_commerce.customer
+        synonyms:
+        - education level
+        is_partition_or_dist: false
+      occupation:
+        name: occupation
+        vn_name: Occupation
+        en_name: Occupation
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột occupation trong bảng e_commerce.customer
+        synonyms:
+        - occupation
+        is_partition_or_dist: false
+      home_owner:
+        name: home_owner
+        vn_name: Home Owner
+        en_name: Home Owner
+        data_type: NVARCHAR(1) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột home_owner trong bảng e_commerce.customer
+        synonyms:
+        - home owner
+        is_partition_or_dist: false
+  e_commerce.ecom_sales:
+    table_name: e_commerce.ecom_sales
+    vn_name: Ecom Sales
+    description: Bảng/View e_commerce.ecom_sales
+    primary_key:
+    - row_id
+    partition_key: null
+    columns:
+      row_id:
+        name: row_id
+        vn_name: Row Id
+        en_name: Row Id
+        data_type: INTEGER
+        description: Cột row_id trong bảng e_commerce.ecom_sales
+        synonyms:
+        - row id
+        is_partition_or_dist: false
+      order_id:
+        name: order_id
+        vn_name: Order Id
+        en_name: Order Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_id trong bảng e_commerce.ecom_sales
+        synonyms:
+        - order id
+        is_partition_or_dist: false
+      order_date:
+        name: order_date
+        vn_name: Order Date
+        en_name: Order Date
+        data_type: DATE
+        description: Cột order_date trong bảng e_commerce.ecom_sales
+        synonyms:
+        - order date
+        is_partition_or_dist: false
+      customer_id:
+        name: customer_id
+        vn_name: Customer Id
+        en_name: Customer Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột customer_id trong bảng e_commerce.ecom_sales
+        synonyms:
+        - customer id
+        is_partition_or_dist: false
+      segment:
+        name: segment
+        vn_name: Segment
+        en_name: Segment
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột segment trong bảng e_commerce.ecom_sales
+        synonyms:
+        - segment
+        is_partition_or_dist: false
+      region_code:
+        name: region_code
+        vn_name: Region Code
+        en_name: Region Code
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột region_code trong bảng e_commerce.ecom_sales
+        synonyms:
+        - region code
+        is_partition_or_dist: false
+      product_code:
+        name: product_code
+        vn_name: Product Code
+        en_name: Product Code
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_code trong bảng e_commerce.ecom_sales
+        synonyms:
+        - product code
+        is_partition_or_dist: false
+      quantity:
+        name: quantity
+        vn_name: Quantity
+        en_name: Quantity
+        data_type: INTEGER
+        description: Cột quantity trong bảng e_commerce.ecom_sales
+        synonyms:
+        - quantity
+        is_partition_or_dist: false
+      sales:
+        name: sales
+        vn_name: Sales
+        en_name: Sales
+        data_type: DECIMAL(10, 2)
+        description: Cột sales trong bảng e_commerce.ecom_sales
+        synonyms:
+        - sales
+        is_partition_or_dist: false
+      discount:
+        name: discount
+        vn_name: Discount
+        en_name: Discount
+        data_type: DECIMAL(10, 2)
+        description: Cột discount trong bảng e_commerce.ecom_sales
+        synonyms:
+        - discount
+        is_partition_or_dist: false
+      profit:
+        name: profit
+        vn_name: Profit
+        en_name: Profit
+        data_type: DECIMAL(10, 2)
+        description: Cột profit trong bảng e_commerce.ecom_sales
+        synonyms:
+        - profit
+        is_partition_or_dist: false
+  e_commerce.product:
+    table_name: e_commerce.product
+    vn_name: Product
+    description: Bảng/View e_commerce.product
+    primary_key:
+    - product_code
+    partition_key: null
+    columns:
+      product_code:
+        name: product_code
+        vn_name: Product Code
+        en_name: Product Code
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_code trong bảng e_commerce.product
+        synonyms:
+        - product code
+        is_partition_or_dist: false
+      product:
+        name: product
+        vn_name: Product
+        en_name: Product
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product trong bảng e_commerce.product
+        synonyms:
+        - product
+        is_partition_or_dist: false
+      category:
+        name: category
+        vn_name: Category
+        en_name: Category
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột category trong bảng e_commerce.product
+        synonyms:
+        - category
+        is_partition_or_dist: false
+      subcategory:
+        name: subcategory
+        vn_name: Subcategory
+        en_name: Subcategory
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột subcategory trong bảng e_commerce.product
+        synonyms:
+        - subcategory
+        is_partition_or_dist: false
+  e_commerce.region:
+    table_name: e_commerce.region
+    vn_name: Region
+    description: Bảng/View e_commerce.region
+    primary_key:
+    - region_code
+    partition_key: null
+    columns:
+      region_code:
+        name: region_code
+        vn_name: Region Code
+        en_name: Region Code
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột region_code trong bảng e_commerce.region
+        synonyms:
+        - region code
+        is_partition_or_dist: false
+      city:
+        name: city
+        vn_name: City
+        en_name: City
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột city trong bảng e_commerce.region
+        synonyms:
+        - city
+        is_partition_or_dist: false
+      state:
+        name: state
+        vn_name: State
+        en_name: State
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state trong bảng e_commerce.region
+        synonyms:
+        - state
+        is_partition_or_dist: false
+      country:
+        name: country
+        vn_name: Country
+        en_name: Country
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột country trong bảng e_commerce.region
+        synonyms:
+        - country
+        is_partition_or_dist: false
+      country_latitude:
+        name: country_latitude
+        vn_name: Country Latitude
+        en_name: Country Latitude
+        data_type: DECIMAL(10, 6)
+        description: Cột country_latitude trong bảng e_commerce.region
+        synonyms:
+        - country latitude
+        is_partition_or_dist: false
+      country_longitude:
+        name: country_longitude
+        vn_name: Country Longitude
+        en_name: Country Longitude
+        data_type: DECIMAL(10, 6)
+        description: Cột country_longitude trong bảng e_commerce.region
+        synonyms:
+        - country longitude
+        is_partition_or_dist: false
+      region:
+        name: region
+        vn_name: Region
+        en_name: Region
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột region trong bảng e_commerce.region
+        synonyms:
+        - region
+        is_partition_or_dist: false
+      market:
+        name: market
+        vn_name: Market
+        en_name: Market
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột market trong bảng e_commerce.region
+        synonyms:
+        - market
+        is_partition_or_dist: false
+relationships: []

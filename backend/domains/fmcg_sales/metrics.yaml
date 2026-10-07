@@ -1,0 +1,269 @@
+metrics:
+  total_fmcg_sales.categories:
+    metric_id: total_fmcg_sales.categories
+    vn_terms:
+    - tổng số Categories
+    - số lượng Categories
+    - số Categories
+    - thống kê Categories
+    en_terms:
+    - total fmcg_sales.categories
+    - fmcg_sales.categories count
+    - number of fmcg_sales.categories
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng fmcg_sales.categories
+    depends_on_tables:
+    - fmcg_sales.categories
+    depends_on_columns: []
+  total_fmcg_sales.cities:
+    metric_id: total_fmcg_sales.cities
+    vn_terms:
+    - tổng số Cities
+    - số lượng Cities
+    - số Cities
+    - thống kê Cities
+    en_terms:
+    - total fmcg_sales.cities
+    - fmcg_sales.cities count
+    - number of fmcg_sales.cities
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng fmcg_sales.cities
+    depends_on_tables:
+    - fmcg_sales.cities
+    depends_on_columns: []
+  total_fmcg_sales.countries:
+    metric_id: total_fmcg_sales.countries
+    vn_terms:
+    - tổng số Countries
+    - số lượng Countries
+    - số Countries
+    - thống kê Countries
+    en_terms:
+    - total fmcg_sales.countries
+    - fmcg_sales.countries count
+    - number of fmcg_sales.countries
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng fmcg_sales.countries
+    depends_on_tables:
+    - fmcg_sales.countries
+    depends_on_columns: []
+  total_fmcg_sales.customers:
+    metric_id: total_fmcg_sales.customers
+    vn_terms:
+    - tổng số Customers
+    - số lượng Customers
+    - số Customers
+    - thống kê Customers
+    en_terms:
+    - total fmcg_sales.customers
+    - fmcg_sales.customers count
+    - number of fmcg_sales.customers
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng fmcg_sales.customers
+    depends_on_tables:
+    - fmcg_sales.customers
+    depends_on_columns: []
+  total_fmcg_sales.employees:
+    metric_id: total_fmcg_sales.employees
+    vn_terms:
+    - tổng số Employees
+    - số lượng Employees
+    - số Employees
+    - thống kê Employees
+    en_terms:
+    - total fmcg_sales.employees
+    - fmcg_sales.employees count
+    - number of fmcg_sales.employees
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng fmcg_sales.employees
+    depends_on_tables:
+    - fmcg_sales.employees
+    depends_on_columns: []
+  total_fmcg_sales.products:
+    metric_id: total_fmcg_sales.products
+    vn_terms:
+    - tổng số Products
+    - số lượng Products
+    - số Products
+    - thống kê Products
+    en_terms:
+    - total fmcg_sales.products
+    - fmcg_sales.products count
+    - number of fmcg_sales.products
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng fmcg_sales.products
+    depends_on_tables:
+    - fmcg_sales.products
+    depends_on_columns: []
+  total_price:
+    metric_id: total_price
+    vn_terms:
+    - tổng Price
+    - tổng số Price
+    - tổng cộng Price
+    en_terms:
+    - total price
+    - sum of price
+    sql_expression: ROUND(SUM(price), 2)
+    description: Tổng giá trị lũy kế của cột price trong bảng fmcg_sales.products
+    depends_on_tables:
+    - fmcg_sales.products
+    depends_on_columns:
+    - price
+  avg_price:
+    metric_id: avg_price
+    vn_terms:
+    - Price trung bình
+    - trung bình Price
+    - bình quân Price
+    en_terms:
+    - average price
+    - avg price
+    - mean price
+    sql_expression: ROUND(AVG(price), 2)
+    description: Giá trị bình quân của cột price trong bảng fmcg_sales.products
+    depends_on_tables:
+    - fmcg_sales.products
+    depends_on_columns:
+    - price
+  total_vitality_days:
+    metric_id: total_vitality_days
+    vn_terms:
+    - tổng Vitality Days
+    - tổng số Vitality Days
+    - tổng cộng Vitality Days
+    en_terms:
+    - total vitality_days
+    - sum of vitality_days
+    sql_expression: ROUND(SUM(vitality_days), 2)
+    description: Tổng giá trị lũy kế của cột vitality_days trong bảng fmcg_sales.products
+    depends_on_tables:
+    - fmcg_sales.products
+    depends_on_columns:
+    - vitality_days
+  avg_vitality_days:
+    metric_id: avg_vitality_days
+    vn_terms:
+    - Vitality Days trung bình
+    - trung bình Vitality Days
+    - bình quân Vitality Days
+    en_terms:
+    - average vitality_days
+    - avg vitality_days
+    - mean vitality_days
+    sql_expression: ROUND(AVG(vitality_days), 2)
+    description: Giá trị bình quân của cột vitality_days trong bảng fmcg_sales.products
+    depends_on_tables:
+    - fmcg_sales.products
+    depends_on_columns:
+    - vitality_days
+  total_fmcg_sales.sales:
+    metric_id: total_fmcg_sales.sales
+    vn_terms:
+    - tổng số Sales
+    - số lượng Sales
+    - số Sales
+    - thống kê Sales
+    en_terms:
+    - total fmcg_sales.sales
+    - fmcg_sales.sales count
+    - number of fmcg_sales.sales
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng fmcg_sales.sales
+    depends_on_tables:
+    - fmcg_sales.sales
+    depends_on_columns: []
+  total_quantity:
+    metric_id: total_quantity
+    vn_terms:
+    - tổng Quantity
+    - tổng số Quantity
+    - tổng cộng Quantity
+    en_terms:
+    - total quantity
+    - sum of quantity
+    sql_expression: ROUND(SUM(quantity), 2)
+    description: Tổng giá trị lũy kế của cột quantity trong bảng fmcg_sales.sales
+    depends_on_tables:
+    - fmcg_sales.sales
+    depends_on_columns:
+    - quantity
+  avg_quantity:
+    metric_id: avg_quantity
+    vn_terms:
+    - Quantity trung bình
+    - trung bình Quantity
+    - bình quân Quantity
+    en_terms:
+    - average quantity
+    - avg quantity
+    - mean quantity
+    sql_expression: ROUND(AVG(quantity), 2)
+    description: Giá trị bình quân của cột quantity trong bảng fmcg_sales.sales
+    depends_on_tables:
+    - fmcg_sales.sales
+    depends_on_columns:
+    - quantity
+  total_discount:
+    metric_id: total_discount
+    vn_terms:
+    - tổng Discount
+    - tổng số Discount
+    - tổng cộng Discount
+    en_terms:
+    - total discount
+    - sum of discount
+    sql_expression: ROUND(SUM(discount), 2)
+    description: Tổng giá trị lũy kế của cột discount trong bảng fmcg_sales.sales
+    depends_on_tables:
+    - fmcg_sales.sales
+    depends_on_columns:
+    - discount
+  avg_discount:
+    metric_id: avg_discount
+    vn_terms:
+    - Discount trung bình
+    - trung bình Discount
+    - bình quân Discount
+    en_terms:
+    - average discount
+    - avg discount
+    - mean discount
+    sql_expression: ROUND(AVG(discount), 2)
+    description: Giá trị bình quân của cột discount trong bảng fmcg_sales.sales
+    depends_on_tables:
+    - fmcg_sales.sales
+    depends_on_columns:
+    - discount
+  total_total_price:
+    metric_id: total_total_price
+    vn_terms:
+    - tổng Total Price
+    - tổng số Total Price
+    - tổng cộng Total Price
+    en_terms:
+    - total total_price
+    - sum of total_price
+    sql_expression: ROUND(SUM(total_price), 2)
+    description: Tổng giá trị lũy kế của cột total_price trong bảng fmcg_sales.sales
+    depends_on_tables:
+    - fmcg_sales.sales
+    depends_on_columns:
+    - total_price
+  avg_total_price:
+    metric_id: avg_total_price
+    vn_terms:
+    - Total Price trung bình
+    - trung bình Total Price
+    - bình quân Total Price
+    en_terms:
+    - average total_price
+    - avg total_price
+    - mean total_price
+    sql_expression: ROUND(AVG(total_price), 2)
+    description: Giá trị bình quân của cột total_price trong bảng fmcg_sales.sales
+    depends_on_tables:
+    - fmcg_sales.sales
+    depends_on_columns:
+    - total_price
+segments: {}

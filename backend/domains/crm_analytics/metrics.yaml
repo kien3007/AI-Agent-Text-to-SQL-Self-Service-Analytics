@@ -1,0 +1,142 @@
+metrics:
+  total_crm_analytics.deals:
+    metric_id: total_crm_analytics.deals
+    vn_terms:
+    - tổng số Deals
+    - số lượng Deals
+    - số Deals
+    - thống kê Deals
+    en_terms:
+    - total crm_analytics.deals
+    - crm_analytics.deals count
+    - number of crm_analytics.deals
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns: []
+  total_status_sequence:
+    metric_id: total_status_sequence
+    vn_terms:
+    - tổng Status Sequence
+    - tổng số Status Sequence
+    - tổng cộng Status Sequence
+    en_terms:
+    - total status_sequence
+    - sum of status_sequence
+    sql_expression: ROUND(SUM(status_sequence), 2)
+    description: Tổng giá trị lũy kế của cột status_sequence trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns:
+    - status_sequence
+  avg_status_sequence:
+    metric_id: avg_status_sequence
+    vn_terms:
+    - Status Sequence trung bình
+    - trung bình Status Sequence
+    - bình quân Status Sequence
+    en_terms:
+    - average status_sequence
+    - avg status_sequence
+    - mean status_sequence
+    sql_expression: ROUND(AVG(status_sequence), 2)
+    description: Giá trị bình quân của cột status_sequence trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns:
+    - status_sequence
+  total_stage_sequence:
+    metric_id: total_stage_sequence
+    vn_terms:
+    - tổng Stage Sequence
+    - tổng số Stage Sequence
+    - tổng cộng Stage Sequence
+    en_terms:
+    - total stage_sequence
+    - sum of stage_sequence
+    sql_expression: ROUND(SUM(stage_sequence), 2)
+    description: Tổng giá trị lũy kế của cột stage_sequence trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns:
+    - stage_sequence
+  avg_stage_sequence:
+    metric_id: avg_stage_sequence
+    vn_terms:
+    - Stage Sequence trung bình
+    - trung bình Stage Sequence
+    - bình quân Stage Sequence
+    en_terms:
+    - average stage_sequence
+    - avg stage_sequence
+    - mean stage_sequence
+    sql_expression: ROUND(AVG(stage_sequence), 2)
+    description: Giá trị bình quân của cột stage_sequence trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns:
+    - stage_sequence
+  total_deal_value:
+    metric_id: total_deal_value
+    vn_terms:
+    - tổng Deal Value
+    - tổng số Deal Value
+    - tổng cộng Deal Value
+    en_terms:
+    - total deal_value
+    - sum of deal_value
+    sql_expression: ROUND(SUM(deal_value), 2)
+    description: Tổng giá trị lũy kế của cột deal_value trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns:
+    - deal_value
+  avg_deal_value:
+    metric_id: avg_deal_value
+    vn_terms:
+    - Deal Value trung bình
+    - trung bình Deal Value
+    - bình quân Deal Value
+    en_terms:
+    - average deal_value
+    - avg deal_value
+    - mean deal_value
+    sql_expression: ROUND(AVG(deal_value), 2)
+    description: Giá trị bình quân của cột deal_value trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns:
+    - deal_value
+  total_probability:
+    metric_id: total_probability
+    vn_terms:
+    - tổng Probability
+    - tổng số Probability
+    - tổng cộng Probability
+    en_terms:
+    - total probability
+    - sum of probability
+    sql_expression: ROUND(SUM(probability), 2)
+    description: Tổng giá trị lũy kế của cột probability trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns:
+    - probability
+  avg_probability:
+    metric_id: avg_probability
+    vn_terms:
+    - Probability trung bình
+    - trung bình Probability
+    - bình quân Probability
+    en_terms:
+    - average probability
+    - avg probability
+    - mean probability
+    sql_expression: ROUND(AVG(probability), 2)
+    description: Giá trị bình quân của cột probability trong bảng crm_analytics.deals
+    depends_on_tables:
+    - crm_analytics.deals
+    depends_on_columns:
+    - probability
+segments: {}

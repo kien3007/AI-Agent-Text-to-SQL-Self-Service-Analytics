@@ -1,0 +1,283 @@
+metrics:
+  total_e_commerce.customer:
+    metric_id: total_e_commerce.customer
+    vn_terms:
+    - tổng số Customer
+    - số lượng Customer
+    - số Customer
+    - thống kê Customer
+    en_terms:
+    - total e_commerce.customer
+    - e_commerce.customer count
+    - number of e_commerce.customer
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng e_commerce.customer
+    depends_on_tables:
+    - e_commerce.customer
+    depends_on_columns: []
+  total_annual_income:
+    metric_id: total_annual_income
+    vn_terms:
+    - tổng Annual Income
+    - tổng số Annual Income
+    - tổng cộng Annual Income
+    en_terms:
+    - total annual_income
+    - sum of annual_income
+    sql_expression: ROUND(SUM(annual_income), 2)
+    description: Tổng giá trị lũy kế của cột annual_income trong bảng e_commerce.customer
+    depends_on_tables:
+    - e_commerce.customer
+    depends_on_columns:
+    - annual_income
+  avg_annual_income:
+    metric_id: avg_annual_income
+    vn_terms:
+    - Annual Income trung bình
+    - trung bình Annual Income
+    - bình quân Annual Income
+    en_terms:
+    - average annual_income
+    - avg annual_income
+    - mean annual_income
+    sql_expression: ROUND(AVG(annual_income), 2)
+    description: Giá trị bình quân của cột annual_income trong bảng e_commerce.customer
+    depends_on_tables:
+    - e_commerce.customer
+    depends_on_columns:
+    - annual_income
+  total_e_commerce.ecom_sales:
+    metric_id: total_e_commerce.ecom_sales
+    vn_terms:
+    - tổng số Ecom Sales
+    - số lượng Ecom Sales
+    - số Ecom Sales
+    - thống kê Ecom Sales
+    en_terms:
+    - total e_commerce.ecom_sales
+    - e_commerce.ecom_sales count
+    - number of e_commerce.ecom_sales
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns: []
+  total_quantity:
+    metric_id: total_quantity
+    vn_terms:
+    - tổng Quantity
+    - tổng số Quantity
+    - tổng cộng Quantity
+    en_terms:
+    - total quantity
+    - sum of quantity
+    sql_expression: ROUND(SUM(quantity), 2)
+    description: Tổng giá trị lũy kế của cột quantity trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns:
+    - quantity
+  avg_quantity:
+    metric_id: avg_quantity
+    vn_terms:
+    - Quantity trung bình
+    - trung bình Quantity
+    - bình quân Quantity
+    en_terms:
+    - average quantity
+    - avg quantity
+    - mean quantity
+    sql_expression: ROUND(AVG(quantity), 2)
+    description: Giá trị bình quân của cột quantity trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns:
+    - quantity
+  total_sales:
+    metric_id: total_sales
+    vn_terms:
+    - tổng Sales
+    - tổng số Sales
+    - tổng cộng Sales
+    en_terms:
+    - total sales
+    - sum of sales
+    sql_expression: ROUND(SUM(sales), 2)
+    description: Tổng giá trị lũy kế của cột sales trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns:
+    - sales
+  avg_sales:
+    metric_id: avg_sales
+    vn_terms:
+    - Sales trung bình
+    - trung bình Sales
+    - bình quân Sales
+    en_terms:
+    - average sales
+    - avg sales
+    - mean sales
+    sql_expression: ROUND(AVG(sales), 2)
+    description: Giá trị bình quân của cột sales trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns:
+    - sales
+  total_discount:
+    metric_id: total_discount
+    vn_terms:
+    - tổng Discount
+    - tổng số Discount
+    - tổng cộng Discount
+    en_terms:
+    - total discount
+    - sum of discount
+    sql_expression: ROUND(SUM(discount), 2)
+    description: Tổng giá trị lũy kế của cột discount trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns:
+    - discount
+  avg_discount:
+    metric_id: avg_discount
+    vn_terms:
+    - Discount trung bình
+    - trung bình Discount
+    - bình quân Discount
+    en_terms:
+    - average discount
+    - avg discount
+    - mean discount
+    sql_expression: ROUND(AVG(discount), 2)
+    description: Giá trị bình quân của cột discount trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns:
+    - discount
+  total_profit:
+    metric_id: total_profit
+    vn_terms:
+    - tổng Profit
+    - tổng số Profit
+    - tổng cộng Profit
+    en_terms:
+    - total profit
+    - sum of profit
+    sql_expression: ROUND(SUM(profit), 2)
+    description: Tổng giá trị lũy kế của cột profit trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns:
+    - profit
+  avg_profit:
+    metric_id: avg_profit
+    vn_terms:
+    - Profit trung bình
+    - trung bình Profit
+    - bình quân Profit
+    en_terms:
+    - average profit
+    - avg profit
+    - mean profit
+    sql_expression: ROUND(AVG(profit), 2)
+    description: Giá trị bình quân của cột profit trong bảng e_commerce.ecom_sales
+    depends_on_tables:
+    - e_commerce.ecom_sales
+    depends_on_columns:
+    - profit
+  total_e_commerce.product:
+    metric_id: total_e_commerce.product
+    vn_terms:
+    - tổng số Product
+    - số lượng Product
+    - số Product
+    - thống kê Product
+    en_terms:
+    - total e_commerce.product
+    - e_commerce.product count
+    - number of e_commerce.product
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng e_commerce.product
+    depends_on_tables:
+    - e_commerce.product
+    depends_on_columns: []
+  total_e_commerce.region:
+    metric_id: total_e_commerce.region
+    vn_terms:
+    - tổng số Region
+    - số lượng Region
+    - số Region
+    - thống kê Region
+    en_terms:
+    - total e_commerce.region
+    - e_commerce.region count
+    - number of e_commerce.region
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng e_commerce.region
+    depends_on_tables:
+    - e_commerce.region
+    depends_on_columns: []
+  total_country_latitude:
+    metric_id: total_country_latitude
+    vn_terms:
+    - tổng Country Latitude
+    - tổng số Country Latitude
+    - tổng cộng Country Latitude
+    en_terms:
+    - total country_latitude
+    - sum of country_latitude
+    sql_expression: ROUND(SUM(country_latitude), 2)
+    description: Tổng giá trị lũy kế của cột country_latitude trong bảng e_commerce.region
+    depends_on_tables:
+    - e_commerce.region
+    depends_on_columns:
+    - country_latitude
+  avg_country_latitude:
+    metric_id: avg_country_latitude
+    vn_terms:
+    - Country Latitude trung bình
+    - trung bình Country Latitude
+    - bình quân Country Latitude
+    en_terms:
+    - average country_latitude
+    - avg country_latitude
+    - mean country_latitude
+    sql_expression: ROUND(AVG(country_latitude), 2)
+    description: Giá trị bình quân của cột country_latitude trong bảng e_commerce.region
+    depends_on_tables:
+    - e_commerce.region
+    depends_on_columns:
+    - country_latitude
+  total_country_longitude:
+    metric_id: total_country_longitude
+    vn_terms:
+    - tổng Country Longitude
+    - tổng số Country Longitude
+    - tổng cộng Country Longitude
+    en_terms:
+    - total country_longitude
+    - sum of country_longitude
+    sql_expression: ROUND(SUM(country_longitude), 2)
+    description: Tổng giá trị lũy kế của cột country_longitude trong bảng e_commerce.region
+    depends_on_tables:
+    - e_commerce.region
+    depends_on_columns:
+    - country_longitude
+  avg_country_longitude:
+    metric_id: avg_country_longitude
+    vn_terms:
+    - Country Longitude trung bình
+    - trung bình Country Longitude
+    - bình quân Country Longitude
+    en_terms:
+    - average country_longitude
+    - avg country_longitude
+    - mean country_longitude
+    sql_expression: ROUND(AVG(country_longitude), 2)
+    description: Giá trị bình quân của cột country_longitude trong bảng e_commerce.region
+    depends_on_tables:
+    - e_commerce.region
+    depends_on_columns:
+    - country_longitude
+segments: {}

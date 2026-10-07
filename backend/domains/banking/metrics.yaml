@@ -1,0 +1,283 @@
+metrics:
+  total_banking.cards:
+    metric_id: total_banking.cards
+    vn_terms:
+    - tổng số Cards
+    - số lượng Cards
+    - số Cards
+    - thống kê Cards
+    en_terms:
+    - total banking.cards
+    - banking.cards count
+    - number of banking.cards
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng banking.cards
+    depends_on_tables:
+    - banking.cards
+    depends_on_columns: []
+  total_num_cards_issued:
+    metric_id: total_num_cards_issued
+    vn_terms:
+    - tổng Num Cards Issued
+    - tổng số Num Cards Issued
+    - tổng cộng Num Cards Issued
+    en_terms:
+    - total num_cards_issued
+    - sum of num_cards_issued
+    sql_expression: ROUND(SUM(num_cards_issued), 2)
+    description: Tổng giá trị lũy kế của cột num_cards_issued trong bảng banking.cards
+    depends_on_tables:
+    - banking.cards
+    depends_on_columns:
+    - num_cards_issued
+  avg_num_cards_issued:
+    metric_id: avg_num_cards_issued
+    vn_terms:
+    - Num Cards Issued trung bình
+    - trung bình Num Cards Issued
+    - bình quân Num Cards Issued
+    en_terms:
+    - average num_cards_issued
+    - avg num_cards_issued
+    - mean num_cards_issued
+    sql_expression: ROUND(AVG(num_cards_issued), 2)
+    description: Giá trị bình quân của cột num_cards_issued trong bảng banking.cards
+    depends_on_tables:
+    - banking.cards
+    depends_on_columns:
+    - num_cards_issued
+  total_credit_limit:
+    metric_id: total_credit_limit
+    vn_terms:
+    - tổng Credit Limit
+    - tổng số Credit Limit
+    - tổng cộng Credit Limit
+    en_terms:
+    - total credit_limit
+    - sum of credit_limit
+    sql_expression: ROUND(SUM(credit_limit), 2)
+    description: Tổng giá trị lũy kế của cột credit_limit trong bảng banking.cards
+    depends_on_tables:
+    - banking.cards
+    depends_on_columns:
+    - credit_limit
+  avg_credit_limit:
+    metric_id: avg_credit_limit
+    vn_terms:
+    - Credit Limit trung bình
+    - trung bình Credit Limit
+    - bình quân Credit Limit
+    en_terms:
+    - average credit_limit
+    - avg credit_limit
+    - mean credit_limit
+    sql_expression: ROUND(AVG(credit_limit), 2)
+    description: Giá trị bình quân của cột credit_limit trong bảng banking.cards
+    depends_on_tables:
+    - banking.cards
+    depends_on_columns:
+    - credit_limit
+  total_year_pin_last_changed:
+    metric_id: total_year_pin_last_changed
+    vn_terms:
+    - tổng Year Pin Last Changed
+    - tổng số Year Pin Last Changed
+    - tổng cộng Year Pin Last Changed
+    en_terms:
+    - total year_pin_last_changed
+    - sum of year_pin_last_changed
+    sql_expression: ROUND(SUM(year_pin_last_changed), 2)
+    description: Tổng giá trị lũy kế của cột year_pin_last_changed trong bảng banking.cards
+    depends_on_tables:
+    - banking.cards
+    depends_on_columns:
+    - year_pin_last_changed
+  avg_year_pin_last_changed:
+    metric_id: avg_year_pin_last_changed
+    vn_terms:
+    - Year Pin Last Changed trung bình
+    - trung bình Year Pin Last Changed
+    - bình quân Year Pin Last Changed
+    en_terms:
+    - average year_pin_last_changed
+    - avg year_pin_last_changed
+    - mean year_pin_last_changed
+    sql_expression: ROUND(AVG(year_pin_last_changed), 2)
+    description: Giá trị bình quân của cột year_pin_last_changed trong bảng banking.cards
+    depends_on_tables:
+    - banking.cards
+    depends_on_columns:
+    - year_pin_last_changed
+  total_banking.mcc_codes:
+    metric_id: total_banking.mcc_codes
+    vn_terms:
+    - tổng số Mcc Codes
+    - số lượng Mcc Codes
+    - số Mcc Codes
+    - thống kê Mcc Codes
+    en_terms:
+    - total banking.mcc_codes
+    - banking.mcc_codes count
+    - number of banking.mcc_codes
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng banking.mcc_codes
+    depends_on_tables:
+    - banking.mcc_codes
+    depends_on_columns: []
+  total_banking.transactions:
+    metric_id: total_banking.transactions
+    vn_terms:
+    - tổng số Transactions
+    - số lượng Transactions
+    - số Transactions
+    - thống kê Transactions
+    en_terms:
+    - total banking.transactions
+    - banking.transactions count
+    - number of banking.transactions
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng banking.transactions
+    depends_on_tables:
+    - banking.transactions
+    depends_on_columns: []
+  total_amount:
+    metric_id: total_amount
+    vn_terms:
+    - tổng Amount
+    - tổng số Amount
+    - tổng cộng Amount
+    en_terms:
+    - total amount
+    - sum of amount
+    sql_expression: ROUND(SUM(amount), 2)
+    description: Tổng giá trị lũy kế của cột amount trong bảng banking.transactions
+    depends_on_tables:
+    - banking.transactions
+    depends_on_columns:
+    - amount
+  avg_amount:
+    metric_id: avg_amount
+    vn_terms:
+    - Amount trung bình
+    - trung bình Amount
+    - bình quân Amount
+    en_terms:
+    - average amount
+    - avg amount
+    - mean amount
+    sql_expression: ROUND(AVG(amount), 2)
+    description: Giá trị bình quân của cột amount trong bảng banking.transactions
+    depends_on_tables:
+    - banking.transactions
+    depends_on_columns:
+    - amount
+  total_mcc:
+    metric_id: total_mcc
+    vn_terms:
+    - tổng Mcc
+    - tổng số Mcc
+    - tổng cộng Mcc
+    en_terms:
+    - total mcc
+    - sum of mcc
+    sql_expression: ROUND(SUM(mcc), 2)
+    description: Tổng giá trị lũy kế của cột mcc trong bảng banking.transactions
+    depends_on_tables:
+    - banking.transactions
+    depends_on_columns:
+    - mcc
+  avg_mcc:
+    metric_id: avg_mcc
+    vn_terms:
+    - Mcc trung bình
+    - trung bình Mcc
+    - bình quân Mcc
+    en_terms:
+    - average mcc
+    - avg mcc
+    - mean mcc
+    sql_expression: ROUND(AVG(mcc), 2)
+    description: Giá trị bình quân của cột mcc trong bảng banking.transactions
+    depends_on_tables:
+    - banking.transactions
+    depends_on_columns:
+    - mcc
+  total_banking.users:
+    metric_id: total_banking.users
+    vn_terms:
+    - tổng số Users
+    - số lượng Users
+    - số Users
+    - thống kê Users
+    en_terms:
+    - total banking.users
+    - banking.users count
+    - number of banking.users
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng banking.users
+    depends_on_tables:
+    - banking.users
+    depends_on_columns: []
+  total_total_debt:
+    metric_id: total_total_debt
+    vn_terms:
+    - tổng Total Debt
+    - tổng số Total Debt
+    - tổng cộng Total Debt
+    en_terms:
+    - total total_debt
+    - sum of total_debt
+    sql_expression: ROUND(SUM(total_debt), 2)
+    description: Tổng giá trị lũy kế của cột total_debt trong bảng banking.users
+    depends_on_tables:
+    - banking.users
+    depends_on_columns:
+    - total_debt
+  avg_total_debt:
+    metric_id: avg_total_debt
+    vn_terms:
+    - Total Debt trung bình
+    - trung bình Total Debt
+    - bình quân Total Debt
+    en_terms:
+    - average total_debt
+    - avg total_debt
+    - mean total_debt
+    sql_expression: ROUND(AVG(total_debt), 2)
+    description: Giá trị bình quân của cột total_debt trong bảng banking.users
+    depends_on_tables:
+    - banking.users
+    depends_on_columns:
+    - total_debt
+  total_credit_score:
+    metric_id: total_credit_score
+    vn_terms:
+    - tổng Credit Score
+    - tổng số Credit Score
+    - tổng cộng Credit Score
+    en_terms:
+    - total credit_score
+    - sum of credit_score
+    sql_expression: ROUND(SUM(credit_score), 2)
+    description: Tổng giá trị lũy kế của cột credit_score trong bảng banking.users
+    depends_on_tables:
+    - banking.users
+    depends_on_columns:
+    - credit_score
+  avg_credit_score:
+    metric_id: avg_credit_score
+    vn_terms:
+    - Credit Score trung bình
+    - trung bình Credit Score
+    - bình quân Credit Score
+    en_terms:
+    - average credit_score
+    - avg credit_score
+    - mean credit_score
+    sql_expression: ROUND(AVG(credit_score), 2)
+    description: Giá trị bình quân của cột credit_score trong bảng banking.users
+    depends_on_tables:
+    - banking.users
+    depends_on_columns:
+    - credit_score
+segments: {}

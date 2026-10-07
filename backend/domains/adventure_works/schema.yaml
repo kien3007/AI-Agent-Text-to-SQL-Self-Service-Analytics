@@ -1,0 +1,479 @@
+tables:
+  adventure_works.calendar:
+    table_name: adventure_works.calendar
+    vn_name: Calendar
+    description: Bảng/View adventure_works.calendar
+    primary_key: []
+    partition_key: null
+    columns:
+      date:
+        name: date
+        vn_name: Date
+        en_name: Date
+        data_type: DATE
+        description: Cột date trong bảng adventure_works.calendar
+        synonyms:
+        - date
+        is_partition_or_dist: false
+  adventure_works.customers:
+    table_name: adventure_works.customers
+    vn_name: Customers
+    description: Bảng/View adventure_works.customers
+    primary_key:
+    - customer_key
+    partition_key: null
+    columns:
+      customer_key:
+        name: customer_key
+        vn_name: Customer Key
+        en_name: Customer Key
+        data_type: INTEGER
+        description: Cột customer_key trong bảng adventure_works.customers
+        synonyms:
+        - customer key
+        is_partition_or_dist: false
+      prefix:
+        name: prefix
+        vn_name: Prefix
+        en_name: Prefix
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột prefix trong bảng adventure_works.customers
+        synonyms:
+        - prefix
+        is_partition_or_dist: false
+      first_name:
+        name: first_name
+        vn_name: First Name
+        en_name: First Name
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột first_name trong bảng adventure_works.customers
+        synonyms:
+        - first name
+        is_partition_or_dist: false
+      last_name:
+        name: last_name
+        vn_name: Last Name
+        en_name: Last Name
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột last_name trong bảng adventure_works.customers
+        synonyms:
+        - last name
+        is_partition_or_dist: false
+      birth_date:
+        name: birth_date
+        vn_name: Birth Date
+        en_name: Birth Date
+        data_type: DATE
+        description: Cột birth_date trong bảng adventure_works.customers
+        synonyms:
+        - birth date
+        is_partition_or_dist: false
+      marital_status:
+        name: marital_status
+        vn_name: Marital Status
+        en_name: Marital Status
+        data_type: NVARCHAR(1) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột marital_status trong bảng adventure_works.customers
+        synonyms:
+        - marital status
+        is_partition_or_dist: false
+      gender:
+        name: gender
+        vn_name: Gender
+        en_name: Gender
+        data_type: NVARCHAR(1) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột gender trong bảng adventure_works.customers
+        synonyms:
+        - gender
+        is_partition_or_dist: false
+      email_address:
+        name: email_address
+        vn_name: Email Address
+        en_name: Email Address
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột email_address trong bảng adventure_works.customers
+        synonyms:
+        - email address
+        is_partition_or_dist: false
+      annual_income:
+        name: annual_income
+        vn_name: Annual Income
+        en_name: Annual Income
+        data_type: DECIMAL(10, 2)
+        description: Cột annual_income trong bảng adventure_works.customers
+        synonyms:
+        - annual income
+        is_partition_or_dist: false
+      total_children:
+        name: total_children
+        vn_name: Total Children
+        en_name: Total Children
+        data_type: INTEGER
+        description: Cột total_children trong bảng adventure_works.customers
+        synonyms:
+        - total children
+        is_partition_or_dist: false
+      education_level:
+        name: education_level
+        vn_name: Education Level
+        en_name: Education Level
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột education_level trong bảng adventure_works.customers
+        synonyms:
+        - education level
+        is_partition_or_dist: false
+      occupation:
+        name: occupation
+        vn_name: Occupation
+        en_name: Occupation
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột occupation trong bảng adventure_works.customers
+        synonyms:
+        - occupation
+        is_partition_or_dist: false
+      home_owner:
+        name: home_owner
+        vn_name: Home Owner
+        en_name: Home Owner
+        data_type: NVARCHAR(1) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột home_owner trong bảng adventure_works.customers
+        synonyms:
+        - home owner
+        is_partition_or_dist: false
+  adventure_works.product_categories:
+    table_name: adventure_works.product_categories
+    vn_name: Product Categories
+    description: Bảng/View adventure_works.product_categories
+    primary_key:
+    - product_category_key
+    partition_key: null
+    columns:
+      product_category_key:
+        name: product_category_key
+        vn_name: Product Category Key
+        en_name: Product Category Key
+        data_type: INTEGER
+        description: Cột product_category_key trong bảng adventure_works.product_categories
+        synonyms:
+        - product category key
+        is_partition_or_dist: false
+      category_name:
+        name: category_name
+        vn_name: Category Name
+        en_name: Category Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột category_name trong bảng adventure_works.product_categories
+        synonyms:
+        - category name
+        is_partition_or_dist: false
+  adventure_works.product_subcategories:
+    table_name: adventure_works.product_subcategories
+    vn_name: Product Subcategories
+    description: Bảng/View adventure_works.product_subcategories
+    primary_key:
+    - product_subcategory_key
+    partition_key: null
+    columns:
+      product_subcategory_key:
+        name: product_subcategory_key
+        vn_name: Product Subcategory Key
+        en_name: Product Subcategory Key
+        data_type: INTEGER
+        description: Cột product_subcategory_key trong bảng adventure_works.product_subcategories
+        synonyms:
+        - product subcategory key
+        is_partition_or_dist: false
+      subcategory_name:
+        name: subcategory_name
+        vn_name: Subcategory Name
+        en_name: Subcategory Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột subcategory_name trong bảng adventure_works.product_subcategories
+        synonyms:
+        - subcategory name
+        is_partition_or_dist: false
+      product_category_key:
+        name: product_category_key
+        vn_name: Product Category Key
+        en_name: Product Category Key
+        data_type: INTEGER
+        description: Cột product_category_key trong bảng adventure_works.product_subcategories
+        synonyms:
+        - product category key
+        is_partition_or_dist: false
+  adventure_works.products:
+    table_name: adventure_works.products
+    vn_name: Products
+    description: Bảng/View adventure_works.products
+    primary_key:
+    - product_key
+    partition_key: null
+    columns:
+      product_key:
+        name: product_key
+        vn_name: Product Key
+        en_name: Product Key
+        data_type: INTEGER
+        description: Cột product_key trong bảng adventure_works.products
+        synonyms:
+        - product key
+        is_partition_or_dist: false
+      product_subcategory_key:
+        name: product_subcategory_key
+        vn_name: Product Subcategory Key
+        en_name: Product Subcategory Key
+        data_type: INTEGER
+        description: Cột product_subcategory_key trong bảng adventure_works.products
+        synonyms:
+        - product subcategory key
+        is_partition_or_dist: false
+      product_sku:
+        name: product_sku
+        vn_name: Product Sku
+        en_name: Product Sku
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_sku trong bảng adventure_works.products
+        synonyms:
+        - product sku
+        is_partition_or_dist: false
+      product_name:
+        name: product_name
+        vn_name: Product Name
+        en_name: Product Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_name trong bảng adventure_works.products
+        synonyms:
+        - product name
+        is_partition_or_dist: false
+      model_name:
+        name: model_name
+        vn_name: Model Name
+        en_name: Model Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột model_name trong bảng adventure_works.products
+        synonyms:
+        - model name
+        is_partition_or_dist: false
+      product_description:
+        name: product_description
+        vn_name: Product Description
+        en_name: Product Description
+        data_type: NVARCHAR COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_description trong bảng adventure_works.products
+        synonyms:
+        - product description
+        is_partition_or_dist: false
+      product_color:
+        name: product_color
+        vn_name: Product Color
+        en_name: Product Color
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_color trong bảng adventure_works.products
+        synonyms:
+        - product color
+        is_partition_or_dist: false
+      product_size:
+        name: product_size
+        vn_name: Product Size
+        en_name: Product Size
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_size trong bảng adventure_works.products
+        synonyms:
+        - product size
+        is_partition_or_dist: false
+      product_style:
+        name: product_style
+        vn_name: Product Style
+        en_name: Product Style
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_style trong bảng adventure_works.products
+        synonyms:
+        - product style
+        is_partition_or_dist: false
+      product_cost:
+        name: product_cost
+        vn_name: Product Cost
+        en_name: Product Cost
+        data_type: DECIMAL(10, 4)
+        description: Cột product_cost trong bảng adventure_works.products
+        synonyms:
+        - product cost
+        is_partition_or_dist: false
+      product_price:
+        name: product_price
+        vn_name: Product Price
+        en_name: Product Price
+        data_type: DECIMAL(10, 4)
+        description: Cột product_price trong bảng adventure_works.products
+        synonyms:
+        - product price
+        is_partition_or_dist: false
+  adventure_works.returns:
+    table_name: adventure_works.returns
+    vn_name: Returns
+    description: Bảng/View adventure_works.returns
+    primary_key: []
+    partition_key: null
+    columns:
+      return_date:
+        name: return_date
+        vn_name: Return Date
+        en_name: Return Date
+        data_type: DATE
+        description: Cột return_date trong bảng adventure_works.returns
+        synonyms:
+        - return date
+        is_partition_or_dist: false
+      territory_key:
+        name: territory_key
+        vn_name: Territory Key
+        en_name: Territory Key
+        data_type: INTEGER
+        description: Cột territory_key trong bảng adventure_works.returns
+        synonyms:
+        - territory key
+        is_partition_or_dist: false
+      product_key:
+        name: product_key
+        vn_name: Product Key
+        en_name: Product Key
+        data_type: INTEGER
+        description: Cột product_key trong bảng adventure_works.returns
+        synonyms:
+        - product key
+        is_partition_or_dist: false
+      return_quantity:
+        name: return_quantity
+        vn_name: Return Quantity
+        en_name: Return Quantity
+        data_type: INTEGER
+        description: Cột return_quantity trong bảng adventure_works.returns
+        synonyms:
+        - return quantity
+        is_partition_or_dist: false
+  adventure_works.sales:
+    table_name: adventure_works.sales
+    vn_name: Sales
+    description: Bảng/View adventure_works.sales
+    primary_key:
+    - order_number
+    - order_line_item
+    partition_key: null
+    columns:
+      order_date:
+        name: order_date
+        vn_name: Order Date
+        en_name: Order Date
+        data_type: DATE
+        description: Cột order_date trong bảng adventure_works.sales
+        synonyms:
+        - order date
+        is_partition_or_dist: false
+      stock_date:
+        name: stock_date
+        vn_name: Stock Date
+        en_name: Stock Date
+        data_type: DATE
+        description: Cột stock_date trong bảng adventure_works.sales
+        synonyms:
+        - stock date
+        is_partition_or_dist: false
+      order_number:
+        name: order_number
+        vn_name: Order Number
+        en_name: Order Number
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_number trong bảng adventure_works.sales
+        synonyms:
+        - order number
+        is_partition_or_dist: false
+      product_key:
+        name: product_key
+        vn_name: Product Key
+        en_name: Product Key
+        data_type: INTEGER
+        description: Cột product_key trong bảng adventure_works.sales
+        synonyms:
+        - product key
+        is_partition_or_dist: false
+      customer_key:
+        name: customer_key
+        vn_name: Customer Key
+        en_name: Customer Key
+        data_type: INTEGER
+        description: Cột customer_key trong bảng adventure_works.sales
+        synonyms:
+        - customer key
+        is_partition_or_dist: false
+      territory_key:
+        name: territory_key
+        vn_name: Territory Key
+        en_name: Territory Key
+        data_type: INTEGER
+        description: Cột territory_key trong bảng adventure_works.sales
+        synonyms:
+        - territory key
+        is_partition_or_dist: false
+      order_line_item:
+        name: order_line_item
+        vn_name: Order Line Item
+        en_name: Order Line Item
+        data_type: INTEGER
+        description: Cột order_line_item trong bảng adventure_works.sales
+        synonyms:
+        - order line item
+        is_partition_or_dist: false
+      order_quantity:
+        name: order_quantity
+        vn_name: Order Quantity
+        en_name: Order Quantity
+        data_type: INTEGER
+        description: Cột order_quantity trong bảng adventure_works.sales
+        synonyms:
+        - order quantity
+        is_partition_or_dist: false
+  adventure_works.territories:
+    table_name: adventure_works.territories
+    vn_name: Territories
+    description: Bảng/View adventure_works.territories
+    primary_key:
+    - sales_territory_key
+    partition_key: null
+    columns:
+      sales_territory_key:
+        name: sales_territory_key
+        vn_name: Sales Territory Key
+        en_name: Sales Territory Key
+        data_type: INTEGER
+        description: Cột sales_territory_key trong bảng adventure_works.territories
+        synonyms:
+        - sales territory key
+        is_partition_or_dist: false
+      region:
+        name: region
+        vn_name: Region
+        en_name: Region
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột region trong bảng adventure_works.territories
+        synonyms:
+        - region
+        is_partition_or_dist: false
+      country:
+        name: country
+        vn_name: Country
+        en_name: Country
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột country trong bảng adventure_works.territories
+        synonyms:
+        - country
+        is_partition_or_dist: false
+      continent:
+        name: continent
+        vn_name: Continent
+        en_name: Continent
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột continent trong bảng adventure_works.territories
+        synonyms:
+        - continent
+        is_partition_or_dist: false
+relationships: []

@@ -1,0 +1,296 @@
+tables:
+  pixar_legacy.academy:
+    table_name: pixar_legacy.academy
+    vn_name: Academy
+    description: Bảng/View pixar_legacy.academy
+    primary_key: []
+    partition_key: null
+    columns:
+      film:
+        name: film
+        vn_name: Film
+        en_name: Film
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột film trong bảng pixar_legacy.academy
+        synonyms:
+        - film
+        is_partition_or_dist: false
+      award_type:
+        name: award_type
+        vn_name: Award Type
+        en_name: Award Type
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột award_type trong bảng pixar_legacy.academy
+        synonyms:
+        - award type
+        is_partition_or_dist: false
+      status:
+        name: status
+        vn_name: Status
+        en_name: Status
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột status trong bảng pixar_legacy.academy
+        synonyms:
+        - status
+        is_partition_or_dist: false
+  pixar_legacy.box_office:
+    table_name: pixar_legacy.box_office
+    vn_name: Box Office
+    description: Bảng/View pixar_legacy.box_office
+    primary_key: []
+    partition_key: null
+    columns:
+      film:
+        name: film
+        vn_name: Film
+        en_name: Film
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột film trong bảng pixar_legacy.box_office
+        synonyms:
+        - film
+        is_partition_or_dist: false
+      budget:
+        name: budget
+        vn_name: Budget
+        en_name: Budget
+        data_type: BIGINT
+        description: Cột budget trong bảng pixar_legacy.box_office
+        synonyms:
+        - budget
+        is_partition_or_dist: false
+      box_office_us_canada:
+        name: box_office_us_canada
+        vn_name: Box Office Us Canada
+        en_name: Box Office Us Canada
+        data_type: BIGINT
+        description: Cột box_office_us_canada trong bảng pixar_legacy.box_office
+        synonyms:
+        - box office us canada
+        is_partition_or_dist: false
+      box_office_other:
+        name: box_office_other
+        vn_name: Box Office Other
+        en_name: Box Office Other
+        data_type: BIGINT
+        description: Cột box_office_other trong bảng pixar_legacy.box_office
+        synonyms:
+        - box office other
+        is_partition_or_dist: false
+      box_office_worldwide:
+        name: box_office_worldwide
+        vn_name: Box Office Worldwide
+        en_name: Box Office Worldwide
+        data_type: BIGINT
+        description: Cột box_office_worldwide trong bảng pixar_legacy.box_office
+        synonyms:
+        - box office worldwide
+        is_partition_or_dist: false
+  pixar_legacy.genres:
+    table_name: pixar_legacy.genres
+    vn_name: Genres
+    description: Bảng/View pixar_legacy.genres
+    primary_key: []
+    partition_key: null
+    columns:
+      film:
+        name: film
+        vn_name: Film
+        en_name: Film
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột film trong bảng pixar_legacy.genres
+        synonyms:
+        - film
+        is_partition_or_dist: false
+      category:
+        name: category
+        vn_name: Category
+        en_name: Category
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột category trong bảng pixar_legacy.genres
+        synonyms:
+        - category
+        is_partition_or_dist: false
+      value:
+        name: value
+        vn_name: Value
+        en_name: Value
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột value trong bảng pixar_legacy.genres
+        synonyms:
+        - value
+        is_partition_or_dist: false
+  pixar_legacy.pixar_films:
+    table_name: pixar_legacy.pixar_films
+    vn_name: Pixar Films
+    description: Bảng/View pixar_legacy.pixar_films
+    primary_key: []
+    partition_key: null
+    columns:
+      number:
+        name: number
+        vn_name: Number
+        en_name: Number
+        data_type: INTEGER
+        description: Cột number trong bảng pixar_legacy.pixar_films
+        synonyms:
+        - number
+        is_partition_or_dist: false
+      film:
+        name: film
+        vn_name: Film
+        en_name: Film
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột film trong bảng pixar_legacy.pixar_films
+        synonyms:
+        - film
+        is_partition_or_dist: false
+      release_date:
+        name: release_date
+        vn_name: Release Date
+        en_name: Release Date
+        data_type: DATE
+        description: Cột release_date trong bảng pixar_legacy.pixar_films
+        synonyms:
+        - release date
+        is_partition_or_dist: false
+      run_time:
+        name: run_time
+        vn_name: Run Time
+        en_name: Run Time
+        data_type: INTEGER
+        description: Cột run_time trong bảng pixar_legacy.pixar_films
+        synonyms:
+        - run time
+        is_partition_or_dist: false
+      film_rating:
+        name: film_rating
+        vn_name: Film Rating
+        en_name: Film Rating
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột film_rating trong bảng pixar_legacy.pixar_films
+        synonyms:
+        - film rating
+        is_partition_or_dist: false
+      plot:
+        name: plot
+        vn_name: Plot
+        en_name: Plot
+        data_type: NTEXT
+        description: Cột plot trong bảng pixar_legacy.pixar_films
+        synonyms:
+        - plot
+        is_partition_or_dist: false
+  pixar_legacy.pixar_people:
+    table_name: pixar_legacy.pixar_people
+    vn_name: Pixar People
+    description: Bảng/View pixar_legacy.pixar_people
+    primary_key: []
+    partition_key: null
+    columns:
+      film:
+        name: film
+        vn_name: Film
+        en_name: Film
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột film trong bảng pixar_legacy.pixar_people
+        synonyms:
+        - film
+        is_partition_or_dist: false
+      role_type:
+        name: role_type
+        vn_name: Role Type
+        en_name: Role Type
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột role_type trong bảng pixar_legacy.pixar_people
+        synonyms:
+        - role type
+        is_partition_or_dist: false
+      name:
+        name: name
+        vn_name: Name
+        en_name: Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột name trong bảng pixar_legacy.pixar_people
+        synonyms:
+        - name
+        is_partition_or_dist: false
+  pixar_legacy.public_response:
+    table_name: pixar_legacy.public_response
+    vn_name: Public Response
+    description: Bảng/View pixar_legacy.public_response
+    primary_key: []
+    partition_key: null
+    columns:
+      film:
+        name: film
+        vn_name: Film
+        en_name: Film
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột film trong bảng pixar_legacy.public_response
+        synonyms:
+        - film
+        is_partition_or_dist: false
+      rotten_tomatoes_score:
+        name: rotten_tomatoes_score
+        vn_name: Rotten Tomatoes Score
+        en_name: Rotten Tomatoes Score
+        data_type: DECIMAL(5, 2)
+        description: Cột rotten_tomatoes_score trong bảng pixar_legacy.public_response
+        synonyms:
+        - rotten tomatoes score
+        is_partition_or_dist: false
+      rotten_tomatoes_counts:
+        name: rotten_tomatoes_counts
+        vn_name: Rotten Tomatoes Counts
+        en_name: Rotten Tomatoes Counts
+        data_type: INTEGER
+        description: Cột rotten_tomatoes_counts trong bảng pixar_legacy.public_response
+        synonyms:
+        - rotten tomatoes counts
+        is_partition_or_dist: false
+      metacritic_score:
+        name: metacritic_score
+        vn_name: Metacritic Score
+        en_name: Metacritic Score
+        data_type: DECIMAL(5, 2)
+        description: Cột metacritic_score trong bảng pixar_legacy.public_response
+        synonyms:
+        - metacritic score
+        is_partition_or_dist: false
+      metacritic_counts:
+        name: metacritic_counts
+        vn_name: Metacritic Counts
+        en_name: Metacritic Counts
+        data_type: INTEGER
+        description: Cột metacritic_counts trong bảng pixar_legacy.public_response
+        synonyms:
+        - metacritic counts
+        is_partition_or_dist: false
+      cinema_score:
+        name: cinema_score
+        vn_name: Cinema Score
+        en_name: Cinema Score
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột cinema_score trong bảng pixar_legacy.public_response
+        synonyms:
+        - cinema score
+        is_partition_or_dist: false
+      imdb_score:
+        name: imdb_score
+        vn_name: Imdb Score
+        en_name: Imdb Score
+        data_type: DECIMAL(3, 1)
+        description: Cột imdb_score trong bảng pixar_legacy.public_response
+        synonyms:
+        - imdb score
+        is_partition_or_dist: false
+      imdb_counts:
+        name: imdb_counts
+        vn_name: Imdb Counts
+        en_name: Imdb Counts
+        data_type: INTEGER
+        description: Cột imdb_counts trong bảng pixar_legacy.public_response
+        synonyms:
+        - imdb counts
+        is_partition_or_dist: false
+relationships: []

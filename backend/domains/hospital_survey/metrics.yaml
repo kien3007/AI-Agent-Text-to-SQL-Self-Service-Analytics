@@ -1,0 +1,207 @@
+metrics:
+  total_hospital_survey.measures:
+    metric_id: total_hospital_survey.measures
+    vn_terms:
+    - tổng số Measures
+    - số lượng Measures
+    - số Measures
+    - thống kê Measures
+    en_terms:
+    - total hospital_survey.measures
+    - hospital_survey.measures count
+    - number of hospital_survey.measures
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng hospital_survey.measures
+    depends_on_tables:
+    - hospital_survey.measures
+    depends_on_columns: []
+  total_hospital_survey.national_results:
+    metric_id: total_hospital_survey.national_results
+    vn_terms:
+    - tổng số National Results
+    - số lượng National Results
+    - số National Results
+    - thống kê National Results
+    en_terms:
+    - total hospital_survey.national_results
+    - hospital_survey.national_results count
+    - number of hospital_survey.national_results
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng hospital_survey.national_results
+    depends_on_tables:
+    - hospital_survey.national_results
+    depends_on_columns: []
+  total_bottom_box_percentage:
+    metric_id: total_bottom_box_percentage
+    vn_terms:
+    - tổng Bottom Box Percentage
+    - tổng số Bottom Box Percentage
+    - tổng cộng Bottom Box Percentage
+    en_terms:
+    - total bottom_box_percentage
+    - sum of bottom_box_percentage
+    sql_expression: ROUND(SUM(bottom_box_percentage), 2)
+    description: Tổng giá trị lũy kế của cột bottom_box_percentage trong bảng hospital_survey.state_results
+    depends_on_tables:
+    - hospital_survey.state_results
+    depends_on_columns:
+    - bottom_box_percentage
+  avg_bottom_box_percentage:
+    metric_id: avg_bottom_box_percentage
+    vn_terms:
+    - Bottom Box Percentage trung bình
+    - trung bình Bottom Box Percentage
+    - bình quân Bottom Box Percentage
+    en_terms:
+    - average bottom_box_percentage
+    - avg bottom_box_percentage
+    - mean bottom_box_percentage
+    sql_expression: ROUND(AVG(bottom_box_percentage), 2)
+    description: Giá trị bình quân của cột bottom_box_percentage trong bảng hospital_survey.state_results
+    depends_on_tables:
+    - hospital_survey.state_results
+    depends_on_columns:
+    - bottom_box_percentage
+  total_middle_box_percentage:
+    metric_id: total_middle_box_percentage
+    vn_terms:
+    - tổng Middle Box Percentage
+    - tổng số Middle Box Percentage
+    - tổng cộng Middle Box Percentage
+    en_terms:
+    - total middle_box_percentage
+    - sum of middle_box_percentage
+    sql_expression: ROUND(SUM(middle_box_percentage), 2)
+    description: Tổng giá trị lũy kế của cột middle_box_percentage trong bảng hospital_survey.state_results
+    depends_on_tables:
+    - hospital_survey.state_results
+    depends_on_columns:
+    - middle_box_percentage
+  avg_middle_box_percentage:
+    metric_id: avg_middle_box_percentage
+    vn_terms:
+    - Middle Box Percentage trung bình
+    - trung bình Middle Box Percentage
+    - bình quân Middle Box Percentage
+    en_terms:
+    - average middle_box_percentage
+    - avg middle_box_percentage
+    - mean middle_box_percentage
+    sql_expression: ROUND(AVG(middle_box_percentage), 2)
+    description: Giá trị bình quân của cột middle_box_percentage trong bảng hospital_survey.state_results
+    depends_on_tables:
+    - hospital_survey.state_results
+    depends_on_columns:
+    - middle_box_percentage
+  total_top_box_percentage:
+    metric_id: total_top_box_percentage
+    vn_terms:
+    - tổng Top Box Percentage
+    - tổng số Top Box Percentage
+    - tổng cộng Top Box Percentage
+    en_terms:
+    - total top_box_percentage
+    - sum of top_box_percentage
+    sql_expression: ROUND(SUM(top_box_percentage), 2)
+    description: Tổng giá trị lũy kế của cột top_box_percentage trong bảng hospital_survey.state_results
+    depends_on_tables:
+    - hospital_survey.state_results
+    depends_on_columns:
+    - top_box_percentage
+  avg_top_box_percentage:
+    metric_id: avg_top_box_percentage
+    vn_terms:
+    - Top Box Percentage trung bình
+    - trung bình Top Box Percentage
+    - bình quân Top Box Percentage
+    en_terms:
+    - average top_box_percentage
+    - avg top_box_percentage
+    - mean top_box_percentage
+    sql_expression: ROUND(AVG(top_box_percentage), 2)
+    description: Giá trị bình quân của cột top_box_percentage trong bảng hospital_survey.state_results
+    depends_on_tables:
+    - hospital_survey.state_results
+    depends_on_columns:
+    - top_box_percentage
+  total_hospital_survey.questions:
+    metric_id: total_hospital_survey.questions
+    vn_terms:
+    - tổng số Questions
+    - số lượng Questions
+    - số Questions
+    - thống kê Questions
+    en_terms:
+    - total hospital_survey.questions
+    - hospital_survey.questions count
+    - number of hospital_survey.questions
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng hospital_survey.questions
+    depends_on_tables:
+    - hospital_survey.questions
+    depends_on_columns: []
+  total_hospital_survey.reports:
+    metric_id: total_hospital_survey.reports
+    vn_terms:
+    - tổng số Reports
+    - số lượng Reports
+    - số Reports
+    - thống kê Reports
+    en_terms:
+    - total hospital_survey.reports
+    - hospital_survey.reports count
+    - number of hospital_survey.reports
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng hospital_survey.reports
+    depends_on_tables:
+    - hospital_survey.reports
+    depends_on_columns: []
+  total_hospital_survey.responses:
+    metric_id: total_hospital_survey.responses
+    vn_terms:
+    - tổng số Responses
+    - số lượng Responses
+    - số Responses
+    - thống kê Responses
+    en_terms:
+    - total hospital_survey.responses
+    - hospital_survey.responses count
+    - number of hospital_survey.responses
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng hospital_survey.responses
+    depends_on_tables:
+    - hospital_survey.responses
+    depends_on_columns: []
+  total_hospital_survey.state_results:
+    metric_id: total_hospital_survey.state_results
+    vn_terms:
+    - tổng số State Results
+    - số lượng State Results
+    - số State Results
+    - thống kê State Results
+    en_terms:
+    - total hospital_survey.state_results
+    - hospital_survey.state_results count
+    - number of hospital_survey.state_results
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng hospital_survey.state_results
+    depends_on_tables:
+    - hospital_survey.state_results
+    depends_on_columns: []
+  total_hospital_survey.states:
+    metric_id: total_hospital_survey.states
+    vn_terms:
+    - tổng số States
+    - số lượng States
+    - số States
+    - thống kê States
+    en_terms:
+    - total hospital_survey.states
+    - hospital_survey.states count
+    - number of hospital_survey.states
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng hospital_survey.states
+    depends_on_tables:
+    - hospital_survey.states
+    depends_on_columns: []
+segments: {}

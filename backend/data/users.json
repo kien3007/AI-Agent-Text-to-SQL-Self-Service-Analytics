@@ -3,24 +3,28 @@
     "password": "password123",
     "role": "admin",
     "display_name": "Kien Nguyen",
-    "user_id": "admin-02"
+    "user_id": "admin-02",
+    "email": "kiennguyen300703@gmail.com"
   },
   "analyst": {
     "password": "analyst123",
     "role": "analyst",
     "display_name": "Analyst",
-    "user_id": "analyst-01"
+    "user_id": "analyst-01",
+    "email": "analyst@local.host"
   },
   "admin": {
     "password": "admin123",
     "role": "admin",
     "display_name": "Administrator",
-    "user_id": "admin-01"
+    "user_id": "admin-01",
+    "email": "admin@local.host"
   },
   "testanalyst": {
     "password": "password123",
     "role": "analyst",
     "display_name": "Test Analyst",
-    "user_id": "user-1790567470"
+    "user_id": "user-1790567470",
+    "email": "testanalyst@local.host"
   }
 }

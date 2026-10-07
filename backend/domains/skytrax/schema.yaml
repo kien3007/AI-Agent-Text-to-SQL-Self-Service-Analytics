@@ -1,0 +1,951 @@
+tables:
+  skytrax.airline_reviews:
+    table_name: skytrax.airline_reviews
+    vn_name: Airline Reviews
+    description: Bảng/View skytrax.airline_reviews
+    primary_key:
+    - review_id
+    partition_key: null
+    columns:
+      review_id:
+        name: review_id
+        vn_name: Review Id
+        en_name: Review Id
+        data_type: INTEGER
+        description: Cột review_id trong bảng skytrax.airline_reviews
+        synonyms:
+        - review id
+        is_partition_or_dist: false
+      airline_id:
+        name: airline_id
+        vn_name: Airline Id
+        en_name: Airline Id
+        data_type: INTEGER
+        description: Cột airline_id trong bảng skytrax.airline_reviews
+        synonyms:
+        - airline id
+        is_partition_or_dist: false
+      verify:
+        name: verify
+        vn_name: Verify
+        en_name: Verify
+        data_type: BIT
+        description: Cột verify trong bảng skytrax.airline_reviews
+        synonyms:
+        - verify
+        is_partition_or_dist: false
+      date_submitted:
+        name: date_submitted
+        vn_name: Date Submitted
+        en_name: Date Submitted
+        data_type: DATE
+        description: Cột date_submitted trong bảng skytrax.airline_reviews
+        synonyms:
+        - date submitted
+        is_partition_or_dist: false
+      date_flown:
+        name: date_flown
+        vn_name: Date Flown
+        en_name: Date Flown
+        data_type: DATE
+        description: Cột date_flown trong bảng skytrax.airline_reviews
+        synonyms:
+        - date flown
+        is_partition_or_dist: false
+      customer_name:
+        name: customer_name
+        vn_name: Customer Name
+        en_name: Customer Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột customer_name trong bảng skytrax.airline_reviews
+        synonyms:
+        - customer name
+        is_partition_or_dist: false
+      nationality:
+        name: nationality
+        vn_name: Nationality
+        en_name: Nationality
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột nationality trong bảng skytrax.airline_reviews
+        synonyms:
+        - nationality
+        is_partition_or_dist: false
+      type_of_traveller:
+        name: type_of_traveller
+        vn_name: Type Of Traveller
+        en_name: Type Of Traveller
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột type_of_traveller trong bảng skytrax.airline_reviews
+        synonyms:
+        - type of traveller
+        is_partition_or_dist: false
+      seat_type:
+        name: seat_type
+        vn_name: Seat Type
+        en_name: Seat Type
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột seat_type trong bảng skytrax.airline_reviews
+        synonyms:
+        - seat type
+        is_partition_or_dist: false
+      aircraft:
+        name: aircraft
+        vn_name: Aircraft
+        en_name: Aircraft
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột aircraft trong bảng skytrax.airline_reviews
+        synonyms:
+        - aircraft
+        is_partition_or_dist: false
+      origin_city:
+        name: origin_city
+        vn_name: Origin City
+        en_name: Origin City
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột origin_city trong bảng skytrax.airline_reviews
+        synonyms:
+        - origin city
+        is_partition_or_dist: false
+      origin_airport:
+        name: origin_airport
+        vn_name: Origin Airport
+        en_name: Origin Airport
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột origin_airport trong bảng skytrax.airline_reviews
+        synonyms:
+        - origin airport
+        is_partition_or_dist: false
+      destination_city:
+        name: destination_city
+        vn_name: Destination City
+        en_name: Destination City
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột destination_city trong bảng skytrax.airline_reviews
+        synonyms:
+        - destination city
+        is_partition_or_dist: false
+      destination_airport:
+        name: destination_airport
+        vn_name: Destination Airport
+        en_name: Destination Airport
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột destination_airport trong bảng skytrax.airline_reviews
+        synonyms:
+        - destination airport
+        is_partition_or_dist: false
+      transit_city:
+        name: transit_city
+        vn_name: Transit City
+        en_name: Transit City
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột transit_city trong bảng skytrax.airline_reviews
+        synonyms:
+        - transit city
+        is_partition_or_dist: false
+      transit_airport:
+        name: transit_airport
+        vn_name: Transit Airport
+        en_name: Transit Airport
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột transit_airport trong bảng skytrax.airline_reviews
+        synonyms:
+        - transit airport
+        is_partition_or_dist: false
+      seat_comfort:
+        name: seat_comfort
+        vn_name: Seat Comfort
+        en_name: Seat Comfort
+        data_type: TINYINT
+        description: Cột seat_comfort trong bảng skytrax.airline_reviews
+        synonyms:
+        - seat comfort
+        is_partition_or_dist: false
+      cabin_staff_service:
+        name: cabin_staff_service
+        vn_name: Cabin Staff Service
+        en_name: Cabin Staff Service
+        data_type: TINYINT
+        description: Cột cabin_staff_service trong bảng skytrax.airline_reviews
+        synonyms:
+        - cabin staff service
+        is_partition_or_dist: false
+      food_and_beverages:
+        name: food_and_beverages
+        vn_name: Food And Beverages
+        en_name: Food And Beverages
+        data_type: TINYINT
+        description: Cột food_and_beverages trong bảng skytrax.airline_reviews
+        synonyms:
+        - food and beverages
+        is_partition_or_dist: false
+      inflight_entertainment:
+        name: inflight_entertainment
+        vn_name: Inflight Entertainment
+        en_name: Inflight Entertainment
+        data_type: TINYINT
+        description: Cột inflight_entertainment trong bảng skytrax.airline_reviews
+        synonyms:
+        - inflight entertainment
+        is_partition_or_dist: false
+      ground_service:
+        name: ground_service
+        vn_name: Ground Service
+        en_name: Ground Service
+        data_type: TINYINT
+        description: Cột ground_service trong bảng skytrax.airline_reviews
+        synonyms:
+        - ground service
+        is_partition_or_dist: false
+      wifi_and_connectivity:
+        name: wifi_and_connectivity
+        vn_name: Wifi And Connectivity
+        en_name: Wifi And Connectivity
+        data_type: TINYINT
+        description: Cột wifi_and_connectivity trong bảng skytrax.airline_reviews
+        synonyms:
+        - wifi and connectivity
+        is_partition_or_dist: false
+      value_for_money:
+        name: value_for_money
+        vn_name: Value For Money
+        en_name: Value For Money
+        data_type: TINYINT
+        description: Cột value_for_money trong bảng skytrax.airline_reviews
+        synonyms:
+        - value for money
+        is_partition_or_dist: false
+      recommended:
+        name: recommended
+        vn_name: Recommended
+        en_name: Recommended
+        data_type: BIT
+        description: Cột recommended trong bảng skytrax.airline_reviews
+        synonyms:
+        - recommended
+        is_partition_or_dist: false
+      review:
+        name: review
+        vn_name: Review
+        en_name: Review
+        data_type: NVARCHAR COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột review trong bảng skytrax.airline_reviews
+        synonyms:
+        - review
+        is_partition_or_dist: false
+      updated_at:
+        name: updated_at
+        vn_name: Updated At
+        en_name: Updated At
+        data_type: DATETIME2
+        description: Cột updated_at trong bảng skytrax.airline_reviews
+        synonyms:
+        - updated at
+        is_partition_or_dist: false
+  skytrax.airlines:
+    table_name: skytrax.airlines
+    vn_name: Airlines
+    description: Bảng/View skytrax.airlines
+    primary_key:
+    - airline_id
+    partition_key: null
+    columns:
+      airline_id:
+        name: airline_id
+        vn_name: Airline Id
+        en_name: Airline Id
+        data_type: INTEGER
+        description: Cột airline_id trong bảng skytrax.airlines
+        synonyms:
+        - airline id
+        is_partition_or_dist: false
+      airline_name:
+        name: airline_name
+        vn_name: Airline Name
+        en_name: Airline Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột airline_name trong bảng skytrax.airlines
+        synonyms:
+        - airline name
+        is_partition_or_dist: false
+  skytrax.airport_reviews:
+    table_name: skytrax.airport_reviews
+    vn_name: Airport Reviews
+    description: Bảng/View skytrax.airport_reviews
+    primary_key:
+    - review_id
+    partition_key: null
+    columns:
+      review_id:
+        name: review_id
+        vn_name: Review Id
+        en_name: Review Id
+        data_type: INTEGER
+        description: Cột review_id trong bảng skytrax.airport_reviews
+        synonyms:
+        - review id
+        is_partition_or_dist: false
+      airport_id:
+        name: airport_id
+        vn_name: Airport Id
+        en_name: Airport Id
+        data_type: INTEGER
+        description: Cột airport_id trong bảng skytrax.airport_reviews
+        synonyms:
+        - airport id
+        is_partition_or_dist: false
+      verify:
+        name: verify
+        vn_name: Verify
+        en_name: Verify
+        data_type: BIT
+        description: Cột verify trong bảng skytrax.airport_reviews
+        synonyms:
+        - verify
+        is_partition_or_dist: false
+      date_submitted:
+        name: date_submitted
+        vn_name: Date Submitted
+        en_name: Date Submitted
+        data_type: DATE
+        description: Cột date_submitted trong bảng skytrax.airport_reviews
+        synonyms:
+        - date submitted
+        is_partition_or_dist: false
+      date_visit:
+        name: date_visit
+        vn_name: Date Visit
+        en_name: Date Visit
+        data_type: DATE
+        description: Cột date_visit trong bảng skytrax.airport_reviews
+        synonyms:
+        - date visit
+        is_partition_or_dist: false
+      customer_name:
+        name: customer_name
+        vn_name: Customer Name
+        en_name: Customer Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột customer_name trong bảng skytrax.airport_reviews
+        synonyms:
+        - customer name
+        is_partition_or_dist: false
+      nationality:
+        name: nationality
+        vn_name: Nationality
+        en_name: Nationality
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột nationality trong bảng skytrax.airport_reviews
+        synonyms:
+        - nationality
+        is_partition_or_dist: false
+      experience_at_airport:
+        name: experience_at_airport
+        vn_name: Experience At Airport
+        en_name: Experience At Airport
+        data_type: NVARCHAR(40) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột experience_at_airport trong bảng skytrax.airport_reviews
+        synonyms:
+        - experience at airport
+        is_partition_or_dist: false
+      type_of_traveller:
+        name: type_of_traveller
+        vn_name: Type Of Traveller
+        en_name: Type Of Traveller
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột type_of_traveller trong bảng skytrax.airport_reviews
+        synonyms:
+        - type of traveller
+        is_partition_or_dist: false
+      queuing_times:
+        name: queuing_times
+        vn_name: Queuing Times
+        en_name: Queuing Times
+        data_type: TINYINT
+        description: Cột queuing_times trong bảng skytrax.airport_reviews
+        synonyms:
+        - queuing times
+        is_partition_or_dist: false
+      terminal_cleanliness:
+        name: terminal_cleanliness
+        vn_name: Terminal Cleanliness
+        en_name: Terminal Cleanliness
+        data_type: TINYINT
+        description: Cột terminal_cleanliness trong bảng skytrax.airport_reviews
+        synonyms:
+        - terminal cleanliness
+        is_partition_or_dist: false
+      terminal_seating:
+        name: terminal_seating
+        vn_name: Terminal Seating
+        en_name: Terminal Seating
+        data_type: TINYINT
+        description: Cột terminal_seating trong bảng skytrax.airport_reviews
+        synonyms:
+        - terminal seating
+        is_partition_or_dist: false
+      terminal_signs:
+        name: terminal_signs
+        vn_name: Terminal Signs
+        en_name: Terminal Signs
+        data_type: TINYINT
+        description: Cột terminal_signs trong bảng skytrax.airport_reviews
+        synonyms:
+        - terminal signs
+        is_partition_or_dist: false
+      food_beverages:
+        name: food_beverages
+        vn_name: Food Beverages
+        en_name: Food Beverages
+        data_type: TINYINT
+        description: Cột food_beverages trong bảng skytrax.airport_reviews
+        synonyms:
+        - food beverages
+        is_partition_or_dist: false
+      airport_shopping:
+        name: airport_shopping
+        vn_name: Airport Shopping
+        en_name: Airport Shopping
+        data_type: TINYINT
+        description: Cột airport_shopping trong bảng skytrax.airport_reviews
+        synonyms:
+        - airport shopping
+        is_partition_or_dist: false
+      airport_staff:
+        name: airport_staff
+        vn_name: Airport Staff
+        en_name: Airport Staff
+        data_type: TINYINT
+        description: Cột airport_staff trong bảng skytrax.airport_reviews
+        synonyms:
+        - airport staff
+        is_partition_or_dist: false
+      wifi_connectivity:
+        name: wifi_connectivity
+        vn_name: Wifi Connectivity
+        en_name: Wifi Connectivity
+        data_type: TINYINT
+        description: Cột wifi_connectivity trong bảng skytrax.airport_reviews
+        synonyms:
+        - wifi connectivity
+        is_partition_or_dist: false
+      recommended:
+        name: recommended
+        vn_name: Recommended
+        en_name: Recommended
+        data_type: BIT
+        description: Cột recommended trong bảng skytrax.airport_reviews
+        synonyms:
+        - recommended
+        is_partition_or_dist: false
+      review:
+        name: review
+        vn_name: Review
+        en_name: Review
+        data_type: NVARCHAR COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột review trong bảng skytrax.airport_reviews
+        synonyms:
+        - review
+        is_partition_or_dist: false
+      updated_at:
+        name: updated_at
+        vn_name: Updated At
+        en_name: Updated At
+        data_type: DATETIME2
+        description: Cột updated_at trong bảng skytrax.airport_reviews
+        synonyms:
+        - updated at
+        is_partition_or_dist: false
+  skytrax.airports:
+    table_name: skytrax.airports
+    vn_name: Airports
+    description: Bảng/View skytrax.airports
+    primary_key:
+    - airport_id
+    partition_key: null
+    columns:
+      airport_id:
+        name: airport_id
+        vn_name: Airport Id
+        en_name: Airport Id
+        data_type: INTEGER
+        description: Cột airport_id trong bảng skytrax.airports
+        synonyms:
+        - airport id
+        is_partition_or_dist: false
+      airport_name:
+        name: airport_name
+        vn_name: Airport Name
+        en_name: Airport Name
+        data_type: NVARCHAR(150) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột airport_name trong bảng skytrax.airports
+        synonyms:
+        - airport name
+        is_partition_or_dist: false
+  skytrax.lounge_reviews:
+    table_name: skytrax.lounge_reviews
+    vn_name: Lounge Reviews
+    description: Bảng/View skytrax.lounge_reviews
+    primary_key:
+    - review_id
+    partition_key: null
+    columns:
+      review_id:
+        name: review_id
+        vn_name: Review Id
+        en_name: Review Id
+        data_type: INTEGER
+        description: Cột review_id trong bảng skytrax.lounge_reviews
+        synonyms:
+        - review id
+        is_partition_or_dist: false
+      airline_id:
+        name: airline_id
+        vn_name: Airline Id
+        en_name: Airline Id
+        data_type: INTEGER
+        description: Cột airline_id trong bảng skytrax.lounge_reviews
+        synonyms:
+        - airline id
+        is_partition_or_dist: false
+      lounge_name:
+        name: lounge_name
+        vn_name: Lounge Name
+        en_name: Lounge Name
+        data_type: NVARCHAR(150) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột lounge_name trong bảng skytrax.lounge_reviews
+        synonyms:
+        - lounge name
+        is_partition_or_dist: false
+      airport:
+        name: airport
+        vn_name: Airport
+        en_name: Airport
+        data_type: NVARCHAR(150) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột airport trong bảng skytrax.lounge_reviews
+        synonyms:
+        - airport
+        is_partition_or_dist: false
+      type_of_lounge:
+        name: type_of_lounge
+        vn_name: Type Of Lounge
+        en_name: Type Of Lounge
+        data_type: NVARCHAR(40) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột type_of_lounge trong bảng skytrax.lounge_reviews
+        synonyms:
+        - type of lounge
+        is_partition_or_dist: false
+      type_of_traveller:
+        name: type_of_traveller
+        vn_name: Type Of Traveller
+        en_name: Type Of Traveller
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột type_of_traveller trong bảng skytrax.lounge_reviews
+        synonyms:
+        - type of traveller
+        is_partition_or_dist: false
+      verify:
+        name: verify
+        vn_name: Verify
+        en_name: Verify
+        data_type: BIT
+        description: Cột verify trong bảng skytrax.lounge_reviews
+        synonyms:
+        - verify
+        is_partition_or_dist: false
+      date_submitted:
+        name: date_submitted
+        vn_name: Date Submitted
+        en_name: Date Submitted
+        data_type: DATE
+        description: Cột date_submitted trong bảng skytrax.lounge_reviews
+        synonyms:
+        - date submitted
+        is_partition_or_dist: false
+      date_visit:
+        name: date_visit
+        vn_name: Date Visit
+        en_name: Date Visit
+        data_type: DATE
+        description: Cột date_visit trong bảng skytrax.lounge_reviews
+        synonyms:
+        - date visit
+        is_partition_or_dist: false
+      customer_name:
+        name: customer_name
+        vn_name: Customer Name
+        en_name: Customer Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột customer_name trong bảng skytrax.lounge_reviews
+        synonyms:
+        - customer name
+        is_partition_or_dist: false
+      nationality:
+        name: nationality
+        vn_name: Nationality
+        en_name: Nationality
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột nationality trong bảng skytrax.lounge_reviews
+        synonyms:
+        - nationality
+        is_partition_or_dist: false
+      comfort:
+        name: comfort
+        vn_name: Comfort
+        en_name: Comfort
+        data_type: TINYINT
+        description: Cột comfort trong bảng skytrax.lounge_reviews
+        synonyms:
+        - comfort
+        is_partition_or_dist: false
+      cleanliness:
+        name: cleanliness
+        vn_name: Cleanliness
+        en_name: Cleanliness
+        data_type: TINYINT
+        description: Cột cleanliness trong bảng skytrax.lounge_reviews
+        synonyms:
+        - cleanliness
+        is_partition_or_dist: false
+      bar_and_beverages:
+        name: bar_and_beverages
+        vn_name: Bar And Beverages
+        en_name: Bar And Beverages
+        data_type: TINYINT
+        description: Cột bar_and_beverages trong bảng skytrax.lounge_reviews
+        synonyms:
+        - bar and beverages
+        is_partition_or_dist: false
+      catering:
+        name: catering
+        vn_name: Catering
+        en_name: Catering
+        data_type: TINYINT
+        description: Cột catering trong bảng skytrax.lounge_reviews
+        synonyms:
+        - catering
+        is_partition_or_dist: false
+      washrooms:
+        name: washrooms
+        vn_name: Washrooms
+        en_name: Washrooms
+        data_type: TINYINT
+        description: Cột washrooms trong bảng skytrax.lounge_reviews
+        synonyms:
+        - washrooms
+        is_partition_or_dist: false
+      wifi_connectivity:
+        name: wifi_connectivity
+        vn_name: Wifi Connectivity
+        en_name: Wifi Connectivity
+        data_type: TINYINT
+        description: Cột wifi_connectivity trong bảng skytrax.lounge_reviews
+        synonyms:
+        - wifi connectivity
+        is_partition_or_dist: false
+      staff_service:
+        name: staff_service
+        vn_name: Staff Service
+        en_name: Staff Service
+        data_type: TINYINT
+        description: Cột staff_service trong bảng skytrax.lounge_reviews
+        synonyms:
+        - staff service
+        is_partition_or_dist: false
+      recommended:
+        name: recommended
+        vn_name: Recommended
+        en_name: Recommended
+        data_type: BIT
+        description: Cột recommended trong bảng skytrax.lounge_reviews
+        synonyms:
+        - recommended
+        is_partition_or_dist: false
+      review:
+        name: review
+        vn_name: Review
+        en_name: Review
+        data_type: NVARCHAR COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột review trong bảng skytrax.lounge_reviews
+        synonyms:
+        - review
+        is_partition_or_dist: false
+      updated_at:
+        name: updated_at
+        vn_name: Updated At
+        en_name: Updated At
+        data_type: DATETIME2
+        description: Cột updated_at trong bảng skytrax.lounge_reviews
+        synonyms:
+        - updated at
+        is_partition_or_dist: false
+  skytrax.seat_reviews:
+    table_name: skytrax.seat_reviews
+    vn_name: Seat Reviews
+    description: Bảng/View skytrax.seat_reviews
+    primary_key:
+    - review_id
+    partition_key: null
+    columns:
+      review_id:
+        name: review_id
+        vn_name: Review Id
+        en_name: Review Id
+        data_type: INTEGER
+        description: Cột review_id trong bảng skytrax.seat_reviews
+        synonyms:
+        - review id
+        is_partition_or_dist: false
+      airline_id:
+        name: airline_id
+        vn_name: Airline Id
+        en_name: Airline Id
+        data_type: INTEGER
+        description: Cột airline_id trong bảng skytrax.seat_reviews
+        synonyms:
+        - airline id
+        is_partition_or_dist: false
+      type_of_traveller:
+        name: type_of_traveller
+        vn_name: Type Of Traveller
+        en_name: Type Of Traveller
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột type_of_traveller trong bảng skytrax.seat_reviews
+        synonyms:
+        - type of traveller
+        is_partition_or_dist: false
+      seat_type:
+        name: seat_type
+        vn_name: Seat Type
+        en_name: Seat Type
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột seat_type trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat type
+        is_partition_or_dist: false
+      aircraft_type:
+        name: aircraft_type
+        vn_name: Aircraft Type
+        en_name: Aircraft Type
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột aircraft_type trong bảng skytrax.seat_reviews
+        synonyms:
+        - aircraft type
+        is_partition_or_dist: false
+      seat_layout:
+        name: seat_layout
+        vn_name: Seat Layout
+        en_name: Seat Layout
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột seat_layout trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat layout
+        is_partition_or_dist: false
+      verify:
+        name: verify
+        vn_name: Verify
+        en_name: Verify
+        data_type: BIT
+        description: Cột verify trong bảng skytrax.seat_reviews
+        synonyms:
+        - verify
+        is_partition_or_dist: false
+      date_submitted:
+        name: date_submitted
+        vn_name: Date Submitted
+        en_name: Date Submitted
+        data_type: DATE
+        description: Cột date_submitted trong bảng skytrax.seat_reviews
+        synonyms:
+        - date submitted
+        is_partition_or_dist: false
+      date_flown:
+        name: date_flown
+        vn_name: Date Flown
+        en_name: Date Flown
+        data_type: DATE
+        description: Cột date_flown trong bảng skytrax.seat_reviews
+        synonyms:
+        - date flown
+        is_partition_or_dist: false
+      customer_name:
+        name: customer_name
+        vn_name: Customer Name
+        en_name: Customer Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột customer_name trong bảng skytrax.seat_reviews
+        synonyms:
+        - customer name
+        is_partition_or_dist: false
+      nationality:
+        name: nationality
+        vn_name: Nationality
+        en_name: Nationality
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột nationality trong bảng skytrax.seat_reviews
+        synonyms:
+        - nationality
+        is_partition_or_dist: false
+      seat_legroom:
+        name: seat_legroom
+        vn_name: Seat Legroom
+        en_name: Seat Legroom
+        data_type: TINYINT
+        description: Cột seat_legroom trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat legroom
+        is_partition_or_dist: false
+      seat_recline:
+        name: seat_recline
+        vn_name: Seat Recline
+        en_name: Seat Recline
+        data_type: TINYINT
+        description: Cột seat_recline trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat recline
+        is_partition_or_dist: false
+      seat_width:
+        name: seat_width
+        vn_name: Seat Width
+        en_name: Seat Width
+        data_type: TINYINT
+        description: Cột seat_width trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat width
+        is_partition_or_dist: false
+      aisle_space:
+        name: aisle_space
+        vn_name: Aisle Space
+        en_name: Aisle Space
+        data_type: TINYINT
+        description: Cột aisle_space trong bảng skytrax.seat_reviews
+        synonyms:
+        - aisle space
+        is_partition_or_dist: false
+      seat_storage:
+        name: seat_storage
+        vn_name: Seat Storage
+        en_name: Seat Storage
+        data_type: TINYINT
+        description: Cột seat_storage trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat storage
+        is_partition_or_dist: false
+      power_supply:
+        name: power_supply
+        vn_name: Power Supply
+        en_name: Power Supply
+        data_type: TINYINT
+        description: Cột power_supply trong bảng skytrax.seat_reviews
+        synonyms:
+        - power supply
+        is_partition_or_dist: false
+      viewing_tv_screen:
+        name: viewing_tv_screen
+        vn_name: Viewing Tv Screen
+        en_name: Viewing Tv Screen
+        data_type: TINYINT
+        description: Cột viewing_tv_screen trong bảng skytrax.seat_reviews
+        synonyms:
+        - viewing tv screen
+        is_partition_or_dist: false
+      sleep_comfort:
+        name: sleep_comfort
+        vn_name: Sleep Comfort
+        en_name: Sleep Comfort
+        data_type: TINYINT
+        description: Cột sleep_comfort trong bảng skytrax.seat_reviews
+        synonyms:
+        - sleep comfort
+        is_partition_or_dist: false
+      sitting_comfort:
+        name: sitting_comfort
+        vn_name: Sitting Comfort
+        en_name: Sitting Comfort
+        data_type: TINYINT
+        description: Cột sitting_comfort trong bảng skytrax.seat_reviews
+        synonyms:
+        - sitting comfort
+        is_partition_or_dist: false
+      seat_bed_width:
+        name: seat_bed_width
+        vn_name: Seat Bed Width
+        en_name: Seat Bed Width
+        data_type: TINYINT
+        description: Cột seat_bed_width trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat bed width
+        is_partition_or_dist: false
+      seat_bed_length:
+        name: seat_bed_length
+        vn_name: Seat Bed Length
+        en_name: Seat Bed Length
+        data_type: TINYINT
+        description: Cột seat_bed_length trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat bed length
+        is_partition_or_dist: false
+      seat_privacy:
+        name: seat_privacy
+        vn_name: Seat Privacy
+        en_name: Seat Privacy
+        data_type: TINYINT
+        description: Cột seat_privacy trong bảng skytrax.seat_reviews
+        synonyms:
+        - seat privacy
+        is_partition_or_dist: false
+      recommended:
+        name: recommended
+        vn_name: Recommended
+        en_name: Recommended
+        data_type: BIT
+        description: Cột recommended trong bảng skytrax.seat_reviews
+        synonyms:
+        - recommended
+        is_partition_or_dist: false
+      review:
+        name: review
+        vn_name: Review
+        en_name: Review
+        data_type: NVARCHAR COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột review trong bảng skytrax.seat_reviews
+        synonyms:
+        - review
+        is_partition_or_dist: false
+      updated_at:
+        name: updated_at
+        vn_name: Updated At
+        en_name: Updated At
+        data_type: DATETIME2
+        description: Cột updated_at trong bảng skytrax.seat_reviews
+        synonyms:
+        - updated at
+        is_partition_or_dist: false
+relationships:
+- from_table: skytrax.airline_reviews
+  from_column: airline_id
+  to_table: skytrax.airlines
+  to_column: airline_id
+  cardinality: N:1
+  join_type: INNER
+  weight: 1.0
+- from_table: skytrax.airport_reviews
+  from_column: airport_id
+  to_table: skytrax.airports
+  to_column: airport_id
+  cardinality: N:1
+  join_type: INNER
+  weight: 1.0
+- from_table: skytrax.lounge_reviews
+  from_column: airline_id
+  to_table: skytrax.airlines
+  to_column: airline_id
+  cardinality: N:1
+  join_type: INNER
+  weight: 1.0
+- from_table: skytrax.seat_reviews
+  from_column: airline_id
+  to_table: skytrax.airlines
+  to_column: airline_id
+  cardinality: N:1
+  join_type: INNER
+  weight: 1.0

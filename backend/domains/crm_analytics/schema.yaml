@@ -1,0 +1,162 @@
+tables:
+  crm_analytics.deals:
+    table_name: crm_analytics.deals
+    vn_name: Deals
+    description: Bảng/View crm_analytics.deals
+    primary_key: []
+    partition_key: null
+    columns:
+      organization:
+        name: organization
+        vn_name: Organization
+        en_name: Organization
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột organization trong bảng crm_analytics.deals
+        synonyms:
+        - organization
+        is_partition_or_dist: false
+      country:
+        name: country
+        vn_name: Country
+        en_name: Country
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột country trong bảng crm_analytics.deals
+        synonyms:
+        - country
+        is_partition_or_dist: false
+      latitude:
+        name: latitude
+        vn_name: Latitude
+        en_name: Latitude
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột latitude trong bảng crm_analytics.deals
+        synonyms:
+        - latitude
+        is_partition_or_dist: false
+      longitude:
+        name: longitude
+        vn_name: Longitude
+        en_name: Longitude
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột longitude trong bảng crm_analytics.deals
+        synonyms:
+        - longitude
+        is_partition_or_dist: false
+      industry:
+        name: industry
+        vn_name: Industry
+        en_name: Industry
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột industry trong bảng crm_analytics.deals
+        synonyms:
+        - industry
+        is_partition_or_dist: false
+      organization_size:
+        name: organization_size
+        vn_name: Organization Size
+        en_name: Organization Size
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột organization_size trong bảng crm_analytics.deals
+        synonyms:
+        - organization size
+        is_partition_or_dist: false
+      owner:
+        name: owner
+        vn_name: Owner
+        en_name: Owner
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột owner trong bảng crm_analytics.deals
+        synonyms:
+        - owner
+        is_partition_or_dist: false
+      lead_acquisition_date:
+        name: lead_acquisition_date
+        vn_name: Lead Acquisition Date
+        en_name: Lead Acquisition Date
+        data_type: DATE
+        description: Cột lead_acquisition_date trong bảng crm_analytics.deals
+        synonyms:
+        - lead acquisition date
+        is_partition_or_dist: false
+      product:
+        name: product
+        vn_name: Product
+        en_name: Product
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product trong bảng crm_analytics.deals
+        synonyms:
+        - product
+        is_partition_or_dist: false
+      status:
+        name: status
+        vn_name: Status
+        en_name: Status
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột status trong bảng crm_analytics.deals
+        synonyms:
+        - status
+        is_partition_or_dist: false
+      status_sequence:
+        name: status_sequence
+        vn_name: Status Sequence
+        en_name: Status Sequence
+        data_type: INTEGER
+        description: Cột status_sequence trong bảng crm_analytics.deals
+        synonyms:
+        - status sequence
+        is_partition_or_dist: false
+      stage:
+        name: stage
+        vn_name: Stage
+        en_name: Stage
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột stage trong bảng crm_analytics.deals
+        synonyms:
+        - stage
+        is_partition_or_dist: false
+      stage_sequence:
+        name: stage_sequence
+        vn_name: Stage Sequence
+        en_name: Stage Sequence
+        data_type: INTEGER
+        description: Cột stage_sequence trong bảng crm_analytics.deals
+        synonyms:
+        - stage sequence
+        is_partition_or_dist: false
+      deal_value:
+        name: deal_value
+        vn_name: Deal Value
+        en_name: Deal Value
+        data_type: DECIMAL(12, 2)
+        description: Cột deal_value trong bảng crm_analytics.deals
+        synonyms:
+        - deal value
+        is_partition_or_dist: false
+      probability:
+        name: probability
+        vn_name: Probability
+        en_name: Probability
+        data_type: INTEGER
+        description: Cột probability trong bảng crm_analytics.deals
+        synonyms:
+        - probability
+        is_partition_or_dist: false
+      expected_close_date:
+        name: expected_close_date
+        vn_name: Expected Close Date
+        en_name: Expected Close Date
+        data_type: DATE
+        description: Cột expected_close_date trong bảng crm_analytics.deals
+        synonyms:
+        - expected close date
+        is_partition_or_dist: false
+      actual_close_date:
+        name: actual_close_date
+        vn_name: Actual Close Date
+        en_name: Actual Close Date
+        data_type: DATE
+        description: Cột actual_close_date trong bảng crm_analytics.deals
+        synonyms:
+        - actual close date
+        is_partition_or_dist: false
+relationships: []

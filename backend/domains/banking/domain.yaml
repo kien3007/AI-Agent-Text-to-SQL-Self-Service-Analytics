@@ -1,0 +1,10 @@
+domain_id: banking
+display_name: Banking
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (banking)
+domain_keywords:
+- banking
+- cards
+- mcc codes
+- transactions
+- users
+synonyms: {}

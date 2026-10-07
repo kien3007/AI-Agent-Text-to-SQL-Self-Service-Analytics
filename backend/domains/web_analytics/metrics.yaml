@@ -1,0 +1,284 @@
+metrics:
+  total_web_analytics.order_item_refunds:
+    metric_id: total_web_analytics.order_item_refunds
+    vn_terms:
+    - tổng số Order Item Refunds
+    - số lượng Order Item Refunds
+    - số Order Item Refunds
+    - thống kê Order Item Refunds
+    en_terms:
+    - total web_analytics.order_item_refunds
+    - web_analytics.order_item_refunds count
+    - number of web_analytics.order_item_refunds
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng web_analytics.order_item_refunds
+    depends_on_tables:
+    - web_analytics.order_item_refunds
+    depends_on_columns: []
+  total_refund_amount_usd:
+    metric_id: total_refund_amount_usd
+    vn_terms:
+    - tổng Refund Amount Usd
+    - tổng số Refund Amount Usd
+    - tổng cộng Refund Amount Usd
+    en_terms:
+    - total refund_amount_usd
+    - sum of refund_amount_usd
+    sql_expression: ROUND(SUM(refund_amount_usd), 2)
+    description: Tổng giá trị lũy kế của cột refund_amount_usd trong bảng web_analytics.order_item_refunds
+    depends_on_tables:
+    - web_analytics.order_item_refunds
+    depends_on_columns:
+    - refund_amount_usd
+  avg_refund_amount_usd:
+    metric_id: avg_refund_amount_usd
+    vn_terms:
+    - Refund Amount Usd trung bình
+    - trung bình Refund Amount Usd
+    - bình quân Refund Amount Usd
+    en_terms:
+    - average refund_amount_usd
+    - avg refund_amount_usd
+    - mean refund_amount_usd
+    sql_expression: ROUND(AVG(refund_amount_usd), 2)
+    description: Giá trị bình quân của cột refund_amount_usd trong bảng web_analytics.order_item_refunds
+    depends_on_tables:
+    - web_analytics.order_item_refunds
+    depends_on_columns:
+    - refund_amount_usd
+  total_web_analytics.order_items:
+    metric_id: total_web_analytics.order_items
+    vn_terms:
+    - tổng số Order Items
+    - số lượng Order Items
+    - số Order Items
+    - thống kê Order Items
+    en_terms:
+    - total web_analytics.order_items
+    - web_analytics.order_items count
+    - number of web_analytics.order_items
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng web_analytics.order_items
+    depends_on_tables:
+    - web_analytics.order_items
+    depends_on_columns: []
+  total_is_primary_item:
+    metric_id: total_is_primary_item
+    vn_terms:
+    - tổng Is Primary Item
+    - tổng số Is Primary Item
+    - tổng cộng Is Primary Item
+    en_terms:
+    - total is_primary_item
+    - sum of is_primary_item
+    sql_expression: ROUND(SUM(is_primary_item), 2)
+    description: Tổng giá trị lũy kế của cột is_primary_item trong bảng web_analytics.order_items
+    depends_on_tables:
+    - web_analytics.order_items
+    depends_on_columns:
+    - is_primary_item
+  avg_is_primary_item:
+    metric_id: avg_is_primary_item
+    vn_terms:
+    - Is Primary Item trung bình
+    - trung bình Is Primary Item
+    - bình quân Is Primary Item
+    en_terms:
+    - average is_primary_item
+    - avg is_primary_item
+    - mean is_primary_item
+    sql_expression: ROUND(AVG(is_primary_item), 2)
+    description: Giá trị bình quân của cột is_primary_item trong bảng web_analytics.order_items
+    depends_on_tables:
+    - web_analytics.order_items
+    depends_on_columns:
+    - is_primary_item
+  total_price_usd:
+    metric_id: total_price_usd
+    vn_terms:
+    - tổng Price Usd
+    - tổng số Price Usd
+    - tổng cộng Price Usd
+    en_terms:
+    - total price_usd
+    - sum of price_usd
+    sql_expression: ROUND(SUM(price_usd), 2)
+    description: Tổng giá trị lũy kế của cột price_usd trong bảng web_analytics.orders
+    depends_on_tables:
+    - web_analytics.orders
+    depends_on_columns:
+    - price_usd
+  avg_price_usd:
+    metric_id: avg_price_usd
+    vn_terms:
+    - Price Usd trung bình
+    - trung bình Price Usd
+    - bình quân Price Usd
+    en_terms:
+    - average price_usd
+    - avg price_usd
+    - mean price_usd
+    sql_expression: ROUND(AVG(price_usd), 2)
+    description: Giá trị bình quân của cột price_usd trong bảng web_analytics.orders
+    depends_on_tables:
+    - web_analytics.orders
+    depends_on_columns:
+    - price_usd
+  total_cogs_usd:
+    metric_id: total_cogs_usd
+    vn_terms:
+    - tổng Cogs Usd
+    - tổng số Cogs Usd
+    - tổng cộng Cogs Usd
+    en_terms:
+    - total cogs_usd
+    - sum of cogs_usd
+    sql_expression: ROUND(SUM(cogs_usd), 2)
+    description: Tổng giá trị lũy kế của cột cogs_usd trong bảng web_analytics.orders
+    depends_on_tables:
+    - web_analytics.orders
+    depends_on_columns:
+    - cogs_usd
+  avg_cogs_usd:
+    metric_id: avg_cogs_usd
+    vn_terms:
+    - Cogs Usd trung bình
+    - trung bình Cogs Usd
+    - bình quân Cogs Usd
+    en_terms:
+    - average cogs_usd
+    - avg cogs_usd
+    - mean cogs_usd
+    sql_expression: ROUND(AVG(cogs_usd), 2)
+    description: Giá trị bình quân của cột cogs_usd trong bảng web_analytics.orders
+    depends_on_tables:
+    - web_analytics.orders
+    depends_on_columns:
+    - cogs_usd
+  total_web_analytics.orders:
+    metric_id: total_web_analytics.orders
+    vn_terms:
+    - tổng số Orders
+    - số lượng Orders
+    - số Orders
+    - thống kê Orders
+    en_terms:
+    - total web_analytics.orders
+    - web_analytics.orders count
+    - number of web_analytics.orders
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng web_analytics.orders
+    depends_on_tables:
+    - web_analytics.orders
+    depends_on_columns: []
+  total_items_purchased:
+    metric_id: total_items_purchased
+    vn_terms:
+    - tổng Items Purchased
+    - tổng số Items Purchased
+    - tổng cộng Items Purchased
+    en_terms:
+    - total items_purchased
+    - sum of items_purchased
+    sql_expression: ROUND(SUM(items_purchased), 2)
+    description: Tổng giá trị lũy kế của cột items_purchased trong bảng web_analytics.orders
+    depends_on_tables:
+    - web_analytics.orders
+    depends_on_columns:
+    - items_purchased
+  avg_items_purchased:
+    metric_id: avg_items_purchased
+    vn_terms:
+    - Items Purchased trung bình
+    - trung bình Items Purchased
+    - bình quân Items Purchased
+    en_terms:
+    - average items_purchased
+    - avg items_purchased
+    - mean items_purchased
+    sql_expression: ROUND(AVG(items_purchased), 2)
+    description: Giá trị bình quân của cột items_purchased trong bảng web_analytics.orders
+    depends_on_tables:
+    - web_analytics.orders
+    depends_on_columns:
+    - items_purchased
+  total_web_analytics.products:
+    metric_id: total_web_analytics.products
+    vn_terms:
+    - tổng số Products
+    - số lượng Products
+    - số Products
+    - thống kê Products
+    en_terms:
+    - total web_analytics.products
+    - web_analytics.products count
+    - number of web_analytics.products
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng web_analytics.products
+    depends_on_tables:
+    - web_analytics.products
+    depends_on_columns: []
+  total_web_analytics.website_pageviews:
+    metric_id: total_web_analytics.website_pageviews
+    vn_terms:
+    - tổng số Website Pageviews
+    - số lượng Website Pageviews
+    - số Website Pageviews
+    - thống kê Website Pageviews
+    en_terms:
+    - total web_analytics.website_pageviews
+    - web_analytics.website_pageviews count
+    - number of web_analytics.website_pageviews
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng web_analytics.website_pageviews
+    depends_on_tables:
+    - web_analytics.website_pageviews
+    depends_on_columns: []
+  total_web_analytics.website_sessions:
+    metric_id: total_web_analytics.website_sessions
+    vn_terms:
+    - tổng số Website Sessions
+    - số lượng Website Sessions
+    - số Website Sessions
+    - thống kê Website Sessions
+    en_terms:
+    - total web_analytics.website_sessions
+    - web_analytics.website_sessions count
+    - number of web_analytics.website_sessions
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng web_analytics.website_sessions
+    depends_on_tables:
+    - web_analytics.website_sessions
+    depends_on_columns: []
+  total_is_repeat_session:
+    metric_id: total_is_repeat_session
+    vn_terms:
+    - tổng Is Repeat Session
+    - tổng số Is Repeat Session
+    - tổng cộng Is Repeat Session
+    en_terms:
+    - total is_repeat_session
+    - sum of is_repeat_session
+    sql_expression: ROUND(SUM(is_repeat_session), 2)
+    description: Tổng giá trị lũy kế của cột is_repeat_session trong bảng web_analytics.website_sessions
+    depends_on_tables:
+    - web_analytics.website_sessions
+    depends_on_columns:
+    - is_repeat_session
+  avg_is_repeat_session:
+    metric_id: avg_is_repeat_session
+    vn_terms:
+    - Is Repeat Session trung bình
+    - trung bình Is Repeat Session
+    - bình quân Is Repeat Session
+    en_terms:
+    - average is_repeat_session
+    - avg is_repeat_session
+    - mean is_repeat_session
+    sql_expression: ROUND(AVG(is_repeat_session), 2)
+    description: Giá trị bình quân của cột is_repeat_session trong bảng web_analytics.website_sessions
+    depends_on_tables:
+    - web_analytics.website_sessions
+    depends_on_columns:
+    - is_repeat_session
+segments: {}

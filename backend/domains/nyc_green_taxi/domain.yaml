@@ -1,0 +1,9 @@
+domain_id: nyc_green_taxi
+display_name: Nyc Green Taxi
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (nyc_green_taxi)
+domain_keywords:
+- nyc_green_taxi
+- payment types
+- trips
+- zones
+synonyms: {}

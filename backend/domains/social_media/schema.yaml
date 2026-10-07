@@ -1,0 +1,226 @@
+tables:
+  social_media.posts:
+    table_name: social_media.posts
+    vn_name: Posts
+    description: Bảng/View social_media.posts
+    primary_key:
+    - post_id
+    partition_key: null
+    columns:
+      post_id:
+        name: post_id
+        vn_name: Post Id
+        en_name: Post Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột post_id trong bảng social_media.posts
+        synonyms:
+        - post id
+        is_partition_or_dist: false
+      platform:
+        name: platform
+        vn_name: Platform
+        en_name: Platform
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột platform trong bảng social_media.posts
+        synonyms:
+        - platform
+        is_partition_or_dist: false
+      content_type:
+        name: content_type
+        vn_name: Content Type
+        en_name: Content Type
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột content_type trong bảng social_media.posts
+        synonyms:
+        - content type
+        is_partition_or_dist: false
+      content_category:
+        name: content_category
+        vn_name: Content Category
+        en_name: Content Category
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột content_category trong bảng social_media.posts
+        synonyms:
+        - content category
+        is_partition_or_dist: false
+      post_type:
+        name: post_type
+        vn_name: Post Type
+        en_name: Post Type
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột post_type trong bảng social_media.posts
+        synonyms:
+        - post type
+        is_partition_or_dist: false
+      region:
+        name: region
+        vn_name: Region
+        en_name: Region
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột region trong bảng social_media.posts
+        synonyms:
+        - region
+        is_partition_or_dist: false
+      longitude:
+        name: longitude
+        vn_name: Longitude
+        en_name: Longitude
+        data_type: DECIMAL(10, 6)
+        description: Cột longitude trong bảng social_media.posts
+        synonyms:
+        - longitude
+        is_partition_or_dist: false
+      latitude:
+        name: latitude
+        vn_name: Latitude
+        en_name: Latitude
+        data_type: DECIMAL(10, 6)
+        description: Cột latitude trong bảng social_media.posts
+        synonyms:
+        - latitude
+        is_partition_or_dist: false
+      engagement:
+        name: engagement
+        vn_name: Engagement
+        en_name: Engagement
+        data_type: INTEGER
+        description: Cột engagement trong bảng social_media.posts
+        synonyms:
+        - engagement
+        is_partition_or_dist: false
+      views:
+        name: views
+        vn_name: Views
+        en_name: Views
+        data_type: INTEGER
+        description: Cột views trong bảng social_media.posts
+        synonyms:
+        - views
+        is_partition_or_dist: false
+      likes:
+        name: likes
+        vn_name: Likes
+        en_name: Likes
+        data_type: INTEGER
+        description: Cột likes trong bảng social_media.posts
+        synonyms:
+        - likes
+        is_partition_or_dist: false
+      shares:
+        name: shares
+        vn_name: Shares
+        en_name: Shares
+        data_type: INTEGER
+        description: Cột shares trong bảng social_media.posts
+        synonyms:
+        - shares
+        is_partition_or_dist: false
+      comments:
+        name: comments
+        vn_name: Comments
+        en_name: Comments
+        data_type: INTEGER
+        description: Cột comments trong bảng social_media.posts
+        synonyms:
+        - comments
+        is_partition_or_dist: false
+      engagement_rate:
+        name: engagement_rate
+        vn_name: Engagement Rate
+        en_name: Engagement Rate
+        data_type: DECIMAL(10, 8)
+        description: Cột engagement_rate trong bảng social_media.posts
+        synonyms:
+        - engagement rate
+        is_partition_or_dist: false
+      impressions:
+        name: impressions
+        vn_name: Impressions
+        en_name: Impressions
+        data_type: INTEGER
+        description: Cột impressions trong bảng social_media.posts
+        synonyms:
+        - impressions
+        is_partition_or_dist: false
+      video_views:
+        name: video_views
+        vn_name: Video Views
+        en_name: Video Views
+        data_type: INTEGER
+        description: Cột video_views trong bảng social_media.posts
+        synonyms:
+        - video views
+        is_partition_or_dist: false
+      live_stream_views:
+        name: live_stream_views
+        vn_name: Live Stream Views
+        en_name: Live Stream Views
+        data_type: INTEGER
+        description: Cột live_stream_views trong bảng social_media.posts
+        synonyms:
+        - live stream views
+        is_partition_or_dist: false
+      clicks:
+        name: clicks
+        vn_name: Clicks
+        en_name: Clicks
+        data_type: INTEGER
+        description: Cột clicks trong bảng social_media.posts
+        synonyms:
+        - clicks
+        is_partition_or_dist: false
+      click_through_rate:
+        name: click_through_rate
+        vn_name: Click Through Rate
+        en_name: Click Through Rate
+        data_type: DECIMAL(10, 4)
+        description: Cột click_through_rate trong bảng social_media.posts
+        synonyms:
+        - click through rate
+        is_partition_or_dist: false
+      main_hashtag:
+        name: main_hashtag
+        vn_name: Main Hashtag
+        en_name: Main Hashtag
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột main_hashtag trong bảng social_media.posts
+        synonyms:
+        - main hashtag
+        is_partition_or_dist: false
+      post_published_at:
+        name: post_published_at
+        vn_name: Post Published At
+        en_name: Post Published At
+        data_type: DATETIME
+        description: Cột post_published_at trong bảng social_media.posts
+        synonyms:
+        - post published at
+        is_partition_or_dist: false
+      post_date:
+        name: post_date
+        vn_name: Post Date
+        en_name: Post Date
+        data_type: DATE
+        description: Cột post_date trong bảng social_media.posts
+        synonyms:
+        - post date
+        is_partition_or_dist: false
+      post_hour:
+        name: post_hour
+        vn_name: Post Hour
+        en_name: Post Hour
+        data_type: INTEGER
+        description: Cột post_hour trong bảng social_media.posts
+        synonyms:
+        - post hour
+        is_partition_or_dist: false
+      engagement_level:
+        name: engagement_level
+        vn_name: Engagement Level
+        en_name: Engagement Level
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột engagement_level trong bảng social_media.posts
+        synonyms:
+        - engagement level
+        is_partition_or_dist: false
+relationships: []

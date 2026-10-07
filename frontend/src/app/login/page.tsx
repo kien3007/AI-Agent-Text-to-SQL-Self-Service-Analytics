@@ -15,7 +15,6 @@ import {
   Loader2,
   Database,
   ShieldCheck,
-  Zap,
   Sun,
   Moon,
   ArrowRight,
@@ -78,11 +77,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickFill = (u: string, p: string) => {
-    setUsername(u);
-    setPassword(p);
-    setError(null);
-  };
 
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center bg-[var(--bg-app)] text-[var(--text-primary)] px-4 py-8 relative overflow-hidden selection:bg-blue-500 selection:text-white">
@@ -261,37 +255,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Quick Demo Credentials */}
-          <div className="mt-6 pt-5 border-t border-[var(--border-subtle)]">
-            <span className="text-[11px] font-medium text-[var(--text-muted)] block mb-2 text-center">
-              Tài khoản tích hợp sẵn:
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('admin', 'admin123')}
-                className="px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-app)] hover:border-blue-500 hover:bg-blue-500/5 text-left text-xs transition-colors flex flex-col cursor-pointer"
-              >
-                <div className="flex items-center gap-1 font-semibold text-[var(--text-primary)]">
-                  <ShieldCheck size={12} className="text-blue-500" />
-                  <span>admin</span>
-                </div>
-                <span className="text-[10px] text-[var(--text-muted)]">Quyền Administrator</span>
-              </button>
 
-              <button
-                type="button"
-                onClick={() => handleQuickFill('analyst', 'analyst123')}
-                className="px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-app)] hover:border-emerald-500 hover:bg-emerald-500/5 text-left text-xs transition-colors flex flex-col cursor-pointer"
-              >
-                <div className="flex items-center gap-1 font-semibold text-[var(--text-primary)]">
-                  <Zap size={12} className="text-emerald-500" />
-                  <span>analyst</span>
-                </div>
-                <span className="text-[10px] text-[var(--text-muted)]">Quyền Data Analyst</span>
-              </button>
-            </div>
-          </div>
 
           {/* Link to Register */}
           <div className="mt-5 text-center">

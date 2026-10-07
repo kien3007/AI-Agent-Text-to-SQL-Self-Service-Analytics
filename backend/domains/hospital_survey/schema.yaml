@@ -1,0 +1,339 @@
+tables:
+  hospital_survey.measures:
+    table_name: hospital_survey.measures
+    vn_name: Measures
+    description: Bảng/View hospital_survey.measures
+    primary_key:
+    - measure_id
+    partition_key: null
+    columns:
+      measure_id:
+        name: measure_id
+        vn_name: Measure Id
+        en_name: Measure Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột measure_id trong bảng hospital_survey.measures
+        synonyms:
+        - measure id
+        is_partition_or_dist: false
+      measure:
+        name: measure
+        vn_name: Measure
+        en_name: Measure
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột measure trong bảng hospital_survey.measures
+        synonyms:
+        - measure
+        is_partition_or_dist: false
+      type:
+        name: type
+        vn_name: Type
+        en_name: Type
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột type trong bảng hospital_survey.measures
+        synonyms:
+        - type
+        is_partition_or_dist: false
+  hospital_survey.national_results:
+    table_name: hospital_survey.national_results
+    vn_name: National Results
+    description: Bảng/View hospital_survey.national_results
+    primary_key:
+    - release_period
+    - measure_id
+    partition_key: null
+    columns:
+      release_period:
+        name: release_period
+        vn_name: Release Period
+        en_name: Release Period
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột release_period trong bảng hospital_survey.national_results
+        synonyms:
+        - release period
+        is_partition_or_dist: false
+      measure_id:
+        name: measure_id
+        vn_name: Measure Id
+        en_name: Measure Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột measure_id trong bảng hospital_survey.national_results
+        synonyms:
+        - measure id
+        is_partition_or_dist: false
+      bottom_box_percentage:
+        name: bottom_box_percentage
+        vn_name: Bottom Box Percentage
+        en_name: Bottom Box Percentage
+        data_type: INTEGER
+        description: Cột bottom_box_percentage trong bảng hospital_survey.national_results
+        synonyms:
+        - bottom box percentage
+        is_partition_or_dist: false
+      middle_box_percentage:
+        name: middle_box_percentage
+        vn_name: Middle Box Percentage
+        en_name: Middle Box Percentage
+        data_type: INTEGER
+        description: Cột middle_box_percentage trong bảng hospital_survey.national_results
+        synonyms:
+        - middle box percentage
+        is_partition_or_dist: false
+      top_box_percentage:
+        name: top_box_percentage
+        vn_name: Top Box Percentage
+        en_name: Top Box Percentage
+        data_type: INTEGER
+        description: Cột top_box_percentage trong bảng hospital_survey.national_results
+        synonyms:
+        - top box percentage
+        is_partition_or_dist: false
+  hospital_survey.questions:
+    table_name: hospital_survey.questions
+    vn_name: Questions
+    description: Bảng/View hospital_survey.questions
+    primary_key:
+    - question_num
+    partition_key: null
+    columns:
+      question_num:
+        name: question_num
+        vn_name: Question Num
+        en_name: Question Num
+        data_type: INTEGER
+        description: Cột question_num trong bảng hospital_survey.questions
+        synonyms:
+        - question num
+        is_partition_or_dist: false
+      measure_id:
+        name: measure_id
+        vn_name: Measure Id
+        en_name: Measure Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột measure_id trong bảng hospital_survey.questions
+        synonyms:
+        - measure id
+        is_partition_or_dist: false
+      question:
+        name: question
+        vn_name: Question
+        en_name: Question
+        data_type: NVARCHAR(500) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột question trong bảng hospital_survey.questions
+        synonyms:
+        - question
+        is_partition_or_dist: false
+      bottom_box_answer:
+        name: bottom_box_answer
+        vn_name: Bottom Box Answer
+        en_name: Bottom Box Answer
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột bottom_box_answer trong bảng hospital_survey.questions
+        synonyms:
+        - bottom box answer
+        is_partition_or_dist: false
+      middle_box_answer:
+        name: middle_box_answer
+        vn_name: Middle Box Answer
+        en_name: Middle Box Answer
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột middle_box_answer trong bảng hospital_survey.questions
+        synonyms:
+        - middle box answer
+        is_partition_or_dist: false
+      top_box_answer:
+        name: top_box_answer
+        vn_name: Top Box Answer
+        en_name: Top Box Answer
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột top_box_answer trong bảng hospital_survey.questions
+        synonyms:
+        - top box answer
+        is_partition_or_dist: false
+  hospital_survey.reports:
+    table_name: hospital_survey.reports
+    vn_name: Reports
+    description: Bảng/View hospital_survey.reports
+    primary_key:
+    - release_period
+    partition_key: null
+    columns:
+      release_period:
+        name: release_period
+        vn_name: Release Period
+        en_name: Release Period
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột release_period trong bảng hospital_survey.reports
+        synonyms:
+        - release period
+        is_partition_or_dist: false
+      start_date:
+        name: start_date
+        vn_name: Start Date
+        en_name: Start Date
+        data_type: DATE
+        description: Cột start_date trong bảng hospital_survey.reports
+        synonyms:
+        - start date
+        is_partition_or_dist: false
+      end_date:
+        name: end_date
+        vn_name: End Date
+        en_name: End Date
+        data_type: DATE
+        description: Cột end_date trong bảng hospital_survey.reports
+        synonyms:
+        - end date
+        is_partition_or_dist: false
+  hospital_survey.responses:
+    table_name: hospital_survey.responses
+    vn_name: Responses
+    description: Bảng/View hospital_survey.responses
+    primary_key: []
+    partition_key: null
+    columns:
+      release_period:
+        name: release_period
+        vn_name: Release Period
+        en_name: Release Period
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột release_period trong bảng hospital_survey.responses
+        synonyms:
+        - release period
+        is_partition_or_dist: false
+      state:
+        name: state
+        vn_name: State
+        en_name: State
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state trong bảng hospital_survey.responses
+        synonyms:
+        - state
+        is_partition_or_dist: false
+      facility_id:
+        name: facility_id
+        vn_name: Facility Id
+        en_name: Facility Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột facility_id trong bảng hospital_survey.responses
+        synonyms:
+        - facility id
+        is_partition_or_dist: false
+      completed_surveys:
+        name: completed_surveys
+        vn_name: Completed Surveys
+        en_name: Completed Surveys
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột completed_surveys trong bảng hospital_survey.responses
+        synonyms:
+        - completed surveys
+        is_partition_or_dist: false
+      response_rate_pct:
+        name: response_rate_pct
+        vn_name: Response Rate Pct
+        en_name: Response Rate Pct
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột response_rate_pct trong bảng hospital_survey.responses
+        synonyms:
+        - response rate pct
+        is_partition_or_dist: false
+  hospital_survey.state_results:
+    table_name: hospital_survey.state_results
+    vn_name: State Results
+    description: Bảng/View hospital_survey.state_results
+    primary_key:
+    - release_period
+    - state
+    - measure_id
+    partition_key: null
+    columns:
+      release_period:
+        name: release_period
+        vn_name: Release Period
+        en_name: Release Period
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột release_period trong bảng hospital_survey.state_results
+        synonyms:
+        - release period
+        is_partition_or_dist: false
+      state:
+        name: state
+        vn_name: State
+        en_name: State
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state trong bảng hospital_survey.state_results
+        synonyms:
+        - state
+        is_partition_or_dist: false
+      measure_id:
+        name: measure_id
+        vn_name: Measure Id
+        en_name: Measure Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột measure_id trong bảng hospital_survey.state_results
+        synonyms:
+        - measure id
+        is_partition_or_dist: false
+      bottom_box_percentage:
+        name: bottom_box_percentage
+        vn_name: Bottom Box Percentage
+        en_name: Bottom Box Percentage
+        data_type: INTEGER
+        description: Cột bottom_box_percentage trong bảng hospital_survey.state_results
+        synonyms:
+        - bottom box percentage
+        is_partition_or_dist: false
+      middle_box_percentage:
+        name: middle_box_percentage
+        vn_name: Middle Box Percentage
+        en_name: Middle Box Percentage
+        data_type: INTEGER
+        description: Cột middle_box_percentage trong bảng hospital_survey.state_results
+        synonyms:
+        - middle box percentage
+        is_partition_or_dist: false
+      top_box_percentage:
+        name: top_box_percentage
+        vn_name: Top Box Percentage
+        en_name: Top Box Percentage
+        data_type: INTEGER
+        description: Cột top_box_percentage trong bảng hospital_survey.state_results
+        synonyms:
+        - top box percentage
+        is_partition_or_dist: false
+  hospital_survey.states:
+    table_name: hospital_survey.states
+    vn_name: States
+    description: Bảng/View hospital_survey.states
+    primary_key:
+    - state
+    partition_key: null
+    columns:
+      state:
+        name: state
+        vn_name: State
+        en_name: State
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state trong bảng hospital_survey.states
+        synonyms:
+        - state
+        is_partition_or_dist: false
+      state_name:
+        name: state_name
+        vn_name: State Name
+        en_name: State Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state_name trong bảng hospital_survey.states
+        synonyms:
+        - state name
+        is_partition_or_dist: false
+      region:
+        name: region
+        vn_name: Region
+        en_name: Region
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột region trong bảng hospital_survey.states
+        synonyms:
+        - region
+        is_partition_or_dist: false
+relationships: []

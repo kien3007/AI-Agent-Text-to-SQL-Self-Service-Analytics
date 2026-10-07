@@ -1,0 +1,377 @@
+metrics:
+  total_pixar_legacy.academy:
+    metric_id: total_pixar_legacy.academy
+    vn_terms:
+    - tổng số Academy
+    - số lượng Academy
+    - số Academy
+    - thống kê Academy
+    en_terms:
+    - total pixar_legacy.academy
+    - pixar_legacy.academy count
+    - number of pixar_legacy.academy
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng pixar_legacy.academy
+    depends_on_tables:
+    - pixar_legacy.academy
+    depends_on_columns: []
+  total_pixar_legacy.box_office:
+    metric_id: total_pixar_legacy.box_office
+    vn_terms:
+    - tổng số Box Office
+    - số lượng Box Office
+    - số Box Office
+    - thống kê Box Office
+    en_terms:
+    - total pixar_legacy.box_office
+    - pixar_legacy.box_office count
+    - number of pixar_legacy.box_office
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns: []
+  total_budget:
+    metric_id: total_budget
+    vn_terms:
+    - tổng Budget
+    - tổng số Budget
+    - tổng cộng Budget
+    en_terms:
+    - total budget
+    - sum of budget
+    sql_expression: ROUND(SUM(budget), 2)
+    description: Tổng giá trị lũy kế của cột budget trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns:
+    - budget
+  avg_budget:
+    metric_id: avg_budget
+    vn_terms:
+    - Budget trung bình
+    - trung bình Budget
+    - bình quân Budget
+    en_terms:
+    - average budget
+    - avg budget
+    - mean budget
+    sql_expression: ROUND(AVG(budget), 2)
+    description: Giá trị bình quân của cột budget trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns:
+    - budget
+  total_box_office_us_canada:
+    metric_id: total_box_office_us_canada
+    vn_terms:
+    - tổng Box Office Us Canada
+    - tổng số Box Office Us Canada
+    - tổng cộng Box Office Us Canada
+    en_terms:
+    - total box_office_us_canada
+    - sum of box_office_us_canada
+    sql_expression: ROUND(SUM(box_office_us_canada), 2)
+    description: Tổng giá trị lũy kế của cột box_office_us_canada trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns:
+    - box_office_us_canada
+  avg_box_office_us_canada:
+    metric_id: avg_box_office_us_canada
+    vn_terms:
+    - Box Office Us Canada trung bình
+    - trung bình Box Office Us Canada
+    - bình quân Box Office Us Canada
+    en_terms:
+    - average box_office_us_canada
+    - avg box_office_us_canada
+    - mean box_office_us_canada
+    sql_expression: ROUND(AVG(box_office_us_canada), 2)
+    description: Giá trị bình quân của cột box_office_us_canada trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns:
+    - box_office_us_canada
+  total_box_office_other:
+    metric_id: total_box_office_other
+    vn_terms:
+    - tổng Box Office Other
+    - tổng số Box Office Other
+    - tổng cộng Box Office Other
+    en_terms:
+    - total box_office_other
+    - sum of box_office_other
+    sql_expression: ROUND(SUM(box_office_other), 2)
+    description: Tổng giá trị lũy kế của cột box_office_other trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns:
+    - box_office_other
+  avg_box_office_other:
+    metric_id: avg_box_office_other
+    vn_terms:
+    - Box Office Other trung bình
+    - trung bình Box Office Other
+    - bình quân Box Office Other
+    en_terms:
+    - average box_office_other
+    - avg box_office_other
+    - mean box_office_other
+    sql_expression: ROUND(AVG(box_office_other), 2)
+    description: Giá trị bình quân của cột box_office_other trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns:
+    - box_office_other
+  total_box_office_worldwide:
+    metric_id: total_box_office_worldwide
+    vn_terms:
+    - tổng Box Office Worldwide
+    - tổng số Box Office Worldwide
+    - tổng cộng Box Office Worldwide
+    en_terms:
+    - total box_office_worldwide
+    - sum of box_office_worldwide
+    sql_expression: ROUND(SUM(box_office_worldwide), 2)
+    description: Tổng giá trị lũy kế của cột box_office_worldwide trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns:
+    - box_office_worldwide
+  avg_box_office_worldwide:
+    metric_id: avg_box_office_worldwide
+    vn_terms:
+    - Box Office Worldwide trung bình
+    - trung bình Box Office Worldwide
+    - bình quân Box Office Worldwide
+    en_terms:
+    - average box_office_worldwide
+    - avg box_office_worldwide
+    - mean box_office_worldwide
+    sql_expression: ROUND(AVG(box_office_worldwide), 2)
+    description: Giá trị bình quân của cột box_office_worldwide trong bảng pixar_legacy.box_office
+    depends_on_tables:
+    - pixar_legacy.box_office
+    depends_on_columns:
+    - box_office_worldwide
+  total_pixar_legacy.genres:
+    metric_id: total_pixar_legacy.genres
+    vn_terms:
+    - tổng số Genres
+    - số lượng Genres
+    - số Genres
+    - thống kê Genres
+    en_terms:
+    - total pixar_legacy.genres
+    - pixar_legacy.genres count
+    - number of pixar_legacy.genres
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng pixar_legacy.genres
+    depends_on_tables:
+    - pixar_legacy.genres
+    depends_on_columns: []
+  total_pixar_legacy.pixar_films:
+    metric_id: total_pixar_legacy.pixar_films
+    vn_terms:
+    - tổng số Pixar Films
+    - số lượng Pixar Films
+    - số Pixar Films
+    - thống kê Pixar Films
+    en_terms:
+    - total pixar_legacy.pixar_films
+    - pixar_legacy.pixar_films count
+    - number of pixar_legacy.pixar_films
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng pixar_legacy.pixar_films
+    depends_on_tables:
+    - pixar_legacy.pixar_films
+    depends_on_columns: []
+  total_number:
+    metric_id: total_number
+    vn_terms:
+    - tổng Number
+    - tổng số Number
+    - tổng cộng Number
+    en_terms:
+    - total number
+    - sum of number
+    sql_expression: ROUND(SUM(number), 2)
+    description: Tổng giá trị lũy kế của cột number trong bảng pixar_legacy.pixar_films
+    depends_on_tables:
+    - pixar_legacy.pixar_films
+    depends_on_columns:
+    - number
+  avg_number:
+    metric_id: avg_number
+    vn_terms:
+    - Number trung bình
+    - trung bình Number
+    - bình quân Number
+    en_terms:
+    - average number
+    - avg number
+    - mean number
+    sql_expression: ROUND(AVG(number), 2)
+    description: Giá trị bình quân của cột number trong bảng pixar_legacy.pixar_films
+    depends_on_tables:
+    - pixar_legacy.pixar_films
+    depends_on_columns:
+    - number
+  total_run_time:
+    metric_id: total_run_time
+    vn_terms:
+    - tổng Run Time
+    - tổng số Run Time
+    - tổng cộng Run Time
+    en_terms:
+    - total run_time
+    - sum of run_time
+    sql_expression: ROUND(SUM(run_time), 2)
+    description: Tổng giá trị lũy kế của cột run_time trong bảng pixar_legacy.pixar_films
+    depends_on_tables:
+    - pixar_legacy.pixar_films
+    depends_on_columns:
+    - run_time
+  avg_run_time:
+    metric_id: avg_run_time
+    vn_terms:
+    - Run Time trung bình
+    - trung bình Run Time
+    - bình quân Run Time
+    en_terms:
+    - average run_time
+    - avg run_time
+    - mean run_time
+    sql_expression: ROUND(AVG(run_time), 2)
+    description: Giá trị bình quân của cột run_time trong bảng pixar_legacy.pixar_films
+    depends_on_tables:
+    - pixar_legacy.pixar_films
+    depends_on_columns:
+    - run_time
+  total_pixar_legacy.pixar_people:
+    metric_id: total_pixar_legacy.pixar_people
+    vn_terms:
+    - tổng số Pixar People
+    - số lượng Pixar People
+    - số Pixar People
+    - thống kê Pixar People
+    en_terms:
+    - total pixar_legacy.pixar_people
+    - pixar_legacy.pixar_people count
+    - number of pixar_legacy.pixar_people
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng pixar_legacy.pixar_people
+    depends_on_tables:
+    - pixar_legacy.pixar_people
+    depends_on_columns: []
+  total_pixar_legacy.public_response:
+    metric_id: total_pixar_legacy.public_response
+    vn_terms:
+    - tổng số Public Response
+    - số lượng Public Response
+    - số Public Response
+    - thống kê Public Response
+    en_terms:
+    - total pixar_legacy.public_response
+    - pixar_legacy.public_response count
+    - number of pixar_legacy.public_response
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng pixar_legacy.public_response
+    depends_on_tables:
+    - pixar_legacy.public_response
+    depends_on_columns: []
+  total_rotten_tomatoes_score:
+    metric_id: total_rotten_tomatoes_score
+    vn_terms:
+    - tổng Rotten Tomatoes Score
+    - tổng số Rotten Tomatoes Score
+    - tổng cộng Rotten Tomatoes Score
+    en_terms:
+    - total rotten_tomatoes_score
+    - sum of rotten_tomatoes_score
+    sql_expression: ROUND(SUM(rotten_tomatoes_score), 2)
+    description: Tổng giá trị lũy kế của cột rotten_tomatoes_score trong bảng pixar_legacy.public_response
+    depends_on_tables:
+    - pixar_legacy.public_response
+    depends_on_columns:
+    - rotten_tomatoes_score
+  avg_rotten_tomatoes_score:
+    metric_id: avg_rotten_tomatoes_score
+    vn_terms:
+    - Rotten Tomatoes Score trung bình
+    - trung bình Rotten Tomatoes Score
+    - bình quân Rotten Tomatoes Score
+    en_terms:
+    - average rotten_tomatoes_score
+    - avg rotten_tomatoes_score
+    - mean rotten_tomatoes_score
+    sql_expression: ROUND(AVG(rotten_tomatoes_score), 2)
+    description: Giá trị bình quân của cột rotten_tomatoes_score trong bảng pixar_legacy.public_response
+    depends_on_tables:
+    - pixar_legacy.public_response
+    depends_on_columns:
+    - rotten_tomatoes_score
+  total_metacritic_score:
+    metric_id: total_metacritic_score
+    vn_terms:
+    - tổng Metacritic Score
+    - tổng số Metacritic Score
+    - tổng cộng Metacritic Score
+    en_terms:
+    - total metacritic_score
+    - sum of metacritic_score
+    sql_expression: ROUND(SUM(metacritic_score), 2)
+    description: Tổng giá trị lũy kế của cột metacritic_score trong bảng pixar_legacy.public_response
+    depends_on_tables:
+    - pixar_legacy.public_response
+    depends_on_columns:
+    - metacritic_score
+  avg_metacritic_score:
+    metric_id: avg_metacritic_score
+    vn_terms:
+    - Metacritic Score trung bình
+    - trung bình Metacritic Score
+    - bình quân Metacritic Score
+    en_terms:
+    - average metacritic_score
+    - avg metacritic_score
+    - mean metacritic_score
+    sql_expression: ROUND(AVG(metacritic_score), 2)
+    description: Giá trị bình quân của cột metacritic_score trong bảng pixar_legacy.public_response
+    depends_on_tables:
+    - pixar_legacy.public_response
+    depends_on_columns:
+    - metacritic_score
+  total_imdb_score:
+    metric_id: total_imdb_score
+    vn_terms:
+    - tổng Imdb Score
+    - tổng số Imdb Score
+    - tổng cộng Imdb Score
+    en_terms:
+    - total imdb_score
+    - sum of imdb_score
+    sql_expression: ROUND(SUM(imdb_score), 2)
+    description: Tổng giá trị lũy kế của cột imdb_score trong bảng pixar_legacy.public_response
+    depends_on_tables:
+    - pixar_legacy.public_response
+    depends_on_columns:
+    - imdb_score
+  avg_imdb_score:
+    metric_id: avg_imdb_score
+    vn_terms:
+    - Imdb Score trung bình
+    - trung bình Imdb Score
+    - bình quân Imdb Score
+    en_terms:
+    - average imdb_score
+    - avg imdb_score
+    - mean imdb_score
+    sql_expression: ROUND(AVG(imdb_score), 2)
+    description: Giá trị bình quân của cột imdb_score trong bảng pixar_legacy.public_response
+    depends_on_tables:
+    - pixar_legacy.public_response
+    depends_on_columns:
+    - imdb_score
+segments: {}

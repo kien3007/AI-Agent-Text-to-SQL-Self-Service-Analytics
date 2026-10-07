@@ -1,0 +1,98 @@
+metrics:
+  total_skytrax.airline_reviews:
+    metric_id: total_skytrax.airline_reviews
+    vn_terms:
+    - tổng số Airline Reviews
+    - số lượng Airline Reviews
+    - số Airline Reviews
+    - thống kê Airline Reviews
+    en_terms:
+    - total skytrax.airline_reviews
+    - skytrax.airline_reviews count
+    - number of skytrax.airline_reviews
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng skytrax.airline_reviews
+    depends_on_tables:
+    - skytrax.airline_reviews
+    depends_on_columns: []
+  total_skytrax.airlines:
+    metric_id: total_skytrax.airlines
+    vn_terms:
+    - tổng số Airlines
+    - số lượng Airlines
+    - số Airlines
+    - thống kê Airlines
+    en_terms:
+    - total skytrax.airlines
+    - skytrax.airlines count
+    - number of skytrax.airlines
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng skytrax.airlines
+    depends_on_tables:
+    - skytrax.airlines
+    depends_on_columns: []
+  total_skytrax.airport_reviews:
+    metric_id: total_skytrax.airport_reviews
+    vn_terms:
+    - tổng số Airport Reviews
+    - số lượng Airport Reviews
+    - số Airport Reviews
+    - thống kê Airport Reviews
+    en_terms:
+    - total skytrax.airport_reviews
+    - skytrax.airport_reviews count
+    - number of skytrax.airport_reviews
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng skytrax.airport_reviews
+    depends_on_tables:
+    - skytrax.airport_reviews
+    depends_on_columns: []
+  total_skytrax.airports:
+    metric_id: total_skytrax.airports
+    vn_terms:
+    - tổng số Airports
+    - số lượng Airports
+    - số Airports
+    - thống kê Airports
+    en_terms:
+    - total skytrax.airports
+    - skytrax.airports count
+    - number of skytrax.airports
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng skytrax.airports
+    depends_on_tables:
+    - skytrax.airports
+    depends_on_columns: []
+  total_skytrax.lounge_reviews:
+    metric_id: total_skytrax.lounge_reviews
+    vn_terms:
+    - tổng số Lounge Reviews
+    - số lượng Lounge Reviews
+    - số Lounge Reviews
+    - thống kê Lounge Reviews
+    en_terms:
+    - total skytrax.lounge_reviews
+    - skytrax.lounge_reviews count
+    - number of skytrax.lounge_reviews
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng skytrax.lounge_reviews
+    depends_on_tables:
+    - skytrax.lounge_reviews
+    depends_on_columns: []
+  total_skytrax.seat_reviews:
+    metric_id: total_skytrax.seat_reviews
+    vn_terms:
+    - tổng số Seat Reviews
+    - số lượng Seat Reviews
+    - số Seat Reviews
+    - thống kê Seat Reviews
+    en_terms:
+    - total skytrax.seat_reviews
+    - skytrax.seat_reviews count
+    - number of skytrax.seat_reviews
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng skytrax.seat_reviews
+    depends_on_tables:
+    - skytrax.seat_reviews
+    depends_on_columns: []
+segments: {}

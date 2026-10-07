@@ -1,0 +1,111 @@
+metrics:
+  total_employees_churn.employee_info:
+    metric_id: total_employees_churn.employee_info
+    vn_terms:
+    - tổng số Employee Info
+    - số lượng Employee Info
+    - số Employee Info
+    - thống kê Employee Info
+    en_terms:
+    - total employees_churn.employee_info
+    - employees_churn.employee_info count
+    - number of employees_churn.employee_info
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng employees_churn.employee_info
+    depends_on_tables:
+    - employees_churn.employee_info
+    depends_on_columns: []
+  total_salary:
+    metric_id: total_salary
+    vn_terms:
+    - tổng Salary
+    - tổng số Salary
+    - tổng cộng Salary
+    en_terms:
+    - total salary
+    - sum of salary
+    sql_expression: ROUND(SUM(salary), 2)
+    description: Tổng giá trị lũy kế của cột salary trong bảng employees_churn.employee_info
+    depends_on_tables:
+    - employees_churn.employee_info
+    depends_on_columns:
+    - salary
+  avg_salary:
+    metric_id: avg_salary
+    vn_terms:
+    - Salary trung bình
+    - trung bình Salary
+    - bình quân Salary
+    en_terms:
+    - average salary
+    - avg salary
+    - mean salary
+    sql_expression: ROUND(AVG(salary), 2)
+    description: Giá trị bình quân của cột salary trong bảng employees_churn.employee_info
+    depends_on_tables:
+    - employees_churn.employee_info
+    depends_on_columns:
+    - salary
+  total_work_life_balance:
+    metric_id: total_work_life_balance
+    vn_terms:
+    - tổng Work Life Balance
+    - tổng số Work Life Balance
+    - tổng cộng Work Life Balance
+    en_terms:
+    - total work_life_balance
+    - sum of work_life_balance
+    sql_expression: ROUND(SUM(work_life_balance), 2)
+    description: Tổng giá trị lũy kế của cột work_life_balance trong bảng employees_churn.employee_info
+    depends_on_tables:
+    - employees_churn.employee_info
+    depends_on_columns:
+    - work_life_balance
+  avg_work_life_balance:
+    metric_id: avg_work_life_balance
+    vn_terms:
+    - Work Life Balance trung bình
+    - trung bình Work Life Balance
+    - bình quân Work Life Balance
+    en_terms:
+    - average work_life_balance
+    - avg work_life_balance
+    - mean work_life_balance
+    sql_expression: ROUND(AVG(work_life_balance), 2)
+    description: Giá trị bình quân của cột work_life_balance trong bảng employees_churn.employee_info
+    depends_on_tables:
+    - employees_churn.employee_info
+    depends_on_columns:
+    - work_life_balance
+  total_manager_feedback_score:
+    metric_id: total_manager_feedback_score
+    vn_terms:
+    - tổng Manager Feedback Score
+    - tổng số Manager Feedback Score
+    - tổng cộng Manager Feedback Score
+    en_terms:
+    - total manager_feedback_score
+    - sum of manager_feedback_score
+    sql_expression: ROUND(SUM(manager_feedback_score), 2)
+    description: Tổng giá trị lũy kế của cột manager_feedback_score trong bảng employees_churn.employee_info
+    depends_on_tables:
+    - employees_churn.employee_info
+    depends_on_columns:
+    - manager_feedback_score
+  avg_manager_feedback_score:
+    metric_id: avg_manager_feedback_score
+    vn_terms:
+    - Manager Feedback Score trung bình
+    - trung bình Manager Feedback Score
+    - bình quân Manager Feedback Score
+    en_terms:
+    - average manager_feedback_score
+    - avg manager_feedback_score
+    - mean manager_feedback_score
+    sql_expression: ROUND(AVG(manager_feedback_score), 2)
+    description: Giá trị bình quân của cột manager_feedback_score trong bảng employees_churn.employee_info
+    depends_on_tables:
+    - employees_churn.employee_info
+    depends_on_columns:
+    - manager_feedback_score
+segments: {}

@@ -177,6 +177,7 @@ export function useChatStream() {
 
           const decoder = new TextDecoder('utf-8');
           let buffer = '';
+          let currentEvent: string | null = null;
 
           while (true) {
             const { done, value } = await reader.read();
@@ -186,7 +187,6 @@ export function useChatStream() {
             const lines = buffer.split('\n');
             buffer = lines.pop() || '';
 
-            let currentEvent: string | null = null;
             for (const line of lines) {
               const lineTrim = line.trim();
               if (lineTrim.startsWith('event:')) {
@@ -299,20 +299,64 @@ export function useChatStream() {
             }
           }
         } catch (err: any) {
-          setMessages(prev => {
-            const next = prev.map(m => {
-              if (m.id === assistantMsgId) {
-                return {
-                  ...m,
-                  isStreaming: false,
-                  content: `Lỗi kết nối stream: ${err.message}`,
-                };
-              }
-              return m;
+          console.warn('SSE Stream interrupted, attempting sync fallback:', err);
+          try {
+            // Tự động gọi API đồng bộ để lấy kết quả hoàn chỉnh không làm gián đoạn trải nghiệm người dùng
+            const fallbackRes = await fetch('/api/chat', {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({
+                query: trimmed,
+                domain_id: domainId,
+                session_id: sessionId,
+              }),
             });
-            saveCurrentSession(sessionId, next, domainId);
-            return next;
-          });
+            if (!fallbackRes.ok) throw new Error(`Máy chủ trả về mã HTTP ${fallbackRes.status}`);
+            const respData: ChatResponse = await fallbackRes.json();
+            const dur = ((Date.now() - startTime) / 1000).toFixed(1);
+
+            if (respData.requires_hitl && !respData.hitl_approved) {
+              setPendingHitl({
+                sessionId: respData.session_id,
+                sqlQuery: respData.sql_query || '',
+                warning: 'Truy vấn có chi phí quét lớn.',
+              });
+              setIsStreaming(false);
+              return;
+            }
+
+            setMessages(prev => {
+              const next = prev.map(m => {
+                if (m.id === assistantMsgId) {
+                  return {
+                    ...m,
+                    isStreaming: false,
+                    durationSec: dur,
+                    content: respData.final_response || '',
+                    data: respData,
+                  };
+                }
+                return m;
+              });
+              saveCurrentSession(sessionId, next, domainId);
+              return next;
+            });
+          } catch (fallbackErr: any) {
+            setMessages(prev => {
+              const next = prev.map(m => {
+                if (m.id === assistantMsgId) {
+                  return {
+                    ...m,
+                    isStreaming: false,
+                    content: `Không thể kết nối tới máy chủ phân tích: ${fallbackErr.message || err.message}. Vui lòng thử lại.`,
+                  };
+                }
+                return m;
+              });
+              saveCurrentSession(sessionId, next, domainId);
+              return next;
+            });
+          }
         } finally {
           setIsStreaming(false);
         }

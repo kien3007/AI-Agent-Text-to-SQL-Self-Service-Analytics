@@ -1,0 +1,142 @@
+metrics:
+  total_mobile_games.games:
+    metric_id: total_mobile_games.games
+    vn_terms:
+    - tổng số Games
+    - số lượng Games
+    - số Games
+    - thống kê Games
+    en_terms:
+    - total mobile_games.games
+    - mobile_games.games count
+    - number of mobile_games.games
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns: []
+  total_average_user_rating:
+    metric_id: total_average_user_rating
+    vn_terms:
+    - tổng Average User Rating
+    - tổng số Average User Rating
+    - tổng cộng Average User Rating
+    en_terms:
+    - total average_user_rating
+    - sum of average_user_rating
+    sql_expression: ROUND(SUM(average_user_rating), 2)
+    description: Tổng giá trị lũy kế của cột average_user_rating trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns:
+    - average_user_rating
+  avg_average_user_rating:
+    metric_id: avg_average_user_rating
+    vn_terms:
+    - Average User Rating trung bình
+    - trung bình Average User Rating
+    - bình quân Average User Rating
+    en_terms:
+    - average average_user_rating
+    - avg average_user_rating
+    - mean average_user_rating
+    sql_expression: ROUND(AVG(average_user_rating), 2)
+    description: Giá trị bình quân của cột average_user_rating trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns:
+    - average_user_rating
+  total_user_rating_count:
+    metric_id: total_user_rating_count
+    vn_terms:
+    - tổng User Rating Count
+    - tổng số User Rating Count
+    - tổng cộng User Rating Count
+    en_terms:
+    - total user_rating_count
+    - sum of user_rating_count
+    sql_expression: ROUND(SUM(user_rating_count), 2)
+    description: Tổng giá trị lũy kế của cột user_rating_count trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns:
+    - user_rating_count
+  avg_user_rating_count:
+    metric_id: avg_user_rating_count
+    vn_terms:
+    - User Rating Count trung bình
+    - trung bình User Rating Count
+    - bình quân User Rating Count
+    en_terms:
+    - average user_rating_count
+    - avg user_rating_count
+    - mean user_rating_count
+    sql_expression: ROUND(AVG(user_rating_count), 2)
+    description: Giá trị bình quân của cột user_rating_count trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns:
+    - user_rating_count
+  total_price_usd:
+    metric_id: total_price_usd
+    vn_terms:
+    - tổng Price Usd
+    - tổng số Price Usd
+    - tổng cộng Price Usd
+    en_terms:
+    - total price_usd
+    - sum of price_usd
+    sql_expression: ROUND(SUM(price_usd), 2)
+    description: Tổng giá trị lũy kế của cột price_usd trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns:
+    - price_usd
+  avg_price_usd:
+    metric_id: avg_price_usd
+    vn_terms:
+    - Price Usd trung bình
+    - trung bình Price Usd
+    - bình quân Price Usd
+    en_terms:
+    - average price_usd
+    - avg price_usd
+    - mean price_usd
+    sql_expression: ROUND(AVG(price_usd), 2)
+    description: Giá trị bình quân của cột price_usd trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns:
+    - price_usd
+  total_size_in_bytes:
+    metric_id: total_size_in_bytes
+    vn_terms:
+    - tổng Size In Bytes
+    - tổng số Size In Bytes
+    - tổng cộng Size In Bytes
+    en_terms:
+    - total size_in_bytes
+    - sum of size_in_bytes
+    sql_expression: ROUND(SUM(size_in_bytes), 2)
+    description: Tổng giá trị lũy kế của cột size_in_bytes trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns:
+    - size_in_bytes
+  avg_size_in_bytes:
+    metric_id: avg_size_in_bytes
+    vn_terms:
+    - Size In Bytes trung bình
+    - trung bình Size In Bytes
+    - bình quân Size In Bytes
+    en_terms:
+    - average size_in_bytes
+    - avg size_in_bytes
+    - mean size_in_bytes
+    sql_expression: ROUND(AVG(size_in_bytes), 2)
+    description: Giá trị bình quân của cột size_in_bytes trong bảng mobile_games.games
+    depends_on_tables:
+    - mobile_games.games
+    depends_on_columns:
+    - size_in_bytes
+segments: {}

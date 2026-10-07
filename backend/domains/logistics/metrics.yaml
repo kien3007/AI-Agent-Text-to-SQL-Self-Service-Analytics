@@ -1,0 +1,18 @@
+metrics:
+  total_logistics.shipments:
+    metric_id: total_logistics.shipments
+    vn_terms:
+    - tổng số Shipments
+    - số lượng Shipments
+    - số Shipments
+    - thống kê Shipments
+    en_terms:
+    - total logistics.shipments
+    - logistics.shipments count
+    - number of logistics.shipments
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng logistics.shipments
+    depends_on_tables:
+    - logistics.shipments
+    depends_on_columns: []
+segments: {}

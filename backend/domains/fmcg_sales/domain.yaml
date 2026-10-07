@@ -1,0 +1,13 @@
+domain_id: fmcg_sales
+display_name: Fmcg Sales
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (fmcg_sales)
+domain_keywords:
+- fmcg_sales
+- categories
+- cities
+- countries
+- customers
+- employees
+- products
+- sales
+synonyms: {}

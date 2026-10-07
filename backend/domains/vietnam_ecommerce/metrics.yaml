@@ -1,40 +1,809 @@
 metrics:
-  shopee_gmv:
-    metric_id: "shopee_gmv"
-    name: "shopee_gmv"
-    vn_terms: ["doanh thu shopee", "gmv shopee", "tiền bán shopee", "tổng doanh thu shopee"]
-    en_terms: ["shopee gmv", "shopee total revenue"]
-    sql_expression: "ROUND(SUM(total_amount), 2)"
-    description: "Tổng doanh thu bán hàng ghi nhận từ sàn Shopee"
-    depends_on_tables: ["stg_shopee_orders"]
-    depends_on_columns: ["total_amount"]
-
-  shopee_completed_orders:
-    metric_id: "shopee_completed_orders"
-    name: "shopee_completed_orders"
-    vn_terms: ["đơn shopee thành công", "đơn giao thành công shopee"]
-    en_terms: ["shopee completed orders"]
-    sql_expression: "COUNT(CASE WHEN order_status = 'COMPLETED' THEN 1 END)"
-    description: "Số lượng đơn hàng Shopee đã giao thành công"
-    depends_on_tables: ["stg_shopee_orders"]
-    depends_on_columns: ["order_status"]
-
-  tiktok_gmv:
-    metric_id: "tiktok_gmv"
-    name: "tiktok_gmv"
-    vn_terms: ["doanh thu tiktok", "tiền bán tiktok", "tổng doanh thu tiktok shop"]
-    en_terms: ["tiktok revenue", "tiktok shop gmv"]
-    sql_expression: "ROUND(SUM(total_amount), 2)"
-    description: "Tổng doanh thu bán hàng ghi nhận từ sàn TikTok Shop"
-    depends_on_tables: ["stg_tiktok_orders"]
-    depends_on_columns: ["total_amount"]
-
-  tiktok_aov:
-    metric_id: "tiktok_aov"
-    name: "tiktok_aov"
-    vn_terms: ["giá trị đơn trung bình tiktok", "doanh thu bình quân tiktok", "aov tiktok"]
-    en_terms: ["tiktok aov", "tiktok average order value"]
-    sql_expression: "ROUND(AVG(total_amount), 2)"
-    description: "Giá trị đơn hàng trung bình trên sàn TikTok Shop"
-    depends_on_tables: ["stg_tiktok_orders"]
-    depends_on_columns: ["total_amount"]
+  total_vietnam_ecommerce.shopee_orders:
+    metric_id: total_vietnam_ecommerce.shopee_orders
+    vn_terms:
+    - tổng số Shopee Orders
+    - số lượng Shopee Orders
+    - số Shopee Orders
+    - thống kê Shopee Orders
+    en_terms:
+    - total vietnam_ecommerce.shopee_orders
+    - vietnam_ecommerce.shopee_orders count
+    - number of vietnam_ecommerce.shopee_orders
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns: []
+  total_quantity:
+    metric_id: total_quantity
+    vn_terms:
+    - tổng Quantity
+    - tổng số Quantity
+    - tổng cộng Quantity
+    en_terms:
+    - total quantity
+    - sum of quantity
+    sql_expression: ROUND(SUM(quantity), 2)
+    description: Tổng giá trị lũy kế của cột quantity trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - quantity
+  avg_quantity:
+    metric_id: avg_quantity
+    vn_terms:
+    - Quantity trung bình
+    - trung bình Quantity
+    - bình quân Quantity
+    en_terms:
+    - average quantity
+    - avg quantity
+    - mean quantity
+    sql_expression: ROUND(AVG(quantity), 2)
+    description: Giá trị bình quân của cột quantity trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - quantity
+  total_original_price:
+    metric_id: total_original_price
+    vn_terms:
+    - tổng Original Price
+    - tổng số Original Price
+    - tổng cộng Original Price
+    en_terms:
+    - total original_price
+    - sum of original_price
+    sql_expression: ROUND(SUM(original_price), 2)
+    description: Tổng giá trị lũy kế của cột original_price trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - original_price
+  avg_original_price:
+    metric_id: avg_original_price
+    vn_terms:
+    - Original Price trung bình
+    - trung bình Original Price
+    - bình quân Original Price
+    en_terms:
+    - average original_price
+    - avg original_price
+    - mean original_price
+    sql_expression: ROUND(AVG(original_price), 2)
+    description: Giá trị bình quân của cột original_price trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - original_price
+  total_model_discounted_price:
+    metric_id: total_model_discounted_price
+    vn_terms:
+    - tổng Model Discounted Price
+    - tổng số Model Discounted Price
+    - tổng cộng Model Discounted Price
+    en_terms:
+    - total model_discounted_price
+    - sum of model_discounted_price
+    sql_expression: ROUND(SUM(model_discounted_price), 2)
+    description: Tổng giá trị lũy kế của cột model_discounted_price trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - model_discounted_price
+  avg_model_discounted_price:
+    metric_id: avg_model_discounted_price
+    vn_terms:
+    - Model Discounted Price trung bình
+    - trung bình Model Discounted Price
+    - bình quân Model Discounted Price
+    en_terms:
+    - average model_discounted_price
+    - avg model_discounted_price
+    - mean model_discounted_price
+    sql_expression: ROUND(AVG(model_discounted_price), 2)
+    description: Giá trị bình quân của cột model_discounted_price trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - model_discounted_price
+  total_total_order_value:
+    metric_id: total_total_order_value
+    vn_terms:
+    - tổng Total Order Value
+    - tổng số Total Order Value
+    - tổng cộng Total Order Value
+    en_terms:
+    - total total_order_value
+    - sum of total_order_value
+    sql_expression: ROUND(SUM(total_order_value), 2)
+    description: Tổng giá trị lũy kế của cột total_order_value trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - total_order_value
+  avg_total_order_value:
+    metric_id: avg_total_order_value
+    vn_terms:
+    - Total Order Value trung bình
+    - trung bình Total Order Value
+    - bình quân Total Order Value
+    en_terms:
+    - average total_order_value
+    - avg total_order_value
+    - mean total_order_value
+    sql_expression: ROUND(AVG(total_order_value), 2)
+    description: Giá trị bình quân của cột total_order_value trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - total_order_value
+  total_buyer_total_amount:
+    metric_id: total_buyer_total_amount
+    vn_terms:
+    - tổng Buyer Total Amount
+    - tổng số Buyer Total Amount
+    - tổng cộng Buyer Total Amount
+    en_terms:
+    - total buyer_total_amount
+    - sum of buyer_total_amount
+    sql_expression: ROUND(SUM(buyer_total_amount), 2)
+    description: Tổng giá trị lũy kế của cột buyer_total_amount trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - buyer_total_amount
+  avg_buyer_total_amount:
+    metric_id: avg_buyer_total_amount
+    vn_terms:
+    - Buyer Total Amount trung bình
+    - trung bình Buyer Total Amount
+    - bình quân Buyer Total Amount
+    en_terms:
+    - average buyer_total_amount
+    - avg buyer_total_amount
+    - mean buyer_total_amount
+    sql_expression: ROUND(AVG(buyer_total_amount), 2)
+    description: Giá trị bình quân của cột buyer_total_amount trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - buyer_total_amount
+  total_commission_fee:
+    metric_id: total_commission_fee
+    vn_terms:
+    - tổng Commission Fee
+    - tổng số Commission Fee
+    - tổng cộng Commission Fee
+    en_terms:
+    - total commission_fee
+    - sum of commission_fee
+    sql_expression: ROUND(SUM(commission_fee), 2)
+    description: Tổng giá trị lũy kế của cột commission_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - commission_fee
+  avg_commission_fee:
+    metric_id: avg_commission_fee
+    vn_terms:
+    - Commission Fee trung bình
+    - trung bình Commission Fee
+    - bình quân Commission Fee
+    en_terms:
+    - average commission_fee
+    - avg commission_fee
+    - mean commission_fee
+    sql_expression: ROUND(AVG(commission_fee), 2)
+    description: Giá trị bình quân của cột commission_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - commission_fee
+  total_service_fee:
+    metric_id: total_service_fee
+    vn_terms:
+    - tổng Service Fee
+    - tổng số Service Fee
+    - tổng cộng Service Fee
+    en_terms:
+    - total service_fee
+    - sum of service_fee
+    sql_expression: ROUND(SUM(service_fee), 2)
+    description: Tổng giá trị lũy kế của cột service_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - service_fee
+  avg_service_fee:
+    metric_id: avg_service_fee
+    vn_terms:
+    - Service Fee trung bình
+    - trung bình Service Fee
+    - bình quân Service Fee
+    en_terms:
+    - average service_fee
+    - avg service_fee
+    - mean service_fee
+    sql_expression: ROUND(AVG(service_fee), 2)
+    description: Giá trị bình quân của cột service_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - service_fee
+  total_transaction_fee:
+    metric_id: total_transaction_fee
+    vn_terms:
+    - tổng Transaction Fee
+    - tổng số Transaction Fee
+    - tổng cộng Transaction Fee
+    en_terms:
+    - total transaction_fee
+    - sum of transaction_fee
+    sql_expression: ROUND(SUM(transaction_fee), 2)
+    description: Tổng giá trị lũy kế của cột transaction_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - transaction_fee
+  avg_transaction_fee:
+    metric_id: avg_transaction_fee
+    vn_terms:
+    - Transaction Fee trung bình
+    - trung bình Transaction Fee
+    - bình quân Transaction Fee
+    en_terms:
+    - average transaction_fee
+    - avg transaction_fee
+    - mean transaction_fee
+    sql_expression: ROUND(AVG(transaction_fee), 2)
+    description: Giá trị bình quân của cột transaction_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - transaction_fee
+  total_escrow_amount:
+    metric_id: total_escrow_amount
+    vn_terms:
+    - tổng Escrow Amount
+    - tổng số Escrow Amount
+    - tổng cộng Escrow Amount
+    en_terms:
+    - total escrow_amount
+    - sum of escrow_amount
+    sql_expression: ROUND(SUM(escrow_amount), 2)
+    description: Tổng giá trị lũy kế của cột escrow_amount trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - escrow_amount
+  avg_escrow_amount:
+    metric_id: avg_escrow_amount
+    vn_terms:
+    - Escrow Amount trung bình
+    - trung bình Escrow Amount
+    - bình quân Escrow Amount
+    en_terms:
+    - average escrow_amount
+    - avg escrow_amount
+    - mean escrow_amount
+    sql_expression: ROUND(AVG(escrow_amount), 2)
+    description: Giá trị bình quân của cột escrow_amount trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - escrow_amount
+  total_actual_shipping_fee:
+    metric_id: total_actual_shipping_fee
+    vn_terms:
+    - tổng Actual Shipping Fee
+    - tổng số Actual Shipping Fee
+    - tổng cộng Actual Shipping Fee
+    en_terms:
+    - total actual_shipping_fee
+    - sum of actual_shipping_fee
+    sql_expression: ROUND(SUM(actual_shipping_fee), 2)
+    description: Tổng giá trị lũy kế của cột actual_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - actual_shipping_fee
+  avg_actual_shipping_fee:
+    metric_id: avg_actual_shipping_fee
+    vn_terms:
+    - Actual Shipping Fee trung bình
+    - trung bình Actual Shipping Fee
+    - bình quân Actual Shipping Fee
+    en_terms:
+    - average actual_shipping_fee
+    - avg actual_shipping_fee
+    - mean actual_shipping_fee
+    sql_expression: ROUND(AVG(actual_shipping_fee), 2)
+    description: Giá trị bình quân của cột actual_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - actual_shipping_fee
+  total_returned_quantity:
+    metric_id: total_returned_quantity
+    vn_terms:
+    - tổng Returned Quantity
+    - tổng số Returned Quantity
+    - tổng cộng Returned Quantity
+    en_terms:
+    - total returned_quantity
+    - sum of returned_quantity
+    sql_expression: ROUND(SUM(returned_quantity), 2)
+    description: Tổng giá trị lũy kế của cột returned_quantity trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - returned_quantity
+  avg_returned_quantity:
+    metric_id: avg_returned_quantity
+    vn_terms:
+    - Returned Quantity trung bình
+    - trung bình Returned Quantity
+    - bình quân Returned Quantity
+    en_terms:
+    - average returned_quantity
+    - avg returned_quantity
+    - mean returned_quantity
+    sql_expression: ROUND(AVG(returned_quantity), 2)
+    description: Giá trị bình quân của cột returned_quantity trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - returned_quantity
+  total_total_weight:
+    metric_id: total_total_weight
+    vn_terms:
+    - tổng Total Weight
+    - tổng số Total Weight
+    - tổng cộng Total Weight
+    en_terms:
+    - total total_weight
+    - sum of total_weight
+    sql_expression: ROUND(SUM(total_weight), 2)
+    description: Tổng giá trị lũy kế của cột total_weight trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - total_weight
+  avg_total_weight:
+    metric_id: avg_total_weight
+    vn_terms:
+    - Total Weight trung bình
+    - trung bình Total Weight
+    - bình quân Total Weight
+    en_terms:
+    - average total_weight
+    - avg total_weight
+    - mean total_weight
+    sql_expression: ROUND(AVG(total_weight), 2)
+    description: Giá trị bình quân của cột total_weight trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - total_weight
+  total_estimated_shipping_fee:
+    metric_id: total_estimated_shipping_fee
+    vn_terms:
+    - tổng Estimated Shipping Fee
+    - tổng số Estimated Shipping Fee
+    - tổng cộng Estimated Shipping Fee
+    en_terms:
+    - total estimated_shipping_fee
+    - sum of estimated_shipping_fee
+    sql_expression: ROUND(SUM(estimated_shipping_fee), 2)
+    description: Tổng giá trị lũy kế của cột estimated_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - estimated_shipping_fee
+  avg_estimated_shipping_fee:
+    metric_id: avg_estimated_shipping_fee
+    vn_terms:
+    - Estimated Shipping Fee trung bình
+    - trung bình Estimated Shipping Fee
+    - bình quân Estimated Shipping Fee
+    en_terms:
+    - average estimated_shipping_fee
+    - avg estimated_shipping_fee
+    - mean estimated_shipping_fee
+    sql_expression: ROUND(AVG(estimated_shipping_fee), 2)
+    description: Giá trị bình quân của cột estimated_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - estimated_shipping_fee
+  total_return_shipping_fee:
+    metric_id: total_return_shipping_fee
+    vn_terms:
+    - tổng Return Shipping Fee
+    - tổng số Return Shipping Fee
+    - tổng cộng Return Shipping Fee
+    en_terms:
+    - total return_shipping_fee
+    - sum of return_shipping_fee
+    sql_expression: ROUND(SUM(return_shipping_fee), 2)
+    description: Tổng giá trị lũy kế của cột return_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - return_shipping_fee
+  avg_return_shipping_fee:
+    metric_id: avg_return_shipping_fee
+    vn_terms:
+    - Return Shipping Fee trung bình
+    - trung bình Return Shipping Fee
+    - bình quân Return Shipping Fee
+    en_terms:
+    - average return_shipping_fee
+    - avg return_shipping_fee
+    - mean return_shipping_fee
+    sql_expression: ROUND(AVG(return_shipping_fee), 2)
+    description: Giá trị bình quân của cột return_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+    depends_on_tables:
+    - vietnam_ecommerce.shopee_orders
+    depends_on_columns:
+    - return_shipping_fee
+  total_vietnam_ecommerce.tiktok_orders:
+    metric_id: total_vietnam_ecommerce.tiktok_orders
+    vn_terms:
+    - tổng số Tiktok Orders
+    - số lượng Tiktok Orders
+    - số Tiktok Orders
+    - thống kê Tiktok Orders
+    en_terms:
+    - total vietnam_ecommerce.tiktok_orders
+    - vietnam_ecommerce.tiktok_orders count
+    - number of vietnam_ecommerce.tiktok_orders
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns: []
+  total_total_amount:
+    metric_id: total_total_amount
+    vn_terms:
+    - tổng Total Amount
+    - tổng số Total Amount
+    - tổng cộng Total Amount
+    en_terms:
+    - total total_amount
+    - sum of total_amount
+    sql_expression: ROUND(SUM(total_amount), 2)
+    description: Tổng giá trị lũy kế của cột total_amount trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - total_amount
+  avg_total_amount:
+    metric_id: avg_total_amount
+    vn_terms:
+    - Total Amount trung bình
+    - trung bình Total Amount
+    - bình quân Total Amount
+    en_terms:
+    - average total_amount
+    - avg total_amount
+    - mean total_amount
+    sql_expression: ROUND(AVG(total_amount), 2)
+    description: Giá trị bình quân của cột total_amount trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - total_amount
+  total_sub_total:
+    metric_id: total_sub_total
+    vn_terms:
+    - tổng Sub Total
+    - tổng số Sub Total
+    - tổng cộng Sub Total
+    en_terms:
+    - total sub_total
+    - sum of sub_total
+    sql_expression: ROUND(SUM(sub_total), 2)
+    description: Tổng giá trị lũy kế của cột sub_total trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - sub_total
+  avg_sub_total:
+    metric_id: avg_sub_total
+    vn_terms:
+    - Sub Total trung bình
+    - trung bình Sub Total
+    - bình quân Sub Total
+    en_terms:
+    - average sub_total
+    - avg sub_total
+    - mean sub_total
+    sql_expression: ROUND(AVG(sub_total), 2)
+    description: Giá trị bình quân của cột sub_total trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - sub_total
+  total_order_original_price:
+    metric_id: total_order_original_price
+    vn_terms:
+    - tổng Order Original Price
+    - tổng số Order Original Price
+    - tổng cộng Order Original Price
+    en_terms:
+    - total order_original_price
+    - sum of order_original_price
+    sql_expression: ROUND(SUM(order_original_price), 2)
+    description: Tổng giá trị lũy kế của cột order_original_price trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - order_original_price
+  avg_order_original_price:
+    metric_id: avg_order_original_price
+    vn_terms:
+    - Order Original Price trung bình
+    - trung bình Order Original Price
+    - bình quân Order Original Price
+    en_terms:
+    - average order_original_price
+    - avg order_original_price
+    - mean order_original_price
+    sql_expression: ROUND(AVG(order_original_price), 2)
+    description: Giá trị bình quân của cột order_original_price trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - order_original_price
+  total_shipping_fee:
+    metric_id: total_shipping_fee
+    vn_terms:
+    - tổng Shipping Fee
+    - tổng số Shipping Fee
+    - tổng cộng Shipping Fee
+    en_terms:
+    - total shipping_fee
+    - sum of shipping_fee
+    sql_expression: ROUND(SUM(shipping_fee), 2)
+    description: Tổng giá trị lũy kế của cột shipping_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - shipping_fee
+  avg_shipping_fee:
+    metric_id: avg_shipping_fee
+    vn_terms:
+    - Shipping Fee trung bình
+    - trung bình Shipping Fee
+    - bình quân Shipping Fee
+    en_terms:
+    - average shipping_fee
+    - avg shipping_fee
+    - mean shipping_fee
+    sql_expression: ROUND(AVG(shipping_fee), 2)
+    description: Giá trị bình quân của cột shipping_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - shipping_fee
+  total_original_shipping_fee:
+    metric_id: total_original_shipping_fee
+    vn_terms:
+    - tổng Original Shipping Fee
+    - tổng số Original Shipping Fee
+    - tổng cộng Original Shipping Fee
+    en_terms:
+    - total original_shipping_fee
+    - sum of original_shipping_fee
+    sql_expression: ROUND(SUM(original_shipping_fee), 2)
+    description: Tổng giá trị lũy kế của cột original_shipping_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - original_shipping_fee
+  avg_original_shipping_fee:
+    metric_id: avg_original_shipping_fee
+    vn_terms:
+    - Original Shipping Fee trung bình
+    - trung bình Original Shipping Fee
+    - bình quân Original Shipping Fee
+    en_terms:
+    - average original_shipping_fee
+    - avg original_shipping_fee
+    - mean original_shipping_fee
+    sql_expression: ROUND(AVG(original_shipping_fee), 2)
+    description: Giá trị bình quân của cột original_shipping_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - original_shipping_fee
+  total_tax_amount:
+    metric_id: total_tax_amount
+    vn_terms:
+    - tổng Tax Amount
+    - tổng số Tax Amount
+    - tổng cộng Tax Amount
+    en_terms:
+    - total tax_amount
+    - sum of tax_amount
+    sql_expression: ROUND(SUM(tax_amount), 2)
+    description: Tổng giá trị lũy kế của cột tax_amount trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - tax_amount
+  avg_tax_amount:
+    metric_id: avg_tax_amount
+    vn_terms:
+    - Tax Amount trung bình
+    - trung bình Tax Amount
+    - bình quân Tax Amount
+    en_terms:
+    - average tax_amount
+    - avg tax_amount
+    - mean tax_amount
+    sql_expression: ROUND(AVG(tax_amount), 2)
+    description: Giá trị bình quân của cột tax_amount trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - tax_amount
+  total_small_order_fee:
+    metric_id: total_small_order_fee
+    vn_terms:
+    - tổng Small Order Fee
+    - tổng số Small Order Fee
+    - tổng cộng Small Order Fee
+    en_terms:
+    - total small_order_fee
+    - sum of small_order_fee
+    sql_expression: ROUND(SUM(small_order_fee), 2)
+    description: Tổng giá trị lũy kế của cột small_order_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - small_order_fee
+  avg_small_order_fee:
+    metric_id: avg_small_order_fee
+    vn_terms:
+    - Small Order Fee trung bình
+    - trung bình Small Order Fee
+    - bình quân Small Order Fee
+    en_terms:
+    - average small_order_fee
+    - avg small_order_fee
+    - mean small_order_fee
+    sql_expression: ROUND(AVG(small_order_fee), 2)
+    description: Giá trị bình quân của cột small_order_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - small_order_fee
+  total_retail_delivery_fee:
+    metric_id: total_retail_delivery_fee
+    vn_terms:
+    - tổng Retail Delivery Fee
+    - tổng số Retail Delivery Fee
+    - tổng cộng Retail Delivery Fee
+    en_terms:
+    - total retail_delivery_fee
+    - sum of retail_delivery_fee
+    sql_expression: ROUND(SUM(retail_delivery_fee), 2)
+    description: Tổng giá trị lũy kế của cột retail_delivery_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - retail_delivery_fee
+  avg_retail_delivery_fee:
+    metric_id: avg_retail_delivery_fee
+    vn_terms:
+    - Retail Delivery Fee trung bình
+    - trung bình Retail Delivery Fee
+    - bình quân Retail Delivery Fee
+    en_terms:
+    - average retail_delivery_fee
+    - avg retail_delivery_fee
+    - mean retail_delivery_fee
+    sql_expression: ROUND(AVG(retail_delivery_fee), 2)
+    description: Giá trị bình quân của cột retail_delivery_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - retail_delivery_fee
+  total_insurance_fee:
+    metric_id: total_insurance_fee
+    vn_terms:
+    - tổng Insurance Fee
+    - tổng số Insurance Fee
+    - tổng cộng Insurance Fee
+    en_terms:
+    - total insurance_fee
+    - sum of insurance_fee
+    sql_expression: ROUND(SUM(insurance_fee), 2)
+    description: Tổng giá trị lũy kế của cột insurance_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - insurance_fee
+  avg_insurance_fee:
+    metric_id: avg_insurance_fee
+    vn_terms:
+    - Insurance Fee trung bình
+    - trung bình Insurance Fee
+    - bình quân Insurance Fee
+    en_terms:
+    - average insurance_fee
+    - avg insurance_fee
+    - mean insurance_fee
+    sql_expression: ROUND(AVG(insurance_fee), 2)
+    description: Giá trị bình quân của cột insurance_fee trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - insurance_fee
+  total_item_sale_price:
+    metric_id: total_item_sale_price
+    vn_terms:
+    - tổng Item Sale Price
+    - tổng số Item Sale Price
+    - tổng cộng Item Sale Price
+    en_terms:
+    - total item_sale_price
+    - sum of item_sale_price
+    sql_expression: ROUND(SUM(item_sale_price), 2)
+    description: Tổng giá trị lũy kế của cột item_sale_price trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - item_sale_price
+  avg_item_sale_price:
+    metric_id: avg_item_sale_price
+    vn_terms:
+    - Item Sale Price trung bình
+    - trung bình Item Sale Price
+    - bình quân Item Sale Price
+    en_terms:
+    - average item_sale_price
+    - avg item_sale_price
+    - mean item_sale_price
+    sql_expression: ROUND(AVG(item_sale_price), 2)
+    description: Giá trị bình quân của cột item_sale_price trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - item_sale_price
+  total_item_original_price:
+    metric_id: total_item_original_price
+    vn_terms:
+    - tổng Item Original Price
+    - tổng số Item Original Price
+    - tổng cộng Item Original Price
+    en_terms:
+    - total item_original_price
+    - sum of item_original_price
+    sql_expression: ROUND(SUM(item_original_price), 2)
+    description: Tổng giá trị lũy kế của cột item_original_price trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - item_original_price
+  avg_item_original_price:
+    metric_id: avg_item_original_price
+    vn_terms:
+    - Item Original Price trung bình
+    - trung bình Item Original Price
+    - bình quân Item Original Price
+    en_terms:
+    - average item_original_price
+    - avg item_original_price
+    - mean item_original_price
+    sql_expression: ROUND(AVG(item_original_price), 2)
+    description: Giá trị bình quân của cột item_original_price trong bảng vietnam_ecommerce.tiktok_orders
+    depends_on_tables:
+    - vietnam_ecommerce.tiktok_orders
+    depends_on_columns:
+    - item_original_price
+segments: {}

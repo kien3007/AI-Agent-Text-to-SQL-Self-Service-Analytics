@@ -1,0 +1,208 @@
+tables:
+  employees_churn.employee_info:
+    table_name: employees_churn.employee_info
+    vn_name: Employee Info
+    description: Bảng/View employees_churn.employee_info
+    primary_key:
+    - employee_id
+    partition_key: null
+    columns:
+      employee_id:
+        name: employee_id
+        vn_name: Employee Id
+        en_name: Employee Id
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột employee_id trong bảng employees_churn.employee_info
+        synonyms:
+        - employee id
+        is_partition_or_dist: false
+      age:
+        name: age
+        vn_name: Age
+        en_name: Age
+        data_type: INTEGER
+        description: Cột age trong bảng employees_churn.employee_info
+        synonyms:
+        - age
+        is_partition_or_dist: false
+      gender:
+        name: gender
+        vn_name: Gender
+        en_name: Gender
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột gender trong bảng employees_churn.employee_info
+        synonyms:
+        - gender
+        is_partition_or_dist: false
+      education_level:
+        name: education_level
+        vn_name: Education Level
+        en_name: Education Level
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột education_level trong bảng employees_churn.employee_info
+        synonyms:
+        - education level
+        is_partition_or_dist: false
+      marital_status:
+        name: marital_status
+        vn_name: Marital Status
+        en_name: Marital Status
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột marital_status trong bảng employees_churn.employee_info
+        synonyms:
+        - marital status
+        is_partition_or_dist: false
+      tenure:
+        name: tenure
+        vn_name: Tenure
+        en_name: Tenure
+        data_type: INTEGER
+        description: Cột tenure trong bảng employees_churn.employee_info
+        synonyms:
+        - tenure
+        is_partition_or_dist: false
+      job_role:
+        name: job_role
+        vn_name: Job Role
+        en_name: Job Role
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột job_role trong bảng employees_churn.employee_info
+        synonyms:
+        - job role
+        is_partition_or_dist: false
+      department:
+        name: department
+        vn_name: Department
+        en_name: Department
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột department trong bảng employees_churn.employee_info
+        synonyms:
+        - department
+        is_partition_or_dist: false
+      salary:
+        name: salary
+        vn_name: Salary
+        en_name: Salary
+        data_type: DECIMAL(12, 2)
+        description: Cột salary trong bảng employees_churn.employee_info
+        synonyms:
+        - salary
+        is_partition_or_dist: false
+      work_location:
+        name: work_location
+        vn_name: Work Location
+        en_name: Work Location
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột work_location trong bảng employees_churn.employee_info
+        synonyms:
+        - work location
+        is_partition_or_dist: false
+      performance_rating:
+        name: performance_rating
+        vn_name: Performance Rating
+        en_name: Performance Rating
+        data_type: DECIMAL(3, 1)
+        description: Cột performance_rating trong bảng employees_churn.employee_info
+        synonyms:
+        - performance rating
+        is_partition_or_dist: false
+      projects_completed:
+        name: projects_completed
+        vn_name: Projects Completed
+        en_name: Projects Completed
+        data_type: INTEGER
+        description: Cột projects_completed trong bảng employees_churn.employee_info
+        synonyms:
+        - projects completed
+        is_partition_or_dist: false
+      training_hours:
+        name: training_hours
+        vn_name: Training Hours
+        en_name: Training Hours
+        data_type: INTEGER
+        description: Cột training_hours trong bảng employees_churn.employee_info
+        synonyms:
+        - training hours
+        is_partition_or_dist: false
+      promotions:
+        name: promotions
+        vn_name: Promotions
+        en_name: Promotions
+        data_type: INTEGER
+        description: Cột promotions trong bảng employees_churn.employee_info
+        synonyms:
+        - promotions
+        is_partition_or_dist: false
+      overtime_hours:
+        name: overtime_hours
+        vn_name: Overtime Hours
+        en_name: Overtime Hours
+        data_type: INTEGER
+        description: Cột overtime_hours trong bảng employees_churn.employee_info
+        synonyms:
+        - overtime hours
+        is_partition_or_dist: false
+      satisfaction_level:
+        name: satisfaction_level
+        vn_name: Satisfaction Level
+        en_name: Satisfaction Level
+        data_type: DECIMAL(3, 2)
+        description: Cột satisfaction_level trong bảng employees_churn.employee_info
+        synonyms:
+        - satisfaction level
+        is_partition_or_dist: false
+      work_life_balance:
+        name: work_life_balance
+        vn_name: Work Life Balance
+        en_name: Work Life Balance
+        data_type: INTEGER
+        description: Cột work_life_balance trong bảng employees_churn.employee_info
+        synonyms:
+        - work life balance
+        is_partition_or_dist: false
+      average_monthly_hours_worked:
+        name: average_monthly_hours_worked
+        vn_name: Average Monthly Hours Worked
+        en_name: Average Monthly Hours Worked
+        data_type: INTEGER
+        description: Cột average_monthly_hours_worked trong bảng employees_churn.employee_info
+        synonyms:
+        - average monthly hours worked
+        is_partition_or_dist: false
+      absenteeism:
+        name: absenteeism
+        vn_name: Absenteeism
+        en_name: Absenteeism
+        data_type: INTEGER
+        description: Cột absenteeism trong bảng employees_churn.employee_info
+        synonyms:
+        - absenteeism
+        is_partition_or_dist: false
+      distance_from_home:
+        name: distance_from_home
+        vn_name: Distance From Home
+        en_name: Distance From Home
+        data_type: DECIMAL(10, 2)
+        description: Cột distance_from_home trong bảng employees_churn.employee_info
+        synonyms:
+        - distance from home
+        is_partition_or_dist: false
+      manager_feedback_score:
+        name: manager_feedback_score
+        vn_name: Manager Feedback Score
+        en_name: Manager Feedback Score
+        data_type: DECIMAL(3, 1)
+        description: Cột manager_feedback_score trong bảng employees_churn.employee_info
+        synonyms:
+        - manager feedback score
+        is_partition_or_dist: false
+      churn:
+        name: churn
+        vn_name: Churn
+        en_name: Churn
+        data_type: BIT
+        description: Cột churn trong bảng employees_churn.employee_info
+        synonyms:
+        - churn
+        is_partition_or_dist: false
+relationships: []

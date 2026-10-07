@@ -1,0 +1,12 @@
+domain_id: skytrax
+display_name: Skytrax
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (skytrax)
+domain_keywords:
+- skytrax
+- airline reviews
+- airlines
+- airport reviews
+- airports
+- lounge reviews
+- seat reviews
+synonyms: {}

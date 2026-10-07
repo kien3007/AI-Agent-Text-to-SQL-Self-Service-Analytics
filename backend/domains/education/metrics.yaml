@@ -1,0 +1,191 @@
+metrics:
+  total_education.grading_groups:
+    metric_id: total_education.grading_groups
+    vn_terms:
+    - tổng số Grading Groups
+    - số lượng Grading Groups
+    - số Grading Groups
+    - thống kê Grading Groups
+    en_terms:
+    - total education.grading_groups
+    - education.grading_groups count
+    - number of education.grading_groups
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng education.grading_groups
+    depends_on_tables:
+    - education.grading_groups
+    depends_on_columns: []
+  total_education.school:
+    metric_id: total_education.school
+    vn_terms:
+    - tổng số School
+    - số lượng School
+    - số School
+    - thống kê School
+    en_terms:
+    - total education.school
+    - education.school count
+    - number of education.school
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng education.school
+    depends_on_tables:
+    - education.school
+    depends_on_columns: []
+  total_education.students:
+    metric_id: total_education.students
+    vn_terms:
+    - tổng số Students
+    - số lượng Students
+    - số Students
+    - thống kê Students
+    en_terms:
+    - total education.students
+    - education.students count
+    - number of education.students
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng education.students
+    depends_on_tables:
+    - education.students
+    depends_on_columns: []
+  total_education.teachers:
+    metric_id: total_education.teachers
+    vn_terms:
+    - tổng số Teachers
+    - số lượng Teachers
+    - số Teachers
+    - thống kê Teachers
+    en_terms:
+    - total education.teachers
+    - education.teachers count
+    - number of education.teachers
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng education.teachers
+    depends_on_tables:
+    - education.teachers
+    depends_on_columns: []
+  total_education.test_details:
+    metric_id: total_education.test_details
+    vn_terms:
+    - tổng số Test Details
+    - số lượng Test Details
+    - số Test Details
+    - thống kê Test Details
+    en_terms:
+    - total education.test_details
+    - education.test_details count
+    - number of education.test_details
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng education.test_details
+    depends_on_tables:
+    - education.test_details
+    depends_on_columns: []
+  total_assessment_cost:
+    metric_id: total_assessment_cost
+    vn_terms:
+    - tổng Assessment Cost
+    - tổng số Assessment Cost
+    - tổng cộng Assessment Cost
+    en_terms:
+    - total assessment_cost
+    - sum of assessment_cost
+    sql_expression: ROUND(SUM(assessment_cost), 2)
+    description: Tổng giá trị lũy kế của cột assessment_cost trong bảng education.test_details
+    depends_on_tables:
+    - education.test_details
+    depends_on_columns:
+    - assessment_cost
+  avg_assessment_cost:
+    metric_id: avg_assessment_cost
+    vn_terms:
+    - Assessment Cost trung bình
+    - trung bình Assessment Cost
+    - bình quân Assessment Cost
+    en_terms:
+    - average assessment_cost
+    - avg assessment_cost
+    - mean assessment_cost
+    sql_expression: ROUND(AVG(assessment_cost), 2)
+    description: Giá trị bình quân của cột assessment_cost trong bảng education.test_details
+    depends_on_tables:
+    - education.test_details
+    depends_on_columns:
+    - assessment_cost
+  total_education.tests:
+    metric_id: total_education.tests
+    vn_terms:
+    - tổng số Tests
+    - số lượng Tests
+    - số Tests
+    - thống kê Tests
+    en_terms:
+    - total education.tests
+    - education.tests count
+    - number of education.tests
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng education.tests
+    depends_on_tables:
+    - education.tests
+    depends_on_columns: []
+  total_standard_score:
+    metric_id: total_standard_score
+    vn_terms:
+    - tổng Standard Score
+    - tổng số Standard Score
+    - tổng cộng Standard Score
+    en_terms:
+    - total standard_score
+    - sum of standard_score
+    sql_expression: ROUND(SUM(standard_score), 2)
+    description: Tổng giá trị lũy kế của cột standard_score trong bảng education.tests
+    depends_on_tables:
+    - education.tests
+    depends_on_columns:
+    - standard_score
+  avg_standard_score:
+    metric_id: avg_standard_score
+    vn_terms:
+    - Standard Score trung bình
+    - trung bình Standard Score
+    - bình quân Standard Score
+    en_terms:
+    - average standard_score
+    - avg standard_score
+    - mean standard_score
+    sql_expression: ROUND(AVG(standard_score), 2)
+    description: Giá trị bình quân của cột standard_score trong bảng education.tests
+    depends_on_tables:
+    - education.tests
+    depends_on_columns:
+    - standard_score
+  total_school_year_grade_class:
+    metric_id: total_school_year_grade_class
+    vn_terms:
+    - tổng School Year Grade Class
+    - tổng số School Year Grade Class
+    - tổng cộng School Year Grade Class
+    en_terms:
+    - total school_year_grade_class
+    - sum of school_year_grade_class
+    sql_expression: ROUND(SUM(school_year_grade_class), 2)
+    description: Tổng giá trị lũy kế của cột school_year_grade_class trong bảng education.tests
+    depends_on_tables:
+    - education.tests
+    depends_on_columns:
+    - school_year_grade_class
+  avg_school_year_grade_class:
+    metric_id: avg_school_year_grade_class
+    vn_terms:
+    - School Year Grade Class trung bình
+    - trung bình School Year Grade Class
+    - bình quân School Year Grade Class
+    en_terms:
+    - average school_year_grade_class
+    - avg school_year_grade_class
+    - mean school_year_grade_class
+    sql_expression: ROUND(AVG(school_year_grade_class), 2)
+    description: Giá trị bình quân của cột school_year_grade_class trong bảng education.tests
+    depends_on_tables:
+    - education.tests
+    depends_on_columns:
+    - school_year_grade_class
+segments: {}

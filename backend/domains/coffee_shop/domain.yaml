@@ -1,0 +1,7 @@
+domain_id: coffee_shop
+display_name: Coffee Shop
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (coffee_shop)
+domain_keywords:
+- coffee_shop
+- transactions
+synonyms: {}

@@ -1,0 +1,109 @@
+tables:
+  coffee_shop.transactions:
+    table_name: coffee_shop.transactions
+    vn_name: Transactions
+    description: Bảng/View coffee_shop.transactions
+    primary_key:
+    - transaction_id
+    partition_key: null
+    columns:
+      transaction_id:
+        name: transaction_id
+        vn_name: Transaction Id
+        en_name: Transaction Id
+        data_type: INTEGER
+        description: Cột transaction_id trong bảng coffee_shop.transactions
+        synonyms:
+        - transaction id
+        is_partition_or_dist: false
+      transaction_date:
+        name: transaction_date
+        vn_name: Transaction Date
+        en_name: Transaction Date
+        data_type: DATE
+        description: Cột transaction_date trong bảng coffee_shop.transactions
+        synonyms:
+        - transaction date
+        is_partition_or_dist: false
+      transaction_time:
+        name: transaction_time
+        vn_name: Transaction Time
+        en_name: Transaction Time
+        data_type: NVARCHAR(8) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột transaction_time trong bảng coffee_shop.transactions
+        synonyms:
+        - transaction time
+        is_partition_or_dist: false
+      transaction_qty:
+        name: transaction_qty
+        vn_name: Transaction Qty
+        en_name: Transaction Qty
+        data_type: INTEGER
+        description: Cột transaction_qty trong bảng coffee_shop.transactions
+        synonyms:
+        - transaction qty
+        is_partition_or_dist: false
+      store_id:
+        name: store_id
+        vn_name: Store Id
+        en_name: Store Id
+        data_type: INTEGER
+        description: Cột store_id trong bảng coffee_shop.transactions
+        synonyms:
+        - store id
+        is_partition_or_dist: false
+      store_location:
+        name: store_location
+        vn_name: Store Location
+        en_name: Store Location
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột store_location trong bảng coffee_shop.transactions
+        synonyms:
+        - store location
+        is_partition_or_dist: false
+      product_id:
+        name: product_id
+        vn_name: Product Id
+        en_name: Product Id
+        data_type: INTEGER
+        description: Cột product_id trong bảng coffee_shop.transactions
+        synonyms:
+        - product id
+        is_partition_or_dist: false
+      unit_price:
+        name: unit_price
+        vn_name: Unit Price
+        en_name: Unit Price
+        data_type: DECIMAL(10, 2)
+        description: Cột unit_price trong bảng coffee_shop.transactions
+        synonyms:
+        - unit price
+        is_partition_or_dist: false
+      product_category:
+        name: product_category
+        vn_name: Product Category
+        en_name: Product Category
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_category trong bảng coffee_shop.transactions
+        synonyms:
+        - product category
+        is_partition_or_dist: false
+      product_type:
+        name: product_type
+        vn_name: Product Type
+        en_name: Product Type
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_type trong bảng coffee_shop.transactions
+        synonyms:
+        - product type
+        is_partition_or_dist: false
+      product_detail:
+        name: product_detail
+        vn_name: Product Detail
+        en_name: Product Detail
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_detail trong bảng coffee_shop.transactions
+        synonyms:
+        - product detail
+        is_partition_or_dist: false
+relationships: []

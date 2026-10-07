@@ -1,0 +1,7 @@
+domain_id: logistics
+display_name: Logistics
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (logistics)
+domain_keywords:
+- logistics
+- shipments
+synonyms: {}

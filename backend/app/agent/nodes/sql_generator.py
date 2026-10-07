@@ -76,6 +76,22 @@ NGUYÊN TẮC BẮT BUỘC:
                     fs_lines.append(f"- SQL chuẩn:\n```sql\n{fs['sql']}\n```")
                 prompt_parts.append("\n".join(fs_lines))
 
+            # Negative Examples từ User Feedback (Tránh lặp lại lỗi người dùng đã đánh giá Down)
+            bad_plans = self.long_term_memory.get_relevant_bad_plans(
+                query=state.user_query,
+                domain_id=state.domain_id or "default",
+                top_k=1
+            )
+            if bad_plans:
+                bp_lines = ["\n### CẢNH BÁO MẪU SQL SAI TRƯỚC ĐÂY (NGƯỜI DÙNG PHẢN HỒI LỖI - TRÁNH LẶP LẠI):"]
+                for bp in bad_plans:
+                    bp_lines.append(f"- Câu hỏi tương tự: \"{bp['query']}\"")
+                    bp_lines.append(f"- Câu SQL bị lỗi/từ chối:\n```sql\n{bp['sql']}\n```")
+                    if bp.get("metadata", {}).get("notes"):
+                        bp_lines.append(f"- Ghi chú lỗi: {bp['metadata']['notes']}")
+                bp_lines.append("YÊU CẦU: TUYỆT ĐỐI KHÔNG lặp lại cách viết sai trên, hãy chọn phương án cấu trúc logic chính xác.")
+                prompt_parts.append("\n".join(bp_lines))
+
         # Phân rã bài toán con & CTEs cho câu hỏi Mức 3 (kế thừa DIN-SQL)
         if state.complexity_level == "COMPLEX" and state.decomposition_plan:
             plan = state.decomposition_plan

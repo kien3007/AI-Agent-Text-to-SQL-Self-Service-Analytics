@@ -1,0 +1,345 @@
+metrics:
+  total_retails.customers:
+    metric_id: total_retails.customers
+    vn_terms:
+    - tổng số Customers
+    - số lượng Customers
+    - số Customers
+    - thống kê Customers
+    en_terms:
+    - total retails.customers
+    - retails.customers count
+    - number of retails.customers
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng retails.customers
+    depends_on_tables:
+    - retails.customers
+    depends_on_columns: []
+  total_retails.products:
+    metric_id: total_retails.products
+    vn_terms:
+    - tổng số Products
+    - số lượng Products
+    - số Products
+    - thống kê Products
+    en_terms:
+    - total retails.products
+    - retails.products count
+    - number of retails.products
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns: []
+  total_unit_cost_usd:
+    metric_id: total_unit_cost_usd
+    vn_terms:
+    - tổng Unit Cost Usd
+    - tổng số Unit Cost Usd
+    - tổng cộng Unit Cost Usd
+    en_terms:
+    - total unit_cost_usd
+    - sum of unit_cost_usd
+    sql_expression: ROUND(SUM(unit_cost_usd), 2)
+    description: Tổng giá trị lũy kế của cột unit_cost_usd trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns:
+    - unit_cost_usd
+  avg_unit_cost_usd:
+    metric_id: avg_unit_cost_usd
+    vn_terms:
+    - Unit Cost Usd trung bình
+    - trung bình Unit Cost Usd
+    - bình quân Unit Cost Usd
+    en_terms:
+    - average unit_cost_usd
+    - avg unit_cost_usd
+    - mean unit_cost_usd
+    sql_expression: ROUND(AVG(unit_cost_usd), 2)
+    description: Giá trị bình quân của cột unit_cost_usd trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns:
+    - unit_cost_usd
+  total_unit_price_usd:
+    metric_id: total_unit_price_usd
+    vn_terms:
+    - tổng Unit Price Usd
+    - tổng số Unit Price Usd
+    - tổng cộng Unit Price Usd
+    en_terms:
+    - total unit_price_usd
+    - sum of unit_price_usd
+    sql_expression: ROUND(SUM(unit_price_usd), 2)
+    description: Tổng giá trị lũy kế của cột unit_price_usd trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns:
+    - unit_price_usd
+  avg_unit_price_usd:
+    metric_id: avg_unit_price_usd
+    vn_terms:
+    - Unit Price Usd trung bình
+    - trung bình Unit Price Usd
+    - bình quân Unit Price Usd
+    en_terms:
+    - average unit_price_usd
+    - avg unit_price_usd
+    - mean unit_price_usd
+    sql_expression: ROUND(AVG(unit_price_usd), 2)
+    description: Giá trị bình quân của cột unit_price_usd trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns:
+    - unit_price_usd
+  total_subcategory_key:
+    metric_id: total_subcategory_key
+    vn_terms:
+    - tổng Subcategory Key
+    - tổng số Subcategory Key
+    - tổng cộng Subcategory Key
+    en_terms:
+    - total subcategory_key
+    - sum of subcategory_key
+    sql_expression: ROUND(SUM(subcategory_key), 2)
+    description: Tổng giá trị lũy kế của cột subcategory_key trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns:
+    - subcategory_key
+  avg_subcategory_key:
+    metric_id: avg_subcategory_key
+    vn_terms:
+    - Subcategory Key trung bình
+    - trung bình Subcategory Key
+    - bình quân Subcategory Key
+    en_terms:
+    - average subcategory_key
+    - avg subcategory_key
+    - mean subcategory_key
+    sql_expression: ROUND(AVG(subcategory_key), 2)
+    description: Giá trị bình quân của cột subcategory_key trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns:
+    - subcategory_key
+  total_category_key:
+    metric_id: total_category_key
+    vn_terms:
+    - tổng Category Key
+    - tổng số Category Key
+    - tổng cộng Category Key
+    en_terms:
+    - total category_key
+    - sum of category_key
+    sql_expression: ROUND(SUM(category_key), 2)
+    description: Tổng giá trị lũy kế của cột category_key trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns:
+    - category_key
+  avg_category_key:
+    metric_id: avg_category_key
+    vn_terms:
+    - Category Key trung bình
+    - trung bình Category Key
+    - bình quân Category Key
+    en_terms:
+    - average category_key
+    - avg category_key
+    - mean category_key
+    sql_expression: ROUND(AVG(category_key), 2)
+    description: Giá trị bình quân của cột category_key trong bảng retails.products
+    depends_on_tables:
+    - retails.products
+    depends_on_columns:
+    - category_key
+  total_retails.sales:
+    metric_id: total_retails.sales
+    vn_terms:
+    - tổng số Sales
+    - số lượng Sales
+    - số Sales
+    - thống kê Sales
+    en_terms:
+    - total retails.sales
+    - retails.sales count
+    - number of retails.sales
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns: []
+  total_customer_key:
+    metric_id: total_customer_key
+    vn_terms:
+    - tổng Customer Key
+    - tổng số Customer Key
+    - tổng cộng Customer Key
+    en_terms:
+    - total customer_key
+    - sum of customer_key
+    sql_expression: ROUND(SUM(customer_key), 2)
+    description: Tổng giá trị lũy kế của cột customer_key trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns:
+    - customer_key
+  avg_customer_key:
+    metric_id: avg_customer_key
+    vn_terms:
+    - Customer Key trung bình
+    - trung bình Customer Key
+    - bình quân Customer Key
+    en_terms:
+    - average customer_key
+    - avg customer_key
+    - mean customer_key
+    sql_expression: ROUND(AVG(customer_key), 2)
+    description: Giá trị bình quân của cột customer_key trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns:
+    - customer_key
+  total_store_key:
+    metric_id: total_store_key
+    vn_terms:
+    - tổng Store Key
+    - tổng số Store Key
+    - tổng cộng Store Key
+    en_terms:
+    - total store_key
+    - sum of store_key
+    sql_expression: ROUND(SUM(store_key), 2)
+    description: Tổng giá trị lũy kế của cột store_key trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns:
+    - store_key
+  avg_store_key:
+    metric_id: avg_store_key
+    vn_terms:
+    - Store Key trung bình
+    - trung bình Store Key
+    - bình quân Store Key
+    en_terms:
+    - average store_key
+    - avg store_key
+    - mean store_key
+    sql_expression: ROUND(AVG(store_key), 2)
+    description: Giá trị bình quân của cột store_key trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns:
+    - store_key
+  total_product_key:
+    metric_id: total_product_key
+    vn_terms:
+    - tổng Product Key
+    - tổng số Product Key
+    - tổng cộng Product Key
+    en_terms:
+    - total product_key
+    - sum of product_key
+    sql_expression: ROUND(SUM(product_key), 2)
+    description: Tổng giá trị lũy kế của cột product_key trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns:
+    - product_key
+  avg_product_key:
+    metric_id: avg_product_key
+    vn_terms:
+    - Product Key trung bình
+    - trung bình Product Key
+    - bình quân Product Key
+    en_terms:
+    - average product_key
+    - avg product_key
+    - mean product_key
+    sql_expression: ROUND(AVG(product_key), 2)
+    description: Giá trị bình quân của cột product_key trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns:
+    - product_key
+  total_quantity:
+    metric_id: total_quantity
+    vn_terms:
+    - tổng Quantity
+    - tổng số Quantity
+    - tổng cộng Quantity
+    en_terms:
+    - total quantity
+    - sum of quantity
+    sql_expression: ROUND(SUM(quantity), 2)
+    description: Tổng giá trị lũy kế của cột quantity trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns:
+    - quantity
+  avg_quantity:
+    metric_id: avg_quantity
+    vn_terms:
+    - Quantity trung bình
+    - trung bình Quantity
+    - bình quân Quantity
+    en_terms:
+    - average quantity
+    - avg quantity
+    - mean quantity
+    sql_expression: ROUND(AVG(quantity), 2)
+    description: Giá trị bình quân của cột quantity trong bảng retails.sales
+    depends_on_tables:
+    - retails.sales
+    depends_on_columns:
+    - quantity
+  total_retails.stores:
+    metric_id: total_retails.stores
+    vn_terms:
+    - tổng số Stores
+    - số lượng Stores
+    - số Stores
+    - thống kê Stores
+    en_terms:
+    - total retails.stores
+    - retails.stores count
+    - number of retails.stores
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng retails.stores
+    depends_on_tables:
+    - retails.stores
+    depends_on_columns: []
+  total_square_meters:
+    metric_id: total_square_meters
+    vn_terms:
+    - tổng Square Meters
+    - tổng số Square Meters
+    - tổng cộng Square Meters
+    en_terms:
+    - total square_meters
+    - sum of square_meters
+    sql_expression: ROUND(SUM(square_meters), 2)
+    description: Tổng giá trị lũy kế của cột square_meters trong bảng retails.stores
+    depends_on_tables:
+    - retails.stores
+    depends_on_columns:
+    - square_meters
+  avg_square_meters:
+    metric_id: avg_square_meters
+    vn_terms:
+    - Square Meters trung bình
+    - trung bình Square Meters
+    - bình quân Square Meters
+    en_terms:
+    - average square_meters
+    - avg square_meters
+    - mean square_meters
+    sql_expression: ROUND(AVG(square_meters), 2)
+    description: Giá trị bình quân của cột square_meters trong bảng retails.stores
+    depends_on_tables:
+    - retails.stores
+    depends_on_columns:
+    - square_meters
+segments: {}

@@ -1,0 +1,427 @@
+tables:
+  fmcg_sales.categories:
+    table_name: fmcg_sales.categories
+    vn_name: Categories
+    description: Bảng/View fmcg_sales.categories
+    primary_key:
+    - category_id
+    partition_key: null
+    columns:
+      category_id:
+        name: category_id
+        vn_name: Category Id
+        en_name: Category Id
+        data_type: INTEGER
+        description: Cột category_id trong bảng fmcg_sales.categories
+        synonyms:
+        - category id
+        is_partition_or_dist: false
+      category_name:
+        name: category_name
+        vn_name: Category Name
+        en_name: Category Name
+        data_type: NVARCHAR(45) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột category_name trong bảng fmcg_sales.categories
+        synonyms:
+        - category name
+        is_partition_or_dist: false
+  fmcg_sales.cities:
+    table_name: fmcg_sales.cities
+    vn_name: Cities
+    description: Bảng/View fmcg_sales.cities
+    primary_key:
+    - city_id
+    partition_key: null
+    columns:
+      city_id:
+        name: city_id
+        vn_name: City Id
+        en_name: City Id
+        data_type: INTEGER
+        description: Cột city_id trong bảng fmcg_sales.cities
+        synonyms:
+        - city id
+        is_partition_or_dist: false
+      city_name:
+        name: city_name
+        vn_name: City Name
+        en_name: City Name
+        data_type: NVARCHAR(45) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột city_name trong bảng fmcg_sales.cities
+        synonyms:
+        - city name
+        is_partition_or_dist: false
+      zipcode:
+        name: zipcode
+        vn_name: Zipcode
+        en_name: Zipcode
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột zipcode trong bảng fmcg_sales.cities
+        synonyms:
+        - zipcode
+        is_partition_or_dist: false
+      country_id:
+        name: country_id
+        vn_name: Country Id
+        en_name: Country Id
+        data_type: INTEGER
+        description: Cột country_id trong bảng fmcg_sales.cities
+        synonyms:
+        - country id
+        is_partition_or_dist: false
+  fmcg_sales.countries:
+    table_name: fmcg_sales.countries
+    vn_name: Countries
+    description: Bảng/View fmcg_sales.countries
+    primary_key:
+    - country_id
+    partition_key: null
+    columns:
+      country_id:
+        name: country_id
+        vn_name: Country Id
+        en_name: Country Id
+        data_type: INTEGER
+        description: Cột country_id trong bảng fmcg_sales.countries
+        synonyms:
+        - country id
+        is_partition_or_dist: false
+      country_name:
+        name: country_name
+        vn_name: Country Name
+        en_name: Country Name
+        data_type: NVARCHAR(45) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột country_name trong bảng fmcg_sales.countries
+        synonyms:
+        - country name
+        is_partition_or_dist: false
+      country_code:
+        name: country_code
+        vn_name: Country Code
+        en_name: Country Code
+        data_type: NVARCHAR(2) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột country_code trong bảng fmcg_sales.countries
+        synonyms:
+        - country code
+        is_partition_or_dist: false
+  fmcg_sales.customers:
+    table_name: fmcg_sales.customers
+    vn_name: Customers
+    description: Bảng/View fmcg_sales.customers
+    primary_key:
+    - customer_id
+    partition_key: null
+    columns:
+      customer_id:
+        name: customer_id
+        vn_name: Customer Id
+        en_name: Customer Id
+        data_type: INTEGER
+        description: Cột customer_id trong bảng fmcg_sales.customers
+        synonyms:
+        - customer id
+        is_partition_or_dist: false
+      first_name:
+        name: first_name
+        vn_name: First Name
+        en_name: First Name
+        data_type: NVARCHAR(45) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột first_name trong bảng fmcg_sales.customers
+        synonyms:
+        - first name
+        is_partition_or_dist: false
+      middle_initial:
+        name: middle_initial
+        vn_name: Middle Initial
+        en_name: Middle Initial
+        data_type: NVARCHAR(1) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột middle_initial trong bảng fmcg_sales.customers
+        synonyms:
+        - middle initial
+        is_partition_or_dist: false
+      last_name:
+        name: last_name
+        vn_name: Last Name
+        en_name: Last Name
+        data_type: NVARCHAR(45) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột last_name trong bảng fmcg_sales.customers
+        synonyms:
+        - last name
+        is_partition_or_dist: false
+      city_id:
+        name: city_id
+        vn_name: City Id
+        en_name: City Id
+        data_type: INTEGER
+        description: Cột city_id trong bảng fmcg_sales.customers
+        synonyms:
+        - city id
+        is_partition_or_dist: false
+      address:
+        name: address
+        vn_name: Address
+        en_name: Address
+        data_type: NVARCHAR(90) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột address trong bảng fmcg_sales.customers
+        synonyms:
+        - address
+        is_partition_or_dist: false
+  fmcg_sales.employees:
+    table_name: fmcg_sales.employees
+    vn_name: Employees
+    description: Bảng/View fmcg_sales.employees
+    primary_key:
+    - employee_id
+    partition_key: null
+    columns:
+      employee_id:
+        name: employee_id
+        vn_name: Employee Id
+        en_name: Employee Id
+        data_type: INTEGER
+        description: Cột employee_id trong bảng fmcg_sales.employees
+        synonyms:
+        - employee id
+        is_partition_or_dist: false
+      first_name:
+        name: first_name
+        vn_name: First Name
+        en_name: First Name
+        data_type: NVARCHAR(45) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột first_name trong bảng fmcg_sales.employees
+        synonyms:
+        - first name
+        is_partition_or_dist: false
+      middle_initial:
+        name: middle_initial
+        vn_name: Middle Initial
+        en_name: Middle Initial
+        data_type: NVARCHAR(1) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột middle_initial trong bảng fmcg_sales.employees
+        synonyms:
+        - middle initial
+        is_partition_or_dist: false
+      last_name:
+        name: last_name
+        vn_name: Last Name
+        en_name: Last Name
+        data_type: NVARCHAR(45) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột last_name trong bảng fmcg_sales.employees
+        synonyms:
+        - last name
+        is_partition_or_dist: false
+      birth_date:
+        name: birth_date
+        vn_name: Birth Date
+        en_name: Birth Date
+        data_type: DATE
+        description: Cột birth_date trong bảng fmcg_sales.employees
+        synonyms:
+        - birth date
+        is_partition_or_dist: false
+      gender:
+        name: gender
+        vn_name: Gender
+        en_name: Gender
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột gender trong bảng fmcg_sales.employees
+        synonyms:
+        - gender
+        is_partition_or_dist: false
+      city_id:
+        name: city_id
+        vn_name: City Id
+        en_name: City Id
+        data_type: INTEGER
+        description: Cột city_id trong bảng fmcg_sales.employees
+        synonyms:
+        - city id
+        is_partition_or_dist: false
+      hire_date:
+        name: hire_date
+        vn_name: Hire Date
+        en_name: Hire Date
+        data_type: DATETIME2
+        description: Cột hire_date trong bảng fmcg_sales.employees
+        synonyms:
+        - hire date
+        is_partition_or_dist: false
+  fmcg_sales.products:
+    table_name: fmcg_sales.products
+    vn_name: Products
+    description: Bảng/View fmcg_sales.products
+    primary_key:
+    - product_id
+    partition_key: null
+    columns:
+      product_id:
+        name: product_id
+        vn_name: Product Id
+        en_name: Product Id
+        data_type: INTEGER
+        description: Cột product_id trong bảng fmcg_sales.products
+        synonyms:
+        - product id
+        is_partition_or_dist: false
+      product_name:
+        name: product_name
+        vn_name: Product Name
+        en_name: Product Name
+        data_type: NVARCHAR(45) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_name trong bảng fmcg_sales.products
+        synonyms:
+        - product name
+        is_partition_or_dist: false
+      price:
+        name: price
+        vn_name: Price
+        en_name: Price
+        data_type: DECIMAL(12, 4)
+        description: Cột price trong bảng fmcg_sales.products
+        synonyms:
+        - price
+        is_partition_or_dist: false
+      category_id:
+        name: category_id
+        vn_name: Category Id
+        en_name: Category Id
+        data_type: INTEGER
+        description: Cột category_id trong bảng fmcg_sales.products
+        synonyms:
+        - category id
+        is_partition_or_dist: false
+      product_class:
+        name: product_class
+        vn_name: Product Class
+        en_name: Product Class
+        data_type: NVARCHAR(15) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_class trong bảng fmcg_sales.products
+        synonyms:
+        - product class
+        is_partition_or_dist: false
+      modify_date:
+        name: modify_date
+        vn_name: Modify Date
+        en_name: Modify Date
+        data_type: DATETIME2
+        description: Cột modify_date trong bảng fmcg_sales.products
+        synonyms:
+        - modify date
+        is_partition_or_dist: false
+      resistant:
+        name: resistant
+        vn_name: Resistant
+        en_name: Resistant
+        data_type: NVARCHAR(15) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột resistant trong bảng fmcg_sales.products
+        synonyms:
+        - resistant
+        is_partition_or_dist: false
+      is_allergic:
+        name: is_allergic
+        vn_name: Is Allergic
+        en_name: Is Allergic
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột is_allergic trong bảng fmcg_sales.products
+        synonyms:
+        - is allergic
+        is_partition_or_dist: false
+      vitality_days:
+        name: vitality_days
+        vn_name: Vitality Days
+        en_name: Vitality Days
+        data_type: INTEGER
+        description: Cột vitality_days trong bảng fmcg_sales.products
+        synonyms:
+        - vitality days
+        is_partition_or_dist: false
+  fmcg_sales.sales:
+    table_name: fmcg_sales.sales
+    vn_name: Sales
+    description: Bảng/View fmcg_sales.sales
+    primary_key:
+    - sales_id
+    partition_key: null
+    columns:
+      sales_id:
+        name: sales_id
+        vn_name: Sales Id
+        en_name: Sales Id
+        data_type: INTEGER
+        description: Cột sales_id trong bảng fmcg_sales.sales
+        synonyms:
+        - sales id
+        is_partition_or_dist: false
+      salesperson_id:
+        name: salesperson_id
+        vn_name: Salesperson Id
+        en_name: Salesperson Id
+        data_type: INTEGER
+        description: Cột salesperson_id trong bảng fmcg_sales.sales
+        synonyms:
+        - salesperson id
+        is_partition_or_dist: false
+      customer_id:
+        name: customer_id
+        vn_name: Customer Id
+        en_name: Customer Id
+        data_type: INTEGER
+        description: Cột customer_id trong bảng fmcg_sales.sales
+        synonyms:
+        - customer id
+        is_partition_or_dist: false
+      product_id:
+        name: product_id
+        vn_name: Product Id
+        en_name: Product Id
+        data_type: INTEGER
+        description: Cột product_id trong bảng fmcg_sales.sales
+        synonyms:
+        - product id
+        is_partition_or_dist: false
+      quantity:
+        name: quantity
+        vn_name: Quantity
+        en_name: Quantity
+        data_type: INTEGER
+        description: Cột quantity trong bảng fmcg_sales.sales
+        synonyms:
+        - quantity
+        is_partition_or_dist: false
+      discount:
+        name: discount
+        vn_name: Discount
+        en_name: Discount
+        data_type: DECIMAL(10, 2)
+        description: Cột discount trong bảng fmcg_sales.sales
+        synonyms:
+        - discount
+        is_partition_or_dist: false
+      total_price:
+        name: total_price
+        vn_name: Total Price
+        en_name: Total Price
+        data_type: DECIMAL(12, 2)
+        description: Cột total_price trong bảng fmcg_sales.sales
+        synonyms:
+        - total price
+        is_partition_or_dist: false
+      sales_date:
+        name: sales_date
+        vn_name: Sales Date
+        en_name: Sales Date
+        data_type: DATETIME2
+        description: Cột sales_date trong bảng fmcg_sales.sales
+        synonyms:
+        - sales date
+        is_partition_or_dist: false
+      transaction_number:
+        name: transaction_number
+        vn_name: Transaction Number
+        en_name: Transaction Number
+        data_type: NVARCHAR(25) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột transaction_number trong bảng fmcg_sales.sales
+        synonyms:
+        - transaction number
+        is_partition_or_dist: false
+relationships: []

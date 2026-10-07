@@ -1,0 +1,174 @@
+metrics:
+  total_nyc_green_taxi.payment_types:
+    metric_id: total_nyc_green_taxi.payment_types
+    vn_terms:
+    - tổng số Payment Types
+    - số lượng Payment Types
+    - số Payment Types
+    - thống kê Payment Types
+    en_terms:
+    - total nyc_green_taxi.payment_types
+    - nyc_green_taxi.payment_types count
+    - number of nyc_green_taxi.payment_types
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng nyc_green_taxi.payment_types
+    depends_on_tables:
+    - nyc_green_taxi.payment_types
+    depends_on_columns: []
+  total_nyc_green_taxi.trips:
+    metric_id: total_nyc_green_taxi.trips
+    vn_terms:
+    - tổng số Trips
+    - số lượng Trips
+    - số Trips
+    - thống kê Trips
+    en_terms:
+    - total nyc_green_taxi.trips
+    - nyc_green_taxi.trips count
+    - number of nyc_green_taxi.trips
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns: []
+  total_fare_amount:
+    metric_id: total_fare_amount
+    vn_terms:
+    - tổng Fare Amount
+    - tổng số Fare Amount
+    - tổng cộng Fare Amount
+    en_terms:
+    - total fare_amount
+    - sum of fare_amount
+    sql_expression: ROUND(SUM(fare_amount), 2)
+    description: Tổng giá trị lũy kế của cột fare_amount trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns:
+    - fare_amount
+  avg_fare_amount:
+    metric_id: avg_fare_amount
+    vn_terms:
+    - Fare Amount trung bình
+    - trung bình Fare Amount
+    - bình quân Fare Amount
+    en_terms:
+    - average fare_amount
+    - avg fare_amount
+    - mean fare_amount
+    sql_expression: ROUND(AVG(fare_amount), 2)
+    description: Giá trị bình quân của cột fare_amount trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns:
+    - fare_amount
+  total_tip_amount:
+    metric_id: total_tip_amount
+    vn_terms:
+    - tổng Tip Amount
+    - tổng số Tip Amount
+    - tổng cộng Tip Amount
+    en_terms:
+    - total tip_amount
+    - sum of tip_amount
+    sql_expression: ROUND(SUM(tip_amount), 2)
+    description: Tổng giá trị lũy kế của cột tip_amount trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns:
+    - tip_amount
+  avg_tip_amount:
+    metric_id: avg_tip_amount
+    vn_terms:
+    - Tip Amount trung bình
+    - trung bình Tip Amount
+    - bình quân Tip Amount
+    en_terms:
+    - average tip_amount
+    - avg tip_amount
+    - mean tip_amount
+    sql_expression: ROUND(AVG(tip_amount), 2)
+    description: Giá trị bình quân của cột tip_amount trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns:
+    - tip_amount
+  total_tolls_amount:
+    metric_id: total_tolls_amount
+    vn_terms:
+    - tổng Tolls Amount
+    - tổng số Tolls Amount
+    - tổng cộng Tolls Amount
+    en_terms:
+    - total tolls_amount
+    - sum of tolls_amount
+    sql_expression: ROUND(SUM(tolls_amount), 2)
+    description: Tổng giá trị lũy kế của cột tolls_amount trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns:
+    - tolls_amount
+  avg_tolls_amount:
+    metric_id: avg_tolls_amount
+    vn_terms:
+    - Tolls Amount trung bình
+    - trung bình Tolls Amount
+    - bình quân Tolls Amount
+    en_terms:
+    - average tolls_amount
+    - avg tolls_amount
+    - mean tolls_amount
+    sql_expression: ROUND(AVG(tolls_amount), 2)
+    description: Giá trị bình quân của cột tolls_amount trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns:
+    - tolls_amount
+  total_total_amount:
+    metric_id: total_total_amount
+    vn_terms:
+    - tổng Total Amount
+    - tổng số Total Amount
+    - tổng cộng Total Amount
+    en_terms:
+    - total total_amount
+    - sum of total_amount
+    sql_expression: ROUND(SUM(total_amount), 2)
+    description: Tổng giá trị lũy kế của cột total_amount trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns:
+    - total_amount
+  avg_total_amount:
+    metric_id: avg_total_amount
+    vn_terms:
+    - Total Amount trung bình
+    - trung bình Total Amount
+    - bình quân Total Amount
+    en_terms:
+    - average total_amount
+    - avg total_amount
+    - mean total_amount
+    sql_expression: ROUND(AVG(total_amount), 2)
+    description: Giá trị bình quân của cột total_amount trong bảng nyc_green_taxi.trips
+    depends_on_tables:
+    - nyc_green_taxi.trips
+    depends_on_columns:
+    - total_amount
+  total_nyc_green_taxi.zones:
+    metric_id: total_nyc_green_taxi.zones
+    vn_terms:
+    - tổng số Zones
+    - số lượng Zones
+    - số Zones
+    - thống kê Zones
+    en_terms:
+    - total nyc_green_taxi.zones
+    - nyc_green_taxi.zones count
+    - number of nyc_green_taxi.zones
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng nyc_green_taxi.zones
+    depends_on_tables:
+    - nyc_green_taxi.zones
+    depends_on_columns: []
+segments: {}

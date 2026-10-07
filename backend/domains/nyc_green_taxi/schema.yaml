@@ -1,0 +1,260 @@
+tables:
+  nyc_green_taxi.payment_types:
+    table_name: nyc_green_taxi.payment_types
+    vn_name: Payment Types
+    description: Bảng/View nyc_green_taxi.payment_types
+    primary_key:
+    - payment_type
+    partition_key: null
+    columns:
+      payment_type:
+        name: payment_type
+        vn_name: Payment Type
+        en_name: Payment Type
+        data_type: INTEGER
+        description: Cột payment_type trong bảng nyc_green_taxi.payment_types
+        synonyms:
+        - payment type
+        is_partition_or_dist: false
+      payment_name:
+        name: payment_name
+        vn_name: Payment Name
+        en_name: Payment Name
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột payment_name trong bảng nyc_green_taxi.payment_types
+        synonyms:
+        - payment name
+        is_partition_or_dist: false
+  nyc_green_taxi.trips:
+    table_name: nyc_green_taxi.trips
+    vn_name: Trips
+    description: Bảng/View nyc_green_taxi.trips
+    primary_key:
+    - trip_id
+    partition_key: null
+    columns:
+      trip_id:
+        name: trip_id
+        vn_name: Trip Id
+        en_name: Trip Id
+        data_type: INTEGER
+        description: Cột trip_id trong bảng nyc_green_taxi.trips
+        synonyms:
+        - trip id
+        is_partition_or_dist: false
+      vendor_id:
+        name: vendor_id
+        vn_name: Vendor Id
+        en_name: Vendor Id
+        data_type: INTEGER
+        description: Cột vendor_id trong bảng nyc_green_taxi.trips
+        synonyms:
+        - vendor id
+        is_partition_or_dist: false
+      pickup_datetime:
+        name: pickup_datetime
+        vn_name: Pickup Datetime
+        en_name: Pickup Datetime
+        data_type: DATETIME2
+        description: Cột pickup_datetime trong bảng nyc_green_taxi.trips
+        synonyms:
+        - pickup datetime
+        is_partition_or_dist: false
+      dropoff_datetime:
+        name: dropoff_datetime
+        vn_name: Dropoff Datetime
+        en_name: Dropoff Datetime
+        data_type: DATETIME2
+        description: Cột dropoff_datetime trong bảng nyc_green_taxi.trips
+        synonyms:
+        - dropoff datetime
+        is_partition_or_dist: false
+      store_and_fwd_flag:
+        name: store_and_fwd_flag
+        vn_name: Store And Fwd Flag
+        en_name: Store And Fwd Flag
+        data_type: NVARCHAR(1) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột store_and_fwd_flag trong bảng nyc_green_taxi.trips
+        synonyms:
+        - store and fwd flag
+        is_partition_or_dist: false
+      rate_code_id:
+        name: rate_code_id
+        vn_name: Rate Code Id
+        en_name: Rate Code Id
+        data_type: INTEGER
+        description: Cột rate_code_id trong bảng nyc_green_taxi.trips
+        synonyms:
+        - rate code id
+        is_partition_or_dist: false
+      pu_location_id:
+        name: pu_location_id
+        vn_name: Pu Location Id
+        en_name: Pu Location Id
+        data_type: INTEGER
+        description: Cột pu_location_id trong bảng nyc_green_taxi.trips
+        synonyms:
+        - pu location id
+        is_partition_or_dist: false
+      do_location_id:
+        name: do_location_id
+        vn_name: Do Location Id
+        en_name: Do Location Id
+        data_type: INTEGER
+        description: Cột do_location_id trong bảng nyc_green_taxi.trips
+        synonyms:
+        - do location id
+        is_partition_or_dist: false
+      passenger_count:
+        name: passenger_count
+        vn_name: Passenger Count
+        en_name: Passenger Count
+        data_type: INTEGER
+        description: Cột passenger_count trong bảng nyc_green_taxi.trips
+        synonyms:
+        - passenger count
+        is_partition_or_dist: false
+      trip_distance:
+        name: trip_distance
+        vn_name: Trip Distance
+        en_name: Trip Distance
+        data_type: DECIMAL(10, 2)
+        description: Cột trip_distance trong bảng nyc_green_taxi.trips
+        synonyms:
+        - trip distance
+        is_partition_or_dist: false
+      fare_amount:
+        name: fare_amount
+        vn_name: Fare Amount
+        en_name: Fare Amount
+        data_type: DECIMAL(10, 2)
+        description: Cột fare_amount trong bảng nyc_green_taxi.trips
+        synonyms:
+        - fare amount
+        is_partition_or_dist: false
+      extra:
+        name: extra
+        vn_name: Extra
+        en_name: Extra
+        data_type: DECIMAL(10, 2)
+        description: Cột extra trong bảng nyc_green_taxi.trips
+        synonyms:
+        - extra
+        is_partition_or_dist: false
+      mta_tax:
+        name: mta_tax
+        vn_name: Mta Tax
+        en_name: Mta Tax
+        data_type: DECIMAL(10, 2)
+        description: Cột mta_tax trong bảng nyc_green_taxi.trips
+        synonyms:
+        - mta tax
+        is_partition_or_dist: false
+      tip_amount:
+        name: tip_amount
+        vn_name: Tip Amount
+        en_name: Tip Amount
+        data_type: DECIMAL(10, 2)
+        description: Cột tip_amount trong bảng nyc_green_taxi.trips
+        synonyms:
+        - tip amount
+        is_partition_or_dist: false
+      tolls_amount:
+        name: tolls_amount
+        vn_name: Tolls Amount
+        en_name: Tolls Amount
+        data_type: DECIMAL(10, 2)
+        description: Cột tolls_amount trong bảng nyc_green_taxi.trips
+        synonyms:
+        - tolls amount
+        is_partition_or_dist: false
+      improvement_surcharge:
+        name: improvement_surcharge
+        vn_name: Improvement Surcharge
+        en_name: Improvement Surcharge
+        data_type: DECIMAL(10, 2)
+        description: Cột improvement_surcharge trong bảng nyc_green_taxi.trips
+        synonyms:
+        - improvement surcharge
+        is_partition_or_dist: false
+      congestion_surcharge:
+        name: congestion_surcharge
+        vn_name: Congestion Surcharge
+        en_name: Congestion Surcharge
+        data_type: DECIMAL(10, 2)
+        description: Cột congestion_surcharge trong bảng nyc_green_taxi.trips
+        synonyms:
+        - congestion surcharge
+        is_partition_or_dist: false
+      total_amount:
+        name: total_amount
+        vn_name: Total Amount
+        en_name: Total Amount
+        data_type: DECIMAL(10, 2)
+        description: Cột total_amount trong bảng nyc_green_taxi.trips
+        synonyms:
+        - total amount
+        is_partition_or_dist: false
+      payment_type:
+        name: payment_type
+        vn_name: Payment Type
+        en_name: Payment Type
+        data_type: INTEGER
+        description: Cột payment_type trong bảng nyc_green_taxi.trips
+        synonyms:
+        - payment type
+        is_partition_or_dist: false
+      trip_type:
+        name: trip_type
+        vn_name: Trip Type
+        en_name: Trip Type
+        data_type: INTEGER
+        description: Cột trip_type trong bảng nyc_green_taxi.trips
+        synonyms:
+        - trip type
+        is_partition_or_dist: false
+  nyc_green_taxi.zones:
+    table_name: nyc_green_taxi.zones
+    vn_name: Zones
+    description: Bảng/View nyc_green_taxi.zones
+    primary_key:
+    - location_id
+    partition_key: null
+    columns:
+      location_id:
+        name: location_id
+        vn_name: Location Id
+        en_name: Location Id
+        data_type: INTEGER
+        description: Cột location_id trong bảng nyc_green_taxi.zones
+        synonyms:
+        - location id
+        is_partition_or_dist: false
+      borough:
+        name: borough
+        vn_name: Borough
+        en_name: Borough
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột borough trong bảng nyc_green_taxi.zones
+        synonyms:
+        - borough
+        is_partition_or_dist: false
+      zone:
+        name: zone
+        vn_name: Zone
+        en_name: Zone
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột zone trong bảng nyc_green_taxi.zones
+        synonyms:
+        - zone
+        is_partition_or_dist: false
+      service_zone:
+        name: service_zone
+        vn_name: Service Zone
+        en_name: Service Zone
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột service_zone trong bảng nyc_green_taxi.zones
+        synonyms:
+        - service zone
+        is_partition_or_dist: false
+relationships: []

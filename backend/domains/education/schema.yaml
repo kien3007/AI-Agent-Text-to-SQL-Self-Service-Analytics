@@ -1,0 +1,346 @@
+tables:
+  education.grading_groups:
+    table_name: education.grading_groups
+    vn_name: Grading Groups
+    description: Bảng/View education.grading_groups
+    primary_key:
+    - assessment_level_id
+    partition_key: null
+    columns:
+      assessment_level_id:
+        name: assessment_level_id
+        vn_name: Assessment Level Id
+        en_name: Assessment Level Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột assessment_level_id trong bảng education.grading_groups
+        synonyms:
+        - assessment level id
+        is_partition_or_dist: false
+      assessment_level:
+        name: assessment_level
+        vn_name: Assessment Level
+        en_name: Assessment Level
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột assessment_level trong bảng education.grading_groups
+        synonyms:
+        - assessment level
+        is_partition_or_dist: false
+      level_grouping:
+        name: level_grouping
+        vn_name: Level Grouping
+        en_name: Level Grouping
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột level_grouping trong bảng education.grading_groups
+        synonyms:
+        - level grouping
+        is_partition_or_dist: false
+      score_range:
+        name: score_range
+        vn_name: Score Range
+        en_name: Score Range
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột score_range trong bảng education.grading_groups
+        synonyms:
+        - score range
+        is_partition_or_dist: false
+  education.school:
+    table_name: education.school
+    vn_name: School
+    description: Bảng/View education.school
+    primary_key:
+    - school_id
+    partition_key: null
+    columns:
+      school_id:
+        name: school_id
+        vn_name: School Id
+        en_name: School Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột school_id trong bảng education.school
+        synonyms:
+        - school id
+        is_partition_or_dist: false
+      school_name:
+        name: school_name
+        vn_name: School Name
+        en_name: School Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột school_name trong bảng education.school
+        synonyms:
+        - school name
+        is_partition_or_dist: false
+      municipality:
+        name: municipality
+        vn_name: Municipality
+        en_name: Municipality
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột municipality trong bảng education.school
+        synonyms:
+        - municipality
+        is_partition_or_dist: false
+  education.students:
+    table_name: education.students
+    vn_name: Students
+    description: Bảng/View education.students
+    primary_key:
+    - student_id
+    partition_key: null
+    columns:
+      student_id:
+        name: student_id
+        vn_name: Student Id
+        en_name: Student Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột student_id trong bảng education.students
+        synonyms:
+        - student id
+        is_partition_or_dist: false
+      date_of_birth:
+        name: date_of_birth
+        vn_name: Date Of Birth
+        en_name: Date Of Birth
+        data_type: DATE
+        description: Cột date_of_birth trong bảng education.students
+        synonyms:
+        - date of birth
+        is_partition_or_dist: false
+      gender:
+        name: gender
+        vn_name: Gender
+        en_name: Gender
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột gender trong bảng education.students
+        synonyms:
+        - gender
+        is_partition_or_dist: false
+      student_name:
+        name: student_name
+        vn_name: Student Name
+        en_name: Student Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột student_name trong bảng education.students
+        synonyms:
+        - student name
+        is_partition_or_dist: false
+      school_id:
+        name: school_id
+        vn_name: School Id
+        en_name: School Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột school_id trong bảng education.students
+        synonyms:
+        - school id
+        is_partition_or_dist: false
+  education.teachers:
+    table_name: education.teachers
+    vn_name: Teachers
+    description: Bảng/View education.teachers
+    primary_key: []
+    partition_key: null
+    columns:
+      course_name:
+        name: course_name
+        vn_name: Course Name
+        en_name: Course Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột course_name trong bảng education.teachers
+        synonyms:
+        - course name
+        is_partition_or_dist: false
+      course_no:
+        name: course_no
+        vn_name: Course No
+        en_name: Course No
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột course_no trong bảng education.teachers
+        synonyms:
+        - course no
+        is_partition_or_dist: false
+      school_id:
+        name: school_id
+        vn_name: School Id
+        en_name: School Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột school_id trong bảng education.teachers
+        synonyms:
+        - school id
+        is_partition_or_dist: false
+      school_year:
+        name: school_year
+        vn_name: School Year
+        en_name: School Year
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột school_year trong bảng education.teachers
+        synonyms:
+        - school year
+        is_partition_or_dist: false
+      teacher_id:
+        name: teacher_id
+        vn_name: Teacher Id
+        en_name: Teacher Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột teacher_id trong bảng education.teachers
+        synonyms:
+        - teacher id
+        is_partition_or_dist: false
+  education.test_details:
+    table_name: education.test_details
+    vn_name: Test Details
+    description: Bảng/View education.test_details
+    primary_key:
+    - assessment_type
+    partition_key: null
+    columns:
+      assessment_group:
+        name: assessment_group
+        vn_name: Assessment Group
+        en_name: Assessment Group
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột assessment_group trong bảng education.test_details
+        synonyms:
+        - assessment group
+        is_partition_or_dist: false
+      assessment_type:
+        name: assessment_type
+        vn_name: Assessment Type
+        en_name: Assessment Type
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột assessment_type trong bảng education.test_details
+        synonyms:
+        - assessment type
+        is_partition_or_dist: false
+      description:
+        name: description
+        vn_name: Description
+        en_name: Description
+        data_type: NVARCHAR(500) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột description trong bảng education.test_details
+        synonyms:
+        - description
+        is_partition_or_dist: false
+      assessment_cost:
+        name: assessment_cost
+        vn_name: Assessment Cost
+        en_name: Assessment Cost
+        data_type: DECIMAL(10, 2)
+        description: Cột assessment_cost trong bảng education.test_details
+        synonyms:
+        - assessment cost
+        is_partition_or_dist: false
+  education.tests:
+    table_name: education.tests
+    vn_name: Tests
+    description: Bảng/View education.tests
+    primary_key:
+    - student_assessment_id
+    partition_key: null
+    columns:
+      standard_score:
+        name: standard_score
+        vn_name: Standard Score
+        en_name: Standard Score
+        data_type: INTEGER
+        description: Cột standard_score trong bảng education.tests
+        synonyms:
+        - standard score
+        is_partition_or_dist: false
+      assessment_level_id:
+        name: assessment_level_id
+        vn_name: Assessment Level Id
+        en_name: Assessment Level Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột assessment_level_id trong bảng education.tests
+        synonyms:
+        - assessment level id
+        is_partition_or_dist: false
+      student_assessment_id:
+        name: student_assessment_id
+        vn_name: Student Assessment Id
+        en_name: Student Assessment Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột student_assessment_id trong bảng education.tests
+        synonyms:
+        - student assessment id
+        is_partition_or_dist: false
+      student_id:
+        name: student_id
+        vn_name: Student Id
+        en_name: Student Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột student_id trong bảng education.tests
+        synonyms:
+        - student id
+        is_partition_or_dist: false
+      assessment_type:
+        name: assessment_type
+        vn_name: Assessment Type
+        en_name: Assessment Type
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột assessment_type trong bảng education.tests
+        synonyms:
+        - assessment type
+        is_partition_or_dist: false
+      assessment_date:
+        name: assessment_date
+        vn_name: Assessment Date
+        en_name: Assessment Date
+        data_type: DATE
+        description: Cột assessment_date trong bảng education.tests
+        synonyms:
+        - assessment date
+        is_partition_or_dist: false
+      school_year_grade_class:
+        name: school_year_grade_class
+        vn_name: School Year Grade Class
+        en_name: School Year Grade Class
+        data_type: INTEGER
+        description: Cột school_year_grade_class trong bảng education.tests
+        synonyms:
+        - school year grade class
+        is_partition_or_dist: false
+      semester:
+        name: semester
+        vn_name: Semester
+        en_name: Semester
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột semester trong bảng education.tests
+        synonyms:
+        - semester
+        is_partition_or_dist: false
+      school_year2:
+        name: school_year2
+        vn_name: School Year2
+        en_name: School Year2
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột school_year2 trong bảng education.tests
+        synonyms:
+        - school year2
+        is_partition_or_dist: false
+      toswrf_assessment_id:
+        name: toswrf_assessment_id
+        vn_name: Toswrf Assessment Id
+        en_name: Toswrf Assessment Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột toswrf_assessment_id trong bảng education.tests
+        synonyms:
+        - toswrf assessment id
+        is_partition_or_dist: false
+      towre_assessment_id:
+        name: towre_assessment_id
+        vn_name: Towre Assessment Id
+        en_name: Towre Assessment Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột towre_assessment_id trong bảng education.tests
+        synonyms:
+        - towre assessment id
+        is_partition_or_dist: false
+      grade_at_assessment:
+        name: grade_at_assessment
+        vn_name: Grade At Assessment
+        en_name: Grade At Assessment
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột grade_at_assessment trong bảng education.tests
+        synonyms:
+        - grade at assessment
+        is_partition_or_dist: false
+relationships: []

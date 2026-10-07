@@ -14,7 +14,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from app.agent.state import AgentState
 from app.agent.graph import AgentOrchestrator
-from app.schemas.api import ChatRequest, ChatResponse, HITLDecisionRequest
+from app.schemas.api import ChatRequest, ChatResponse, HITLDecisionRequest, FeedbackRequest
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -110,7 +110,7 @@ async def _save_history(conversation_id: str, query: str, response: str):
     ])
     await _save_chat_state()
 
-from app.core.auth import get_current_user, UserContext, check_and_deduct_budget
+from app.core.auth import get_current_user, get_current_user_optional, UserContext, check_and_deduct_budget
 
 @router.post("", response_model=ChatResponse)
 async def execute_query_sync(req: ChatRequest, user: UserContext = Depends(get_current_user)):
@@ -177,10 +177,6 @@ async def execute_query_stream(req: ChatRequest, request: Request, user: UserCon
 
             # Chạy generator stream của orchestrator
             for step_name, current_state in orchestrator.stream(input_val=initial_state, domain_id=req.domain_id):
-                # Kiểm tra client ngắt kết nối
-                if await request.is_disconnected():
-                    break
-
                 # 1. Phát sự kiện từng bước xử lý
                 step_data = {
                     "step": step_name,
@@ -273,3 +269,30 @@ async def handle_hitl_decision(req: HITLDecisionRequest, user: UserContext = Dep
         return _convert_state_to_response(finished_state)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi khi tiếp tục phiên HITL: {e}")
+
+
+@router.post("/feedback")
+async def record_chat_feedback(
+    req: FeedbackRequest,
+    user: UserContext = Depends(get_current_user_optional)
+):
+    """
+    Tiếp nhận phản hồi người dùng (Thumbs Up / Thumbs Down)
+    và ghi nhận ngay lập tức vào Long-Term Memory (Good Plans / Bad Plans) của Agent.
+    """
+    if req.rating.lower() not in ("up", "down"):
+        raise HTTPException(status_code=400, detail="Trường rating phải là 'up' hoặc 'down'.")
+
+    try:
+        res = orchestrator.record_user_feedback(
+            query=req.query,
+            sql=req.sql_query,
+            rating=req.rating,
+            domain_id=req.domain_id or "default",
+            session_id=req.session_id,
+            notes=req.notes,
+            user_id=user.user_id if user else "anonymous"
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi khi lưu phản hồi đánh giá: {e}")

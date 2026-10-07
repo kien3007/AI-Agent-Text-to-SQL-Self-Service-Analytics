@@ -1,0 +1,394 @@
+tables:
+  banking.cards:
+    table_name: banking.cards
+    vn_name: Cards
+    description: Bảng/View banking.cards
+    primary_key:
+    - id
+    partition_key: null
+    columns:
+      id:
+        name: id
+        vn_name: Id
+        en_name: Id
+        data_type: INTEGER
+        description: Cột id trong bảng banking.cards
+        synonyms:
+        - id
+        is_partition_or_dist: false
+      client_id:
+        name: client_id
+        vn_name: Client Id
+        en_name: Client Id
+        data_type: INTEGER
+        description: Cột client_id trong bảng banking.cards
+        synonyms:
+        - client id
+        is_partition_or_dist: false
+      card_brand:
+        name: card_brand
+        vn_name: Card Brand
+        en_name: Card Brand
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột card_brand trong bảng banking.cards
+        synonyms:
+        - card brand
+        is_partition_or_dist: false
+      card_type:
+        name: card_type
+        vn_name: Card Type
+        en_name: Card Type
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột card_type trong bảng banking.cards
+        synonyms:
+        - card type
+        is_partition_or_dist: false
+      card_number:
+        name: card_number
+        vn_name: Card Number
+        en_name: Card Number
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột card_number trong bảng banking.cards
+        synonyms:
+        - card number
+        is_partition_or_dist: false
+      expires:
+        name: expires
+        vn_name: Expires
+        en_name: Expires
+        data_type: DATE
+        description: Cột expires trong bảng banking.cards
+        synonyms:
+        - expires
+        is_partition_or_dist: false
+      cvv:
+        name: cvv
+        vn_name: Cvv
+        en_name: Cvv
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột cvv trong bảng banking.cards
+        synonyms:
+        - cvv
+        is_partition_or_dist: false
+      has_chip:
+        name: has_chip
+        vn_name: Has Chip
+        en_name: Has Chip
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột has_chip trong bảng banking.cards
+        synonyms:
+        - has chip
+        is_partition_or_dist: false
+      num_cards_issued:
+        name: num_cards_issued
+        vn_name: Num Cards Issued
+        en_name: Num Cards Issued
+        data_type: INTEGER
+        description: Cột num_cards_issued trong bảng banking.cards
+        synonyms:
+        - num cards issued
+        is_partition_or_dist: false
+      credit_limit:
+        name: credit_limit
+        vn_name: Credit Limit
+        en_name: Credit Limit
+        data_type: DECIMAL(12, 2)
+        description: Cột credit_limit trong bảng banking.cards
+        synonyms:
+        - credit limit
+        is_partition_or_dist: false
+      acct_open_date:
+        name: acct_open_date
+        vn_name: Acct Open Date
+        en_name: Acct Open Date
+        data_type: DATE
+        description: Cột acct_open_date trong bảng banking.cards
+        synonyms:
+        - acct open date
+        is_partition_or_dist: false
+      year_pin_last_changed:
+        name: year_pin_last_changed
+        vn_name: Year Pin Last Changed
+        en_name: Year Pin Last Changed
+        data_type: INTEGER
+        description: Cột year_pin_last_changed trong bảng banking.cards
+        synonyms:
+        - year pin last changed
+        is_partition_or_dist: false
+  banking.mcc_codes:
+    table_name: banking.mcc_codes
+    vn_name: Mcc Codes
+    description: Bảng/View banking.mcc_codes
+    primary_key:
+    - mcc_id
+    partition_key: null
+    columns:
+      mcc_id:
+        name: mcc_id
+        vn_name: Mcc Id
+        en_name: Mcc Id
+        data_type: INTEGER
+        description: Cột mcc_id trong bảng banking.mcc_codes
+        synonyms:
+        - mcc id
+        is_partition_or_dist: false
+      description:
+        name: description
+        vn_name: Description
+        en_name: Description
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột description trong bảng banking.mcc_codes
+        synonyms:
+        - description
+        is_partition_or_dist: false
+  banking.transactions:
+    table_name: banking.transactions
+    vn_name: Transactions
+    description: Bảng/View banking.transactions
+    primary_key:
+    - id
+    partition_key: null
+    columns:
+      id:
+        name: id
+        vn_name: Id
+        en_name: Id
+        data_type: INTEGER
+        description: Cột id trong bảng banking.transactions
+        synonyms:
+        - id
+        is_partition_or_dist: false
+      date:
+        name: date
+        vn_name: Date
+        en_name: Date
+        data_type: DATETIME
+        description: Cột date trong bảng banking.transactions
+        synonyms:
+        - date
+        is_partition_or_dist: false
+      client_id:
+        name: client_id
+        vn_name: Client Id
+        en_name: Client Id
+        data_type: INTEGER
+        description: Cột client_id trong bảng banking.transactions
+        synonyms:
+        - client id
+        is_partition_or_dist: false
+      card_id:
+        name: card_id
+        vn_name: Card Id
+        en_name: Card Id
+        data_type: INTEGER
+        description: Cột card_id trong bảng banking.transactions
+        synonyms:
+        - card id
+        is_partition_or_dist: false
+      amount:
+        name: amount
+        vn_name: Amount
+        en_name: Amount
+        data_type: DECIMAL(10, 2)
+        description: Cột amount trong bảng banking.transactions
+        synonyms:
+        - amount
+        is_partition_or_dist: false
+      use_chip:
+        name: use_chip
+        vn_name: Use Chip
+        en_name: Use Chip
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột use_chip trong bảng banking.transactions
+        synonyms:
+        - use chip
+        is_partition_or_dist: false
+      merchant_id:
+        name: merchant_id
+        vn_name: Merchant Id
+        en_name: Merchant Id
+        data_type: INTEGER
+        description: Cột merchant_id trong bảng banking.transactions
+        synonyms:
+        - merchant id
+        is_partition_or_dist: false
+      merchant_city:
+        name: merchant_city
+        vn_name: Merchant City
+        en_name: Merchant City
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột merchant_city trong bảng banking.transactions
+        synonyms:
+        - merchant city
+        is_partition_or_dist: false
+      merchant_state:
+        name: merchant_state
+        vn_name: Merchant State
+        en_name: Merchant State
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột merchant_state trong bảng banking.transactions
+        synonyms:
+        - merchant state
+        is_partition_or_dist: false
+      zip:
+        name: zip
+        vn_name: Zip
+        en_name: Zip
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột zip trong bảng banking.transactions
+        synonyms:
+        - zip
+        is_partition_or_dist: false
+      mcc:
+        name: mcc
+        vn_name: Mcc
+        en_name: Mcc
+        data_type: INTEGER
+        description: Cột mcc trong bảng banking.transactions
+        synonyms:
+        - mcc
+        is_partition_or_dist: false
+      errors:
+        name: errors
+        vn_name: Errors
+        en_name: Errors
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột errors trong bảng banking.transactions
+        synonyms:
+        - errors
+        is_partition_or_dist: false
+  banking.users:
+    table_name: banking.users
+    vn_name: Users
+    description: Bảng/View banking.users
+    primary_key:
+    - id
+    partition_key: null
+    columns:
+      id:
+        name: id
+        vn_name: Id
+        en_name: Id
+        data_type: INTEGER
+        description: Cột id trong bảng banking.users
+        synonyms:
+        - id
+        is_partition_or_dist: false
+      current_age:
+        name: current_age
+        vn_name: Current Age
+        en_name: Current Age
+        data_type: INTEGER
+        description: Cột current_age trong bảng banking.users
+        synonyms:
+        - current age
+        is_partition_or_dist: false
+      retirement_age:
+        name: retirement_age
+        vn_name: Retirement Age
+        en_name: Retirement Age
+        data_type: INTEGER
+        description: Cột retirement_age trong bảng banking.users
+        synonyms:
+        - retirement age
+        is_partition_or_dist: false
+      birth_year:
+        name: birth_year
+        vn_name: Birth Year
+        en_name: Birth Year
+        data_type: INTEGER
+        description: Cột birth_year trong bảng banking.users
+        synonyms:
+        - birth year
+        is_partition_or_dist: false
+      birth_month:
+        name: birth_month
+        vn_name: Birth Month
+        en_name: Birth Month
+        data_type: INTEGER
+        description: Cột birth_month trong bảng banking.users
+        synonyms:
+        - birth month
+        is_partition_or_dist: false
+      gender:
+        name: gender
+        vn_name: Gender
+        en_name: Gender
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột gender trong bảng banking.users
+        synonyms:
+        - gender
+        is_partition_or_dist: false
+      address:
+        name: address
+        vn_name: Address
+        en_name: Address
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột address trong bảng banking.users
+        synonyms:
+        - address
+        is_partition_or_dist: false
+      latitude:
+        name: latitude
+        vn_name: Latitude
+        en_name: Latitude
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột latitude trong bảng banking.users
+        synonyms:
+        - latitude
+        is_partition_or_dist: false
+      longitude:
+        name: longitude
+        vn_name: Longitude
+        en_name: Longitude
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột longitude trong bảng banking.users
+        synonyms:
+        - longitude
+        is_partition_or_dist: false
+      per_capita_income:
+        name: per_capita_income
+        vn_name: Per Capita Income
+        en_name: Per Capita Income
+        data_type: DECIMAL(12, 2)
+        description: Cột per_capita_income trong bảng banking.users
+        synonyms:
+        - per capita income
+        is_partition_or_dist: false
+      yearly_income:
+        name: yearly_income
+        vn_name: Yearly Income
+        en_name: Yearly Income
+        data_type: DECIMAL(12, 2)
+        description: Cột yearly_income trong bảng banking.users
+        synonyms:
+        - yearly income
+        is_partition_or_dist: false
+      total_debt:
+        name: total_debt
+        vn_name: Total Debt
+        en_name: Total Debt
+        data_type: DECIMAL(12, 2)
+        description: Cột total_debt trong bảng banking.users
+        synonyms:
+        - total debt
+        is_partition_or_dist: false
+      credit_score:
+        name: credit_score
+        vn_name: Credit Score
+        en_name: Credit Score
+        data_type: INTEGER
+        description: Cột credit_score trong bảng banking.users
+        synonyms:
+        - credit score
+        is_partition_or_dist: false
+      num_credit_cards:
+        name: num_credit_cards
+        vn_name: Num Credit Cards
+        en_name: Num Credit Cards
+        data_type: INTEGER
+        description: Cột num_credit_cards trong bảng banking.users
+        synonyms:
+        - num credit cards
+        is_partition_or_dist: false
+relationships: []

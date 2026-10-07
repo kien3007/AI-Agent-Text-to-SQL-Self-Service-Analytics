@@ -1,0 +1,154 @@
+tables:
+  mobile_games.games:
+    table_name: mobile_games.games
+    vn_name: Games
+    description: Bảng/View mobile_games.games
+    primary_key:
+    - app_id
+    partition_key: null
+    columns:
+      app_url:
+        name: app_url
+        vn_name: App Url
+        en_name: App Url
+        data_type: NVARCHAR(500) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột app_url trong bảng mobile_games.games
+        synonyms:
+        - app url
+        is_partition_or_dist: false
+      app_id:
+        name: app_id
+        vn_name: App Id
+        en_name: App Id
+        data_type: BIGINT
+        description: Cột app_id trong bảng mobile_games.games
+        synonyms:
+        - app id
+        is_partition_or_dist: false
+      name:
+        name: name
+        vn_name: Name
+        en_name: Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột name trong bảng mobile_games.games
+        synonyms:
+        - name
+        is_partition_or_dist: false
+      subtitle:
+        name: subtitle
+        vn_name: Subtitle
+        en_name: Subtitle
+        data_type: NVARCHAR(500) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột subtitle trong bảng mobile_games.games
+        synonyms:
+        - subtitle
+        is_partition_or_dist: false
+      icon_url:
+        name: icon_url
+        vn_name: Icon Url
+        en_name: Icon Url
+        data_type: NVARCHAR(500) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột icon_url trong bảng mobile_games.games
+        synonyms:
+        - icon url
+        is_partition_or_dist: false
+      average_user_rating:
+        name: average_user_rating
+        vn_name: Average User Rating
+        en_name: Average User Rating
+        data_type: DECIMAL(3, 1)
+        description: Cột average_user_rating trong bảng mobile_games.games
+        synonyms:
+        - average user rating
+        is_partition_or_dist: false
+      user_rating_count:
+        name: user_rating_count
+        vn_name: User Rating Count
+        en_name: User Rating Count
+        data_type: INTEGER
+        description: Cột user_rating_count trong bảng mobile_games.games
+        synonyms:
+        - user rating count
+        is_partition_or_dist: false
+      price_usd:
+        name: price_usd
+        vn_name: Price Usd
+        en_name: Price Usd
+        data_type: DECIMAL(10, 2)
+        description: Cột price_usd trong bảng mobile_games.games
+        synonyms:
+        - price usd
+        is_partition_or_dist: false
+      description:
+        name: description
+        vn_name: Description
+        en_name: Description
+        data_type: NVARCHAR COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột description trong bảng mobile_games.games
+        synonyms:
+        - description
+        is_partition_or_dist: false
+      developer:
+        name: developer
+        vn_name: Developer
+        en_name: Developer
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột developer trong bảng mobile_games.games
+        synonyms:
+        - developer
+        is_partition_or_dist: false
+      age_rating:
+        name: age_rating
+        vn_name: Age Rating
+        en_name: Age Rating
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột age_rating trong bảng mobile_games.games
+        synonyms:
+        - age rating
+        is_partition_or_dist: false
+      languages:
+        name: languages
+        vn_name: Languages
+        en_name: Languages
+        data_type: NVARCHAR COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột languages trong bảng mobile_games.games
+        synonyms:
+        - languages
+        is_partition_or_dist: false
+      size_in_bytes:
+        name: size_in_bytes
+        vn_name: Size In Bytes
+        en_name: Size In Bytes
+        data_type: BIGINT
+        description: Cột size_in_bytes trong bảng mobile_games.games
+        synonyms:
+        - size in bytes
+        is_partition_or_dist: false
+      primary_genre:
+        name: primary_genre
+        vn_name: Primary Genre
+        en_name: Primary Genre
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột primary_genre trong bảng mobile_games.games
+        synonyms:
+        - primary genre
+        is_partition_or_dist: false
+      genres:
+        name: genres
+        vn_name: Genres
+        en_name: Genres
+        data_type: NVARCHAR(500) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột genres trong bảng mobile_games.games
+        synonyms:
+        - genres
+        is_partition_or_dist: false
+      release_date:
+        name: release_date
+        vn_name: Release Date
+        en_name: Release Date
+        data_type: DATE
+        description: Cột release_date trong bảng mobile_games.games
+        synonyms:
+        - release date
+        is_partition_or_dist: false
+relationships: []

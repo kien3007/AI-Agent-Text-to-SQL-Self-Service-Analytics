@@ -1,0 +1,12 @@
+domain_id: education
+display_name: Education
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (education)
+domain_keywords:
+- education
+- grading groups
+- school
+- students
+- teachers
+- test details
+- tests
+synonyms: {}

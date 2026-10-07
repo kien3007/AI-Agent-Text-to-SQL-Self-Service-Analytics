@@ -1,0 +1,262 @@
+tables:
+  logistics.shipments:
+    table_name: logistics.shipments
+    vn_name: Shipments
+    description: Bảng/View logistics.shipments
+    primary_key:
+    - booking_id
+    partition_key: null
+    columns:
+      gps_provider:
+        name: gps_provider
+        vn_name: Gps Provider
+        en_name: Gps Provider
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột gps_provider trong bảng logistics.shipments
+        synonyms:
+        - gps provider
+        is_partition_or_dist: false
+      booking_id:
+        name: booking_id
+        vn_name: Booking Id
+        en_name: Booking Id
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột booking_id trong bảng logistics.shipments
+        synonyms:
+        - booking id
+        is_partition_or_dist: false
+      shipment_type:
+        name: shipment_type
+        vn_name: Shipment Type
+        en_name: Shipment Type
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột shipment_type trong bảng logistics.shipments
+        synonyms:
+        - shipment type
+        is_partition_or_dist: false
+      booking_date:
+        name: booking_date
+        vn_name: Booking Date
+        en_name: Booking Date
+        data_type: DATETIME
+        description: Cột booking_date trong bảng logistics.shipments
+        synonyms:
+        - booking date
+        is_partition_or_dist: false
+      vehicle_registration:
+        name: vehicle_registration
+        vn_name: Vehicle Registration
+        en_name: Vehicle Registration
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột vehicle_registration trong bảng logistics.shipments
+        synonyms:
+        - vehicle registration
+        is_partition_or_dist: false
+      origin_location:
+        name: origin_location
+        vn_name: Origin Location
+        en_name: Origin Location
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột origin_location trong bảng logistics.shipments
+        synonyms:
+        - origin location
+        is_partition_or_dist: false
+      destination_location:
+        name: destination_location
+        vn_name: Destination Location
+        en_name: Destination Location
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột destination_location trong bảng logistics.shipments
+        synonyms:
+        - destination location
+        is_partition_or_dist: false
+      origin_lat:
+        name: origin_lat
+        vn_name: Origin Lat
+        en_name: Origin Lat
+        data_type: DECIMAL(12, 8)
+        description: Cột origin_lat trong bảng logistics.shipments
+        synonyms:
+        - origin lat
+        is_partition_or_dist: false
+      origin_long:
+        name: origin_long
+        vn_name: Origin Long
+        en_name: Origin Long
+        data_type: DECIMAL(12, 8)
+        description: Cột origin_long trong bảng logistics.shipments
+        synonyms:
+        - origin long
+        is_partition_or_dist: false
+      dest_lat:
+        name: dest_lat
+        vn_name: Dest Lat
+        en_name: Dest Lat
+        data_type: DECIMAL(12, 8)
+        description: Cột dest_lat trong bảng logistics.shipments
+        synonyms:
+        - dest lat
+        is_partition_or_dist: false
+      dest_long:
+        name: dest_long
+        vn_name: Dest Long
+        en_name: Dest Long
+        data_type: DECIMAL(12, 8)
+        description: Cột dest_long trong bảng logistics.shipments
+        synonyms:
+        - dest long
+        is_partition_or_dist: false
+      data_ping_time:
+        name: data_ping_time
+        vn_name: Data Ping Time
+        en_name: Data Ping Time
+        data_type: DATETIME
+        description: Cột data_ping_time trong bảng logistics.shipments
+        synonyms:
+        - data ping time
+        is_partition_or_dist: false
+      planned_eta:
+        name: planned_eta
+        vn_name: Planned Eta
+        en_name: Planned Eta
+        data_type: DATETIME
+        description: Cột planned_eta trong bảng logistics.shipments
+        synonyms:
+        - planned eta
+        is_partition_or_dist: false
+      current_location:
+        name: current_location
+        vn_name: Current Location
+        en_name: Current Location
+        data_type: NVARCHAR(500) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột current_location trong bảng logistics.shipments
+        synonyms:
+        - current location
+        is_partition_or_dist: false
+      actual_eta:
+        name: actual_eta
+        vn_name: Actual Eta
+        en_name: Actual Eta
+        data_type: DATETIME
+        description: Cột actual_eta trong bảng logistics.shipments
+        synonyms:
+        - actual eta
+        is_partition_or_dist: false
+      current_lat:
+        name: current_lat
+        vn_name: Current Lat
+        en_name: Current Lat
+        data_type: DECIMAL(12, 8)
+        description: Cột current_lat trong bảng logistics.shipments
+        synonyms:
+        - current lat
+        is_partition_or_dist: false
+      current_long:
+        name: current_long
+        vn_name: Current Long
+        en_name: Current Long
+        data_type: DECIMAL(12, 8)
+        description: Cột current_long trong bảng logistics.shipments
+        synonyms:
+        - current long
+        is_partition_or_dist: false
+      ontime:
+        name: ontime
+        vn_name: Ontime
+        en_name: Ontime
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột ontime trong bảng logistics.shipments
+        synonyms:
+        - ontime
+        is_partition_or_dist: false
+      trip_start_date:
+        name: trip_start_date
+        vn_name: Trip Start Date
+        en_name: Trip Start Date
+        data_type: DATETIME
+        description: Cột trip_start_date trong bảng logistics.shipments
+        synonyms:
+        - trip start date
+        is_partition_or_dist: false
+      trip_end_date:
+        name: trip_end_date
+        vn_name: Trip End Date
+        en_name: Trip End Date
+        data_type: DATETIME
+        description: Cột trip_end_date trong bảng logistics.shipments
+        synonyms:
+        - trip end date
+        is_partition_or_dist: false
+      transportation_distance_km:
+        name: transportation_distance_km
+        vn_name: Transportation Distance Km
+        en_name: Transportation Distance Km
+        data_type: DECIMAL(10, 2)
+        description: Cột transportation_distance_km trong bảng logistics.shipments
+        synonyms:
+        - transportation distance km
+        is_partition_or_dist: false
+      vehicle_type:
+        name: vehicle_type
+        vn_name: Vehicle Type
+        en_name: Vehicle Type
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột vehicle_type trong bảng logistics.shipments
+        synonyms:
+        - vehicle type
+        is_partition_or_dist: false
+      min_kms_per_day:
+        name: min_kms_per_day
+        vn_name: Min Kms Per Day
+        en_name: Min Kms Per Day
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột min_kms_per_day trong bảng logistics.shipments
+        synonyms:
+        - min kms per day
+        is_partition_or_dist: false
+      driver_name:
+        name: driver_name
+        vn_name: Driver Name
+        en_name: Driver Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột driver_name trong bảng logistics.shipments
+        synonyms:
+        - driver name
+        is_partition_or_dist: false
+      driver_mobile_no:
+        name: driver_mobile_no
+        vn_name: Driver Mobile No
+        en_name: Driver Mobile No
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột driver_mobile_no trong bảng logistics.shipments
+        synonyms:
+        - driver mobile no
+        is_partition_or_dist: false
+      customer_name:
+        name: customer_name
+        vn_name: Customer Name
+        en_name: Customer Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột customer_name trong bảng logistics.shipments
+        synonyms:
+        - customer name
+        is_partition_or_dist: false
+      supplier_name:
+        name: supplier_name
+        vn_name: Supplier Name
+        en_name: Supplier Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột supplier_name trong bảng logistics.shipments
+        synonyms:
+        - supplier name
+        is_partition_or_dist: false
+      material_shipped:
+        name: material_shipped
+        vn_name: Material Shipped
+        en_name: Material Shipped
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột material_shipped trong bảng logistics.shipments
+        synonyms:
+        - material shipped
+        is_partition_or_dist: false
+relationships: []

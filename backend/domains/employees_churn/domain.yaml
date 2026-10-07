@@ -1,0 +1,7 @@
+domain_id: employees_churn
+display_name: Employees Churn
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (employees_churn)
+domain_keywords:
+- employees_churn
+- employee info
+synonyms: {}

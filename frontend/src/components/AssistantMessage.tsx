@@ -54,6 +54,38 @@ export default function AssistantMessage({
   const [activeTab, setActiveTab] = useState<'viz' | 'tbl' | 'sql'>('viz');
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
+  const [feedbackSent, setFeedbackSent] = useState<boolean>(false);
+
+  const handleFeedback = async (newRating: 'up' | 'down') => {
+    const nextVal = feedback === newRating ? null : newRating;
+    setFeedback(nextVal);
+    if (!nextVal) return;
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/chat/feedback', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          session_id: data?.session_id || message.id,
+          query: data?.user_query || message.content,
+          sql_query: activeSql || undefined,
+          domain_id: data?.domain_id || undefined,
+          rating: nextVal,
+        }),
+      });
+
+      if (res.ok) {
+        setFeedbackSent(true);
+        setTimeout(() => setFeedbackSent(false), 3000);
+      }
+    } catch (err) {
+      console.error('Lỗi khi gửi phản hồi feedback:', err);
+    }
+  };
 
   // Auto-switch to SQL tab if query has no table rows
   useEffect(() => {
@@ -368,6 +400,11 @@ export default function AssistantMessage({
           </div>
 
           <div className="flex items-center gap-1">
+            {feedbackSent && (
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium px-1 animate-in fade-in">
+                Đã ghi nhận!
+              </span>
+            )}
             <button
               onClick={handleCopyMarkdown}
               className="p-1.5 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -376,24 +413,24 @@ export default function AssistantMessage({
               {isCopied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
             </button>
             <button
-              onClick={() => setFeedback(feedback === 'up' ? null : 'up')}
+              onClick={() => handleFeedback('up')}
               className={`p-1.5 rounded-md transition-colors ${
                 feedback === 'up'
                   ? 'text-emerald-500 bg-emerald-500/10'
                   : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
-              title="Hữu ích"
+              title="Hữu ích (Lưu làm mẫu chuẩn cho Agent)"
             >
               <ThumbsUp size={14} />
             </button>
             <button
-              onClick={() => setFeedback(feedback === 'down' ? null : 'down')}
+              onClick={() => handleFeedback('down')}
               className={`p-1.5 rounded-md transition-colors ${
                 feedback === 'down'
                   ? 'text-rose-500 bg-rose-500/10'
                   : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
-              title="Chưa chính xác"
+              title="Chưa chính xác (Cảnh báo Agent tránh lỗi này)"
             >
               <ThumbsDown size={14} />
             </button>

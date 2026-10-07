@@ -1,0 +1,10 @@
+domain_id: retails
+display_name: Retails
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (retails)
+domain_keywords:
+- retails
+- customers
+- products
+- sales
+- stores
+synonyms: {}

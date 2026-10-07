@@ -1,0 +1,80 @@
+metrics:
+  total_coffee_shop.transactions:
+    metric_id: total_coffee_shop.transactions
+    vn_terms:
+    - tổng số Transactions
+    - số lượng Transactions
+    - số Transactions
+    - thống kê Transactions
+    en_terms:
+    - total coffee_shop.transactions
+    - coffee_shop.transactions count
+    - number of coffee_shop.transactions
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng coffee_shop.transactions
+    depends_on_tables:
+    - coffee_shop.transactions
+    depends_on_columns: []
+  total_transaction_qty:
+    metric_id: total_transaction_qty
+    vn_terms:
+    - tổng Transaction Qty
+    - tổng số Transaction Qty
+    - tổng cộng Transaction Qty
+    en_terms:
+    - total transaction_qty
+    - sum of transaction_qty
+    sql_expression: ROUND(SUM(transaction_qty), 2)
+    description: Tổng giá trị lũy kế của cột transaction_qty trong bảng coffee_shop.transactions
+    depends_on_tables:
+    - coffee_shop.transactions
+    depends_on_columns:
+    - transaction_qty
+  avg_transaction_qty:
+    metric_id: avg_transaction_qty
+    vn_terms:
+    - Transaction Qty trung bình
+    - trung bình Transaction Qty
+    - bình quân Transaction Qty
+    en_terms:
+    - average transaction_qty
+    - avg transaction_qty
+    - mean transaction_qty
+    sql_expression: ROUND(AVG(transaction_qty), 2)
+    description: Giá trị bình quân của cột transaction_qty trong bảng coffee_shop.transactions
+    depends_on_tables:
+    - coffee_shop.transactions
+    depends_on_columns:
+    - transaction_qty
+  total_unit_price:
+    metric_id: total_unit_price
+    vn_terms:
+    - tổng Unit Price
+    - tổng số Unit Price
+    - tổng cộng Unit Price
+    en_terms:
+    - total unit_price
+    - sum of unit_price
+    sql_expression: ROUND(SUM(unit_price), 2)
+    description: Tổng giá trị lũy kế của cột unit_price trong bảng coffee_shop.transactions
+    depends_on_tables:
+    - coffee_shop.transactions
+    depends_on_columns:
+    - unit_price
+  avg_unit_price:
+    metric_id: avg_unit_price
+    vn_terms:
+    - Unit Price trung bình
+    - trung bình Unit Price
+    - bình quân Unit Price
+    en_terms:
+    - average unit_price
+    - avg unit_price
+    - mean unit_price
+    sql_expression: ROUND(AVG(unit_price), 2)
+    description: Giá trị bình quân của cột unit_price trong bảng coffee_shop.transactions
+    depends_on_tables:
+    - coffee_shop.transactions
+    depends_on_columns:
+    - unit_price
+segments: {}

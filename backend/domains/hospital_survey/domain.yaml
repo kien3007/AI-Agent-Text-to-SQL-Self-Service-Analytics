@@ -1,0 +1,13 @@
+domain_id: hospital_survey
+display_name: Hospital Survey
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (hospital_survey)
+domain_keywords:
+- hospital_survey
+- measures
+- national results
+- questions
+- reports
+- responses
+- state results
+- states
+synonyms: {}

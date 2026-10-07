@@ -1,0 +1,7 @@
+domain_id: crm_analytics
+display_name: Crm Analytics
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (crm_analytics)
+domain_keywords:
+- crm_analytics
+- deals
+synonyms: {}

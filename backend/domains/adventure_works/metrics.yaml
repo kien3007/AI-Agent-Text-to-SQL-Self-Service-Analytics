@@ -1,0 +1,471 @@
+metrics:
+  total_adventure_works.calendar:
+    metric_id: total_adventure_works.calendar
+    vn_terms:
+    - tổng số Calendar
+    - số lượng Calendar
+    - số Calendar
+    - thống kê Calendar
+    en_terms:
+    - total adventure_works.calendar
+    - adventure_works.calendar count
+    - number of adventure_works.calendar
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng adventure_works.calendar
+    depends_on_tables:
+    - adventure_works.calendar
+    depends_on_columns: []
+  total_adventure_works.customers:
+    metric_id: total_adventure_works.customers
+    vn_terms:
+    - tổng số Customers
+    - số lượng Customers
+    - số Customers
+    - thống kê Customers
+    en_terms:
+    - total adventure_works.customers
+    - adventure_works.customers count
+    - number of adventure_works.customers
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng adventure_works.customers
+    depends_on_tables:
+    - adventure_works.customers
+    depends_on_columns: []
+  total_annual_income:
+    metric_id: total_annual_income
+    vn_terms:
+    - tổng Annual Income
+    - tổng số Annual Income
+    - tổng cộng Annual Income
+    en_terms:
+    - total annual_income
+    - sum of annual_income
+    sql_expression: ROUND(SUM(annual_income), 2)
+    description: Tổng giá trị lũy kế của cột annual_income trong bảng adventure_works.customers
+    depends_on_tables:
+    - adventure_works.customers
+    depends_on_columns:
+    - annual_income
+  avg_annual_income:
+    metric_id: avg_annual_income
+    vn_terms:
+    - Annual Income trung bình
+    - trung bình Annual Income
+    - bình quân Annual Income
+    en_terms:
+    - average annual_income
+    - avg annual_income
+    - mean annual_income
+    sql_expression: ROUND(AVG(annual_income), 2)
+    description: Giá trị bình quân của cột annual_income trong bảng adventure_works.customers
+    depends_on_tables:
+    - adventure_works.customers
+    depends_on_columns:
+    - annual_income
+  total_total_children:
+    metric_id: total_total_children
+    vn_terms:
+    - tổng Total Children
+    - tổng số Total Children
+    - tổng cộng Total Children
+    en_terms:
+    - total total_children
+    - sum of total_children
+    sql_expression: ROUND(SUM(total_children), 2)
+    description: Tổng giá trị lũy kế của cột total_children trong bảng adventure_works.customers
+    depends_on_tables:
+    - adventure_works.customers
+    depends_on_columns:
+    - total_children
+  avg_total_children:
+    metric_id: avg_total_children
+    vn_terms:
+    - Total Children trung bình
+    - trung bình Total Children
+    - bình quân Total Children
+    en_terms:
+    - average total_children
+    - avg total_children
+    - mean total_children
+    sql_expression: ROUND(AVG(total_children), 2)
+    description: Giá trị bình quân của cột total_children trong bảng adventure_works.customers
+    depends_on_tables:
+    - adventure_works.customers
+    depends_on_columns:
+    - total_children
+  total_adventure_works.product_categories:
+    metric_id: total_adventure_works.product_categories
+    vn_terms:
+    - tổng số Product Categories
+    - số lượng Product Categories
+    - số Product Categories
+    - thống kê Product Categories
+    en_terms:
+    - total adventure_works.product_categories
+    - adventure_works.product_categories count
+    - number of adventure_works.product_categories
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng adventure_works.product_categories
+    depends_on_tables:
+    - adventure_works.product_categories
+    depends_on_columns: []
+  total_adventure_works.product_subcategories:
+    metric_id: total_adventure_works.product_subcategories
+    vn_terms:
+    - tổng số Product Subcategories
+    - số lượng Product Subcategories
+    - số Product Subcategories
+    - thống kê Product Subcategories
+    en_terms:
+    - total adventure_works.product_subcategories
+    - adventure_works.product_subcategories count
+    - number of adventure_works.product_subcategories
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng adventure_works.product_subcategories
+    depends_on_tables:
+    - adventure_works.product_subcategories
+    depends_on_columns: []
+  total_product_category_key:
+    metric_id: total_product_category_key
+    vn_terms:
+    - tổng Product Category Key
+    - tổng số Product Category Key
+    - tổng cộng Product Category Key
+    en_terms:
+    - total product_category_key
+    - sum of product_category_key
+    sql_expression: ROUND(SUM(product_category_key), 2)
+    description: Tổng giá trị lũy kế của cột product_category_key trong bảng adventure_works.product_subcategories
+    depends_on_tables:
+    - adventure_works.product_subcategories
+    depends_on_columns:
+    - product_category_key
+  avg_product_category_key:
+    metric_id: avg_product_category_key
+    vn_terms:
+    - Product Category Key trung bình
+    - trung bình Product Category Key
+    - bình quân Product Category Key
+    en_terms:
+    - average product_category_key
+    - avg product_category_key
+    - mean product_category_key
+    sql_expression: ROUND(AVG(product_category_key), 2)
+    description: Giá trị bình quân của cột product_category_key trong bảng adventure_works.product_subcategories
+    depends_on_tables:
+    - adventure_works.product_subcategories
+    depends_on_columns:
+    - product_category_key
+  total_adventure_works.products:
+    metric_id: total_adventure_works.products
+    vn_terms:
+    - tổng số Products
+    - số lượng Products
+    - số Products
+    - thống kê Products
+    en_terms:
+    - total adventure_works.products
+    - adventure_works.products count
+    - number of adventure_works.products
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng adventure_works.products
+    depends_on_tables:
+    - adventure_works.products
+    depends_on_columns: []
+  total_product_subcategory_key:
+    metric_id: total_product_subcategory_key
+    vn_terms:
+    - tổng Product Subcategory Key
+    - tổng số Product Subcategory Key
+    - tổng cộng Product Subcategory Key
+    en_terms:
+    - total product_subcategory_key
+    - sum of product_subcategory_key
+    sql_expression: ROUND(SUM(product_subcategory_key), 2)
+    description: Tổng giá trị lũy kế của cột product_subcategory_key trong bảng adventure_works.products
+    depends_on_tables:
+    - adventure_works.products
+    depends_on_columns:
+    - product_subcategory_key
+  avg_product_subcategory_key:
+    metric_id: avg_product_subcategory_key
+    vn_terms:
+    - Product Subcategory Key trung bình
+    - trung bình Product Subcategory Key
+    - bình quân Product Subcategory Key
+    en_terms:
+    - average product_subcategory_key
+    - avg product_subcategory_key
+    - mean product_subcategory_key
+    sql_expression: ROUND(AVG(product_subcategory_key), 2)
+    description: Giá trị bình quân của cột product_subcategory_key trong bảng adventure_works.products
+    depends_on_tables:
+    - adventure_works.products
+    depends_on_columns:
+    - product_subcategory_key
+  total_product_cost:
+    metric_id: total_product_cost
+    vn_terms:
+    - tổng Product Cost
+    - tổng số Product Cost
+    - tổng cộng Product Cost
+    en_terms:
+    - total product_cost
+    - sum of product_cost
+    sql_expression: ROUND(SUM(product_cost), 2)
+    description: Tổng giá trị lũy kế của cột product_cost trong bảng adventure_works.products
+    depends_on_tables:
+    - adventure_works.products
+    depends_on_columns:
+    - product_cost
+  avg_product_cost:
+    metric_id: avg_product_cost
+    vn_terms:
+    - Product Cost trung bình
+    - trung bình Product Cost
+    - bình quân Product Cost
+    en_terms:
+    - average product_cost
+    - avg product_cost
+    - mean product_cost
+    sql_expression: ROUND(AVG(product_cost), 2)
+    description: Giá trị bình quân của cột product_cost trong bảng adventure_works.products
+    depends_on_tables:
+    - adventure_works.products
+    depends_on_columns:
+    - product_cost
+  total_product_price:
+    metric_id: total_product_price
+    vn_terms:
+    - tổng Product Price
+    - tổng số Product Price
+    - tổng cộng Product Price
+    en_terms:
+    - total product_price
+    - sum of product_price
+    sql_expression: ROUND(SUM(product_price), 2)
+    description: Tổng giá trị lũy kế của cột product_price trong bảng adventure_works.products
+    depends_on_tables:
+    - adventure_works.products
+    depends_on_columns:
+    - product_price
+  avg_product_price:
+    metric_id: avg_product_price
+    vn_terms:
+    - Product Price trung bình
+    - trung bình Product Price
+    - bình quân Product Price
+    en_terms:
+    - average product_price
+    - avg product_price
+    - mean product_price
+    sql_expression: ROUND(AVG(product_price), 2)
+    description: Giá trị bình quân của cột product_price trong bảng adventure_works.products
+    depends_on_tables:
+    - adventure_works.products
+    depends_on_columns:
+    - product_price
+  total_adventure_works.returns:
+    metric_id: total_adventure_works.returns
+    vn_terms:
+    - tổng số Returns
+    - số lượng Returns
+    - số Returns
+    - thống kê Returns
+    en_terms:
+    - total adventure_works.returns
+    - adventure_works.returns count
+    - number of adventure_works.returns
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng adventure_works.returns
+    depends_on_tables:
+    - adventure_works.returns
+    depends_on_columns: []
+  total_territory_key:
+    metric_id: total_territory_key
+    vn_terms:
+    - tổng Territory Key
+    - tổng số Territory Key
+    - tổng cộng Territory Key
+    en_terms:
+    - total territory_key
+    - sum of territory_key
+    sql_expression: ROUND(SUM(territory_key), 2)
+    description: Tổng giá trị lũy kế của cột territory_key trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns:
+    - territory_key
+  avg_territory_key:
+    metric_id: avg_territory_key
+    vn_terms:
+    - Territory Key trung bình
+    - trung bình Territory Key
+    - bình quân Territory Key
+    en_terms:
+    - average territory_key
+    - avg territory_key
+    - mean territory_key
+    sql_expression: ROUND(AVG(territory_key), 2)
+    description: Giá trị bình quân của cột territory_key trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns:
+    - territory_key
+  total_product_key:
+    metric_id: total_product_key
+    vn_terms:
+    - tổng Product Key
+    - tổng số Product Key
+    - tổng cộng Product Key
+    en_terms:
+    - total product_key
+    - sum of product_key
+    sql_expression: ROUND(SUM(product_key), 2)
+    description: Tổng giá trị lũy kế của cột product_key trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns:
+    - product_key
+  avg_product_key:
+    metric_id: avg_product_key
+    vn_terms:
+    - Product Key trung bình
+    - trung bình Product Key
+    - bình quân Product Key
+    en_terms:
+    - average product_key
+    - avg product_key
+    - mean product_key
+    sql_expression: ROUND(AVG(product_key), 2)
+    description: Giá trị bình quân của cột product_key trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns:
+    - product_key
+  total_return_quantity:
+    metric_id: total_return_quantity
+    vn_terms:
+    - tổng Return Quantity
+    - tổng số Return Quantity
+    - tổng cộng Return Quantity
+    en_terms:
+    - total return_quantity
+    - sum of return_quantity
+    sql_expression: ROUND(SUM(return_quantity), 2)
+    description: Tổng giá trị lũy kế của cột return_quantity trong bảng adventure_works.returns
+    depends_on_tables:
+    - adventure_works.returns
+    depends_on_columns:
+    - return_quantity
+  avg_return_quantity:
+    metric_id: avg_return_quantity
+    vn_terms:
+    - Return Quantity trung bình
+    - trung bình Return Quantity
+    - bình quân Return Quantity
+    en_terms:
+    - average return_quantity
+    - avg return_quantity
+    - mean return_quantity
+    sql_expression: ROUND(AVG(return_quantity), 2)
+    description: Giá trị bình quân của cột return_quantity trong bảng adventure_works.returns
+    depends_on_tables:
+    - adventure_works.returns
+    depends_on_columns:
+    - return_quantity
+  total_adventure_works.sales:
+    metric_id: total_adventure_works.sales
+    vn_terms:
+    - tổng số Sales
+    - số lượng Sales
+    - số Sales
+    - thống kê Sales
+    en_terms:
+    - total adventure_works.sales
+    - adventure_works.sales count
+    - number of adventure_works.sales
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns: []
+  total_customer_key:
+    metric_id: total_customer_key
+    vn_terms:
+    - tổng Customer Key
+    - tổng số Customer Key
+    - tổng cộng Customer Key
+    en_terms:
+    - total customer_key
+    - sum of customer_key
+    sql_expression: ROUND(SUM(customer_key), 2)
+    description: Tổng giá trị lũy kế của cột customer_key trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns:
+    - customer_key
+  avg_customer_key:
+    metric_id: avg_customer_key
+    vn_terms:
+    - Customer Key trung bình
+    - trung bình Customer Key
+    - bình quân Customer Key
+    en_terms:
+    - average customer_key
+    - avg customer_key
+    - mean customer_key
+    sql_expression: ROUND(AVG(customer_key), 2)
+    description: Giá trị bình quân của cột customer_key trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns:
+    - customer_key
+  total_order_quantity:
+    metric_id: total_order_quantity
+    vn_terms:
+    - tổng Order Quantity
+    - tổng số Order Quantity
+    - tổng cộng Order Quantity
+    en_terms:
+    - total order_quantity
+    - sum of order_quantity
+    sql_expression: ROUND(SUM(order_quantity), 2)
+    description: Tổng giá trị lũy kế của cột order_quantity trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns:
+    - order_quantity
+  avg_order_quantity:
+    metric_id: avg_order_quantity
+    vn_terms:
+    - Order Quantity trung bình
+    - trung bình Order Quantity
+    - bình quân Order Quantity
+    en_terms:
+    - average order_quantity
+    - avg order_quantity
+    - mean order_quantity
+    sql_expression: ROUND(AVG(order_quantity), 2)
+    description: Giá trị bình quân của cột order_quantity trong bảng adventure_works.sales
+    depends_on_tables:
+    - adventure_works.sales
+    depends_on_columns:
+    - order_quantity
+  total_adventure_works.territories:
+    metric_id: total_adventure_works.territories
+    vn_terms:
+    - tổng số Territories
+    - số lượng Territories
+    - số Territories
+    - thống kê Territories
+    en_terms:
+    - total adventure_works.territories
+    - adventure_works.territories count
+    - number of adventure_works.territories
+    sql_expression: COUNT(*)
+    description: Tổng số lượng bản ghi trong bảng adventure_works.territories
+    depends_on_tables:
+    - adventure_works.territories
+    depends_on_columns: []
+segments: {}

@@ -1,0 +1,14 @@
+domain_id: adventure_works
+display_name: Adventure Works
+description: Cấu hình tự động khám phá từ CSDL xomdata_dataset (adventure_works)
+domain_keywords:
+- adventure_works
+- calendar
+- customers
+- product categories
+- product subcategories
+- products
+- returns
+- sales
+- territories
+synonyms: {}

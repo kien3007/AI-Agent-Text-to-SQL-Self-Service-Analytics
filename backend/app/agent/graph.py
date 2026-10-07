@@ -272,3 +272,35 @@ class AgentOrchestrator:
                 is_successful=True,
                 tables_used=tables
             )
+
+    def record_user_feedback(
+        self,
+        query: str,
+        sql: Optional[str],
+        rating: str,
+        domain_id: Optional[str] = "default",
+        session_id: Optional[str] = None,
+        notes: Optional[str] = None,
+        user_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Ghi nhận phản hồi người dùng (Thumbs Up/Down) và cập nhật tri thức Long-Term Memory."""
+        is_successful = (rating.lower() == "up")
+        if sql:
+            self.memory.long_term.save_plan(
+                user_query=query,
+                domain_id=domain_id or "default",
+                sql=sql,
+                is_successful=is_successful,
+                metadata={
+                    "session_id": session_id,
+                    "notes": notes or "",
+                    "user_id": user_id or "anonymous",
+                    "rating": rating.lower(),
+                    "source": "user_feedback"
+                }
+            )
+        return {
+            "status": "success",
+            "rating": rating.lower(),
+            "message": f"Đã ghi nhận phản hồi {'thành công' if is_successful else 'cảnh báo lỗi'} vào bộ nhớ dài hạn của Agent."
+        }

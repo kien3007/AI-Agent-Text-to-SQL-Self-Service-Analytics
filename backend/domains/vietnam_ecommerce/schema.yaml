@@ -1,96 +1,1411 @@
 tables:
-  stg_shopee_orders:
-    table_name: "stg_shopee_orders"
-    vn_name: "Đơn hàng sàn Shopee"
-    description: "Bảng dữ liệu chi tiết đơn hàng bán trên sàn thương mại điện tử Shopee"
-    primary_key: ["order_id"]
-    partition_key: "created_at"
+  vietnam_ecommerce.shopee_orders:
+    table_name: vietnam_ecommerce.shopee_orders
+    vn_name: Shopee Orders
+    description: Bảng/View vietnam_ecommerce.shopee_orders
+    primary_key: []
+    partition_key: null
     columns:
-      order_id:
-        name: "order_id"
-        vn_name: "Mã đơn hàng Shopee"
-        en_name: "Shopee Order ID"
-        data_type: "BIGINT"
-        description: "Mã định danh duy nhất đơn hàng Shopee"
-        is_primary_key: true
-        synonyms: ["mã đơn", "số đơn", "đơn hàng", "đơn"]
-      shop_name:
-        name: "shop_name"
-        vn_name: "Tên gian hàng / Shop"
-        en_name: "Shop Name"
-        data_type: "VARCHAR(100)"
-        description: "Tên gian hàng người bán trên Shopee"
-        synonyms: ["tên shop", "shop", "gian hàng", "cửa hàng"]
-        sample_values: ["Official Store", "Tech Mall", "Fashion House"]
+      pkId:
+        name: pkId
+        vn_name: Pkid
+        en_name: Pkid
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột pkId trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - pkId
+        is_partition_or_dist: false
+      user_id:
+        name: user_id
+        vn_name: User Id
+        en_name: User Id
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột user_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - user id
+        is_partition_or_dist: false
+      shop_id:
+        name: shop_id
+        vn_name: Shop Id
+        en_name: Shop Id
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột shop_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - shop id
+        is_partition_or_dist: false
+      order_sn:
+        name: order_sn
+        vn_name: Order Sn
+        en_name: Order Sn
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_sn trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - order sn
+        is_partition_or_dist: false
       order_status:
-        name: "order_status"
-        vn_name: "Trạng thái đơn hàng"
-        en_name: "Order Status"
-        data_type: "VARCHAR(50)"
-        description: "Trạng thái xử lý: COMPLETED, CANCELLED, RETURNED, SHIPPED"
-        synonyms: ["trạng thái", "tình trạng", "đã giao thành công", "hủy", "hoàn trả"]
-        sample_values: ["COMPLETED", "CANCELLED", "RETURNED"]
-      total_amount:
-        name: "total_amount"
-        vn_name: "Tổng giá trị đơn hàng (VNĐ)"
-        en_name: "Total Amount"
-        data_type: "DOUBLE"
-        description: "Tổng số tiền thanh toán của đơn hàng Shopee"
-        synonyms: ["doanh thu", "tiền hàng", "tổng tiền", "giá trị đơn"]
-      created_at:
-        name: "created_at"
-        vn_name: "Thời điểm đặt hàng"
-        en_name: "Order Created Time"
-        data_type: "DATETIME"
-        description: "Thời gian tạo đơn hàng trên sàn"
-        is_partition_or_dist: true
-        synonyms: ["ngày đặt", "thời gian", "ngày"]
-
-  stg_tiktok_orders:
-    table_name: "stg_tiktok_orders"
-    vn_name: "Đơn hàng sàn TikTok Shop"
-    description: "Bảng dữ liệu chi tiết đơn hàng bán trên sàn TikTok Shop"
-    primary_key: ["order_id"]
-    partition_key: "created_at"
+        name: order_status
+        vn_name: Order Status
+        en_name: Order Status
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_status trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - order status
+        is_partition_or_dist: false
+      create_time:
+        name: create_time
+        vn_name: Create Time
+        en_name: Create Time
+        data_type: DATETIME2
+        description: Cột create_time trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - create time
+        is_partition_or_dist: false
+      pay_time:
+        name: pay_time
+        vn_name: Pay Time
+        en_name: Pay Time
+        data_type: DATETIME2
+        description: Cột pay_time trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - pay time
+        is_partition_or_dist: false
+      shipped_time:
+        name: shipped_time
+        vn_name: Shipped Time
+        en_name: Shipped Time
+        data_type: DATETIME2
+        description: Cột shipped_time trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - shipped time
+        is_partition_or_dist: false
+      completed_time:
+        name: completed_time
+        vn_name: Completed Time
+        en_name: Completed Time
+        data_type: DATETIME2
+        description: Cột completed_time trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - completed time
+        is_partition_or_dist: false
+      cancel_reason:
+        name: cancel_reason
+        vn_name: Cancel Reason
+        en_name: Cancel Reason
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột cancel_reason trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - cancel reason
+        is_partition_or_dist: false
+      buyer_remark:
+        name: buyer_remark
+        vn_name: Buyer Remark
+        en_name: Buyer Remark
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột buyer_remark trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - buyer remark
+        is_partition_or_dist: false
+      shipping_carrier:
+        name: shipping_carrier
+        vn_name: Shipping Carrier
+        en_name: Shipping Carrier
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột shipping_carrier trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - shipping carrier
+        is_partition_or_dist: false
+      payment_method:
+        name: payment_method
+        vn_name: Payment Method
+        en_name: Payment Method
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột payment_method trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - payment method
+        is_partition_or_dist: false
+      estimated_shipping_date:
+        name: estimated_shipping_date
+        vn_name: Estimated Shipping Date
+        en_name: Estimated Shipping Date
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột estimated_shipping_date trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - estimated shipping date
+        is_partition_or_dist: false
+      buyer_username:
+        name: buyer_username
+        vn_name: Buyer Username
+        en_name: Buyer Username
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột buyer_username trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - buyer username
+        is_partition_or_dist: false
+      recipient_name:
+        name: recipient_name
+        vn_name: Recipient Name
+        en_name: Recipient Name
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột recipient_name trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - recipient name
+        is_partition_or_dist: false
+      phone:
+        name: phone
+        vn_name: Phone
+        en_name: Phone
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột phone trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - phone
+        is_partition_or_dist: false
+      full_address:
+        name: full_address
+        vn_name: Full Address
+        en_name: Full Address
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột full_address trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - full address
+        is_partition_or_dist: false
+      state:
+        name: state
+        vn_name: State
+        en_name: State
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột state trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - state
+        is_partition_or_dist: false
+      city:
+        name: city
+        vn_name: City
+        en_name: City
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột city trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - city
+        is_partition_or_dist: false
+      district:
+        name: district
+        vn_name: District
+        en_name: District
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột district trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - district
+        is_partition_or_dist: false
+      country:
+        name: country
+        vn_name: Country
+        en_name: Country
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột country trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - country
+        is_partition_or_dist: false
+      item_name:
+        name: item_name
+        vn_name: Item Name
+        en_name: Item Name
+        data_type: NVARCHAR(150) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột item_name trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - item name
+        is_partition_or_dist: false
+      item_sku:
+        name: item_sku
+        vn_name: Item Sku
+        en_name: Item Sku
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột item_sku trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - item sku
+        is_partition_or_dist: false
+      model_name:
+        name: model_name
+        vn_name: Model Name
+        en_name: Model Name
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột model_name trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - model name
+        is_partition_or_dist: false
+      model_sku:
+        name: model_sku
+        vn_name: Model Sku
+        en_name: Model Sku
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột model_sku trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - model sku
+        is_partition_or_dist: false
+      quantity:
+        name: quantity
+        vn_name: Quantity
+        en_name: Quantity
+        data_type: INTEGER
+        description: Cột quantity trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - quantity
+        is_partition_or_dist: false
+      original_price:
+        name: original_price
+        vn_name: Original Price
+        en_name: Original Price
+        data_type: DECIMAL(18, 2)
+        description: Cột original_price trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - original price
+        is_partition_or_dist: false
+      model_discounted_price:
+        name: model_discounted_price
+        vn_name: Model Discounted Price
+        en_name: Model Discounted Price
+        data_type: DECIMAL(18, 2)
+        description: Cột model_discounted_price trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - model discounted price
+        is_partition_or_dist: false
+      item_weight:
+        name: item_weight
+        vn_name: Item Weight
+        en_name: Item Weight
+        data_type: DECIMAL(18, 3)
+        description: Cột item_weight trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - item weight
+        is_partition_or_dist: false
+      total_order_value:
+        name: total_order_value
+        vn_name: Total Order Value
+        en_name: Total Order Value
+        data_type: DECIMAL(18, 2)
+        description: Cột total_order_value trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - total order value
+        is_partition_or_dist: false
+      buyer_total_amount:
+        name: buyer_total_amount
+        vn_name: Buyer Total Amount
+        en_name: Buyer Total Amount
+        data_type: DECIMAL(18, 2)
+        description: Cột buyer_total_amount trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - buyer total amount
+        is_partition_or_dist: false
+      seller_discount:
+        name: seller_discount
+        vn_name: Seller Discount
+        en_name: Seller Discount
+        data_type: DECIMAL(18, 2)
+        description: Cột seller_discount trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - seller discount
+        is_partition_or_dist: false
+      shopee_discount:
+        name: shopee_discount
+        vn_name: Shopee Discount
+        en_name: Shopee Discount
+        data_type: DECIMAL(18, 2)
+        description: Cột shopee_discount trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - shopee discount
+        is_partition_or_dist: false
+      voucher_from_seller:
+        name: voucher_from_seller
+        vn_name: Voucher From Seller
+        en_name: Voucher From Seller
+        data_type: DECIMAL(18, 2)
+        description: Cột voucher_from_seller trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - voucher from seller
+        is_partition_or_dist: false
+      voucher_from_shopee:
+        name: voucher_from_shopee
+        vn_name: Voucher From Shopee
+        en_name: Voucher From Shopee
+        data_type: DECIMAL(18, 2)
+        description: Cột voucher_from_shopee trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - voucher from shopee
+        is_partition_or_dist: false
+      commission_fee:
+        name: commission_fee
+        vn_name: Commission Fee
+        en_name: Commission Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột commission_fee trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - commission fee
+        is_partition_or_dist: false
+      service_fee:
+        name: service_fee
+        vn_name: Service Fee
+        en_name: Service Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột service_fee trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - service fee
+        is_partition_or_dist: false
+      transaction_fee:
+        name: transaction_fee
+        vn_name: Transaction Fee
+        en_name: Transaction Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột transaction_fee trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - transaction fee
+        is_partition_or_dist: false
+      escrow_amount:
+        name: escrow_amount
+        vn_name: Escrow Amount
+        en_name: Escrow Amount
+        data_type: DECIMAL(18, 2)
+        description: Cột escrow_amount trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - escrow amount
+        is_partition_or_dist: false
+      actual_shipping_fee:
+        name: actual_shipping_fee
+        vn_name: Actual Shipping Fee
+        en_name: Actual Shipping Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột actual_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - actual shipping fee
+        is_partition_or_dist: false
+      shop_name:
+        name: shop_name
+        vn_name: Shop Name
+        en_name: Shop Name
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột shop_name trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - shop name
+        is_partition_or_dist: false
+      connection_id:
+        name: connection_id
+        vn_name: Connection Id
+        en_name: Connection Id
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột connection_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - connection id
+        is_partition_or_dist: false
+      region:
+        name: region
+        vn_name: Region
+        en_name: Region
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột region trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - region
+        is_partition_or_dist: false
+      synced_at:
+        name: synced_at
+        vn_name: Synced At
+        en_name: Synced At
+        data_type: DATETIME2
+        description: Cột synced_at trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - synced at
+        is_partition_or_dist: false
+      raw_payload:
+        name: raw_payload
+        vn_name: Raw Payload
+        en_name: Raw Payload
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột raw_payload trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - raw payload
+        is_partition_or_dist: false
+      currency:
+        name: currency
+        vn_name: Currency
+        en_name: Currency
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột currency trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - currency
+        is_partition_or_dist: false
+      order_status_raw:
+        name: order_status_raw
+        vn_name: Order Status Raw
+        en_name: Order Status Raw
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_status_raw trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - order status raw
+        is_partition_or_dist: false
+      cancel_time:
+        name: cancel_time
+        vn_name: Cancel Time
+        en_name: Cancel Time
+        data_type: DATETIME2
+        description: Cột cancel_time trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - cancel time
+        is_partition_or_dist: false
+      fulfillment_flag:
+        name: fulfillment_flag
+        vn_name: Fulfillment Flag
+        en_name: Fulfillment Flag
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột fulfillment_flag trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - fulfillment flag
+        is_partition_or_dist: false
+      cod:
+        name: cod
+        vn_name: Cod
+        en_name: Cod
+        data_type: NVARCHAR(5) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột cod trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - cod
+        is_partition_or_dist: false
+      buyer_user_id:
+        name: buyer_user_id
+        vn_name: Buyer User Id
+        en_name: Buyer User Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột buyer_user_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - buyer user id
+        is_partition_or_dist: false
+      ship_by_date:
+        name: ship_by_date
+        vn_name: Ship By Date
+        en_name: Ship By Date
+        data_type: DATETIME2
+        description: Cột ship_by_date trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - ship by date
+        is_partition_or_dist: false
+      note:
+        name: note
+        vn_name: Note
+        en_name: Note
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột note trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - note
+        is_partition_or_dist: false
+      shipping_method:
+        name: shipping_method
+        vn_name: Shipping Method
+        en_name: Shipping Method
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột shipping_method trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - shipping method
+        is_partition_or_dist: false
+      package_number:
+        name: package_number
+        vn_name: Package Number
+        en_name: Package Number
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột package_number trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - package number
+        is_partition_or_dist: false
+      recipient_town:
+        name: recipient_town
+        vn_name: Recipient Town
+        en_name: Recipient Town
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột recipient_town trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - recipient town
+        is_partition_or_dist: false
+      returned_quantity:
+        name: returned_quantity
+        vn_name: Returned Quantity
+        en_name: Returned Quantity
+        data_type: INTEGER
+        description: Cột returned_quantity trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - returned quantity
+        is_partition_or_dist: false
+      total_weight:
+        name: total_weight
+        vn_name: Total Weight
+        en_name: Total Weight
+        data_type: DECIMAL(18, 3)
+        description: Cột total_weight trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - total weight
+        is_partition_or_dist: false
+      estimated_shipping_fee:
+        name: estimated_shipping_fee
+        vn_name: Estimated Shipping Fee
+        en_name: Estimated Shipping Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột estimated_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - estimated shipping fee
+        is_partition_or_dist: false
+      return_shipping_fee:
+        name: return_shipping_fee
+        vn_name: Return Shipping Fee
+        en_name: Return Shipping Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột return_shipping_fee trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - return shipping fee
+        is_partition_or_dist: false
+      item_id:
+        name: item_id
+        vn_name: Item Id
+        en_name: Item Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột item_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - item id
+        is_partition_or_dist: false
+      model_id:
+        name: model_id
+        vn_name: Model Id
+        en_name: Model Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột model_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - model id
+        is_partition_or_dist: false
+      zipcode:
+        name: zipcode
+        vn_name: Zipcode
+        en_name: Zipcode
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột zipcode trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - zipcode
+        is_partition_or_dist: false
+      update_time:
+        name: update_time
+        vn_name: Update Time
+        en_name: Update Time
+        data_type: DATETIME2
+        description: Cột update_time trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - update time
+        is_partition_or_dist: false
+      buyer_cancel_reason:
+        name: buyer_cancel_reason
+        vn_name: Buyer Cancel Reason
+        en_name: Buyer Cancel Reason
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột buyer_cancel_reason trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - buyer cancel reason
+        is_partition_or_dist: false
+      cancel_by:
+        name: cancel_by
+        vn_name: Cancel By
+        en_name: Cancel By
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột cancel_by trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - cancel by
+        is_partition_or_dist: false
+      product_location_id:
+        name: product_location_id
+        vn_name: Product Location Id
+        en_name: Product Location Id
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_location_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - product location id
+        is_partition_or_dist: false
+      promotion_type:
+        name: promotion_type
+        vn_name: Promotion Type
+        en_name: Promotion Type
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột promotion_type trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - promotion type
+        is_partition_or_dist: false
+      promotion_id:
+        name: promotion_id
+        vn_name: Promotion Id
+        en_name: Promotion Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột promotion_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - promotion id
+        is_partition_or_dist: false
+      active_qty:
+        name: active_qty
+        vn_name: Active Qty
+        en_name: Active Qty
+        data_type: INTEGER
+        description: Cột active_qty trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - active qty
+        is_partition_or_dist: false
+      cancel_requested_qty:
+        name: cancel_requested_qty
+        vn_name: Cancel Requested Qty
+        en_name: Cancel Requested Qty
+        data_type: INTEGER
+        description: Cột cancel_requested_qty trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - cancel requested qty
+        is_partition_or_dist: false
+      cancelled_qty:
+        name: cancelled_qty
+        vn_name: Cancelled Qty
+        en_name: Cancelled Qty
+        data_type: INTEGER
+        description: Cột cancelled_qty trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - cancelled qty
+        is_partition_or_dist: false
+      return_requested_qty:
+        name: return_requested_qty
+        vn_name: Return Requested Qty
+        en_name: Return Requested Qty
+        data_type: INTEGER
+        description: Cột return_requested_qty trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - return requested qty
+        is_partition_or_dist: false
+      wholesale:
+        name: wholesale
+        vn_name: Wholesale
+        en_name: Wholesale
+        data_type: NVARCHAR(5) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột wholesale trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - wholesale
+        is_partition_or_dist: false
+      add_on_deal:
+        name: add_on_deal
+        vn_name: Add On Deal
+        en_name: Add On Deal
+        data_type: NVARCHAR(5) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột add_on_deal trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - add on deal
+        is_partition_or_dist: false
+      main_item:
+        name: main_item
+        vn_name: Main Item
+        en_name: Main Item
+        data_type: NVARCHAR(5) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột main_item trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - main item
+        is_partition_or_dist: false
+      add_on_deal_id:
+        name: add_on_deal_id
+        vn_name: Add On Deal Id
+        en_name: Add On Deal Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột add_on_deal_id trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - add on deal id
+        is_partition_or_dist: false
+      can_full_cancel_order:
+        name: can_full_cancel_order
+        vn_name: Can Full Cancel Order
+        en_name: Can Full Cancel Order
+        data_type: NVARCHAR(5) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột can_full_cancel_order trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - can full cancel order
+        is_partition_or_dist: false
+      can_partial_cancel_order:
+        name: can_partial_cancel_order
+        vn_name: Can Partial Cancel Order
+        en_name: Can Partial Cancel Order
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột can_partial_cancel_order trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - can partial cancel order
+        is_partition_or_dist: false
+      buyer_preference_for_partial_cancellation:
+        name: buyer_preference_for_partial_cancellation
+        vn_name: Buyer Preference For Partial Cancellation
+        en_name: Buyer Preference For Partial Cancellation
+        data_type: INTEGER
+        description: Cột buyer_preference_for_partial_cancellation trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - buyer preference for partial cancellation
+        is_partition_or_dist: false
+      booking_sn:
+        name: booking_sn
+        vn_name: Booking Sn
+        en_name: Booking Sn
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột booking_sn trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - booking sn
+        is_partition_or_dist: false
+      advance_package:
+        name: advance_package
+        vn_name: Advance Package
+        en_name: Advance Package
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột advance_package trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - advance package
+        is_partition_or_dist: false
+      is_primary_row:
+        name: is_primary_row
+        vn_name: Is Primary Row
+        en_name: Is Primary Row
+        data_type: NVARCHAR(5) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột is_primary_row trong bảng vietnam_ecommerce.shopee_orders
+        synonyms:
+        - is primary row
+        is_partition_or_dist: false
+  vietnam_ecommerce.tiktok_orders:
+    table_name: vietnam_ecommerce.tiktok_orders
+    vn_name: Tiktok Orders
+    description: Bảng/View vietnam_ecommerce.tiktok_orders
+    primary_key: []
+    partition_key: null
     columns:
+      pkId:
+        name: pkId
+        vn_name: Pkid
+        en_name: Pkid
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột pkId trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - pkId
+        is_partition_or_dist: false
+      user_id:
+        name: user_id
+        vn_name: User Id
+        en_name: User Id
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột user_id trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - user id
+        is_partition_or_dist: false
+      createdAt:
+        name: createdAt
+        vn_name: Createdat
+        en_name: Createdat
+        data_type: DATETIME2
+        description: Cột createdAt trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - createdAt
+        is_partition_or_dist: false
+      updatedAt:
+        name: updatedAt
+        vn_name: Updatedat
+        en_name: Updatedat
+        data_type: DATETIME2
+        description: Cột updatedAt trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - updatedAt
+        is_partition_or_dist: false
       order_id:
-        name: "order_id"
-        vn_name: "Mã đơn hàng TikTok"
-        en_name: "TikTok Order ID"
-        data_type: "BIGINT"
-        description: "Mã định danh duy nhất đơn hàng TikTok Shop"
-        is_primary_key: true
-        synonyms: ["mã đơn", "số đơn", "đơn hàng", "đơn"]
-      shop_name:
-        name: "shop_name"
-        vn_name: "Tên shop TikTok"
-        en_name: "TikTok Shop Name"
-        data_type: "VARCHAR(100)"
-        description: "Tên gian hàng TikTok Shop"
-        synonyms: ["tên shop", "shop", "gian hàng"]
-        sample_values: ["Beauty World", "GenZ Trends", "Digital Hub"]
+        name: order_id
+        vn_name: Order Id
+        en_name: Order Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_id trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - order id
+        is_partition_or_dist: false
       order_status:
-        name: "order_status"
-        vn_name: "Trạng thái đơn hàng"
-        en_name: "Order Status"
-        data_type: "VARCHAR(50)"
-        description: "Trạng thái: COMPLETED, CANCELLED, PENDING"
-        synonyms: ["trạng thái", "tình trạng"]
-        sample_values: ["COMPLETED", "CANCELLED"]
+        name: order_status
+        vn_name: Order Status
+        en_name: Order Status
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_status trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - order status
+        is_partition_or_dist: false
+      order_type:
+        name: order_type
+        vn_name: Order Type
+        en_name: Order Type
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột order_type trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - order type
+        is_partition_or_dist: false
+      shop_name:
+        name: shop_name
+        vn_name: Shop Name
+        en_name: Shop Name
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột shop_name trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - shop name
+        is_partition_or_dist: false
+      created_time:
+        name: created_time
+        vn_name: Created Time
+        en_name: Created Time
+        data_type: DATETIME2
+        description: Cột created_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - created time
+        is_partition_or_dist: false
+      paid_time:
+        name: paid_time
+        vn_name: Paid Time
+        en_name: Paid Time
+        data_type: DATETIME2
+        description: Cột paid_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - paid time
+        is_partition_or_dist: false
+      rts_time:
+        name: rts_time
+        vn_name: Rts Time
+        en_name: Rts Time
+        data_type: DATETIME2
+        description: Cột rts_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - rts time
+        is_partition_or_dist: false
+      shipped_time:
+        name: shipped_time
+        vn_name: Shipped Time
+        en_name: Shipped Time
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột shipped_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - shipped time
+        is_partition_or_dist: false
+      delivered_time:
+        name: delivered_time
+        vn_name: Delivered Time
+        en_name: Delivered Time
+        data_type: DATETIME2
+        description: Cột delivered_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - delivered time
+        is_partition_or_dist: false
+      completed_time:
+        name: completed_time
+        vn_name: Completed Time
+        en_name: Completed Time
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột completed_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - completed time
+        is_partition_or_dist: false
+      cancelled_time:
+        name: cancelled_time
+        vn_name: Cancelled Time
+        en_name: Cancelled Time
+        data_type: DATETIME2
+        description: Cột cancelled_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - cancelled time
+        is_partition_or_dist: false
+      updated_time:
+        name: updated_time
+        vn_name: Updated Time
+        en_name: Updated Time
+        data_type: DATETIME2
+        description: Cột updated_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - updated time
+        is_partition_or_dist: false
+      rts_sla_time:
+        name: rts_sla_time
+        vn_name: Rts Sla Time
+        en_name: Rts Sla Time
+        data_type: DATETIME2
+        description: Cột rts_sla_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - rts sla time
+        is_partition_or_dist: false
+      tts_sla_time:
+        name: tts_sla_time
+        vn_name: Tts Sla Time
+        en_name: Tts Sla Time
+        data_type: DATETIME2
+        description: Cột tts_sla_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - tts sla time
+        is_partition_or_dist: false
+      delivery_sla_time:
+        name: delivery_sla_time
+        vn_name: Delivery Sla Time
+        en_name: Delivery Sla Time
+        data_type: DATETIME2
+        description: Cột delivery_sla_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - delivery sla time
+        is_partition_or_dist: false
+      cancel_sla_time:
+        name: cancel_sla_time
+        vn_name: Cancel Sla Time
+        en_name: Cancel Sla Time
+        data_type: DATETIME2
+        description: Cột cancel_sla_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - cancel sla time
+        is_partition_or_dist: false
+      auto_cancel_time:
+        name: auto_cancel_time
+        vn_name: Auto Cancel Time
+        en_name: Auto Cancel Time
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột auto_cancel_time trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - auto cancel time
+        is_partition_or_dist: false
+      currency:
+        name: currency
+        vn_name: Currency
+        en_name: Currency
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột currency trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - currency
+        is_partition_or_dist: false
       total_amount:
-        name: "total_amount"
-        vn_name: "Tổng giá trị đơn hàng (VNĐ)"
-        en_name: "Total Amount"
-        data_type: "DOUBLE"
-        description: "Tổng doanh thu đơn hàng trên TikTok Shop"
-        synonyms: ["doanh thu", "tiền hàng", "tổng tiền", "giá trị đơn"]
-      created_at:
-        name: "created_at"
-        vn_name: "Thời điểm đặt đơn"
-        en_name: "Order Created Time"
-        data_type: "DATETIME"
-        description: "Thời gian khách chốt đơn trên TikTok Shop"
-        is_partition_or_dist: true
-        synonyms: ["ngày đặt", "thời gian"]
-
+        name: total_amount
+        vn_name: Total Amount
+        en_name: Total Amount
+        data_type: DECIMAL(18, 2)
+        description: Cột total_amount trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - total amount
+        is_partition_or_dist: false
+      sub_total:
+        name: sub_total
+        vn_name: Sub Total
+        en_name: Sub Total
+        data_type: DECIMAL(18, 2)
+        description: Cột sub_total trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - sub total
+        is_partition_or_dist: false
+      order_original_price:
+        name: order_original_price
+        vn_name: Order Original Price
+        en_name: Order Original Price
+        data_type: DECIMAL(18, 2)
+        description: Cột order_original_price trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - order original price
+        is_partition_or_dist: false
+      payment_method:
+        name: payment_method
+        vn_name: Payment Method
+        en_name: Payment Method
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột payment_method trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - payment method
+        is_partition_or_dist: false
+      is_cod:
+        name: is_cod
+        vn_name: Is Cod
+        en_name: Is Cod
+        data_type: NVARCHAR(5) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột is_cod trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - is cod
+        is_partition_or_dist: false
+      shipping_fee:
+        name: shipping_fee
+        vn_name: Shipping Fee
+        en_name: Shipping Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột shipping_fee trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - shipping fee
+        is_partition_or_dist: false
+      original_shipping_fee:
+        name: original_shipping_fee
+        vn_name: Original Shipping Fee
+        en_name: Original Shipping Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột original_shipping_fee trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - original shipping fee
+        is_partition_or_dist: false
+      tax_amount:
+        name: tax_amount
+        vn_name: Tax Amount
+        en_name: Tax Amount
+        data_type: DECIMAL(18, 2)
+        description: Cột tax_amount trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - tax amount
+        is_partition_or_dist: false
+      product_tax:
+        name: product_tax
+        vn_name: Product Tax
+        en_name: Product Tax
+        data_type: DECIMAL(18, 2)
+        description: Cột product_tax trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - product tax
+        is_partition_or_dist: false
+      shipping_tax:
+        name: shipping_tax
+        vn_name: Shipping Tax
+        en_name: Shipping Tax
+        data_type: DECIMAL(18, 2)
+        description: Cột shipping_tax trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - shipping tax
+        is_partition_or_dist: false
+      small_order_fee:
+        name: small_order_fee
+        vn_name: Small Order Fee
+        en_name: Small Order Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột small_order_fee trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - small order fee
+        is_partition_or_dist: false
+      retail_delivery_fee:
+        name: retail_delivery_fee
+        vn_name: Retail Delivery Fee
+        en_name: Retail Delivery Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột retail_delivery_fee trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - retail delivery fee
+        is_partition_or_dist: false
+      insurance_fee:
+        name: insurance_fee
+        vn_name: Insurance Fee
+        en_name: Insurance Fee
+        data_type: DECIMAL(18, 2)
+        description: Cột insurance_fee trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - insurance fee
+        is_partition_or_dist: false
+      seller_discount:
+        name: seller_discount
+        vn_name: Seller Discount
+        en_name: Seller Discount
+        data_type: DECIMAL(18, 2)
+        description: Cột seller_discount trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - seller discount
+        is_partition_or_dist: false
+      platform_discount:
+        name: platform_discount
+        vn_name: Platform Discount
+        en_name: Platform Discount
+        data_type: DECIMAL(18, 2)
+        description: Cột platform_discount trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - platform discount
+        is_partition_or_dist: false
+      shipping_seller_discount:
+        name: shipping_seller_discount
+        vn_name: Shipping Seller Discount
+        en_name: Shipping Seller Discount
+        data_type: DECIMAL(18, 2)
+        description: Cột shipping_seller_discount trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - shipping seller discount
+        is_partition_or_dist: false
+      shipping_platform_discount:
+        name: shipping_platform_discount
+        vn_name: Shipping Platform Discount
+        en_name: Shipping Platform Discount
+        data_type: DECIMAL(18, 2)
+        description: Cột shipping_platform_discount trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - shipping platform discount
+        is_partition_or_dist: false
+      fulfillment_type:
+        name: fulfillment_type
+        vn_name: Fulfillment Type
+        en_name: Fulfillment Type
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột fulfillment_type trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - fulfillment type
+        is_partition_or_dist: false
+      delivery_type:
+        name: delivery_type
+        vn_name: Delivery Type
+        en_name: Delivery Type
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột delivery_type trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - delivery type
+        is_partition_or_dist: false
+      delivery_option:
+        name: delivery_option
+        vn_name: Delivery Option
+        en_name: Delivery Option
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột delivery_option trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - delivery option
+        is_partition_or_dist: false
+      shipping_provider:
+        name: shipping_provider
+        vn_name: Shipping Provider
+        en_name: Shipping Provider
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột shipping_provider trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - shipping provider
+        is_partition_or_dist: false
+      tracking_number:
+        name: tracking_number
+        vn_name: Tracking Number
+        en_name: Tracking Number
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột tracking_number trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - tracking number
+        is_partition_or_dist: false
+      warehouse_id:
+        name: warehouse_id
+        vn_name: Warehouse Id
+        en_name: Warehouse Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột warehouse_id trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - warehouse id
+        is_partition_or_dist: false
+      buyer_uid:
+        name: buyer_uid
+        vn_name: Buyer Uid
+        en_name: Buyer Uid
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột buyer_uid trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - buyer uid
+        is_partition_or_dist: false
+      buyer_name:
+        name: buyer_name
+        vn_name: Buyer Name
+        en_name: Buyer Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột buyer_name trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - buyer name
+        is_partition_or_dist: false
+      buyer_message:
+        name: buyer_message
+        vn_name: Buyer Message
+        en_name: Buyer Message
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột buyer_message trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - buyer message
+        is_partition_or_dist: false
+      recipient_name:
+        name: recipient_name
+        vn_name: Recipient Name
+        en_name: Recipient Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột recipient_name trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - recipient name
+        is_partition_or_dist: false
+      recipient_phone:
+        name: recipient_phone
+        vn_name: Recipient Phone
+        en_name: Recipient Phone
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột recipient_phone trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - recipient phone
+        is_partition_or_dist: false
+      full_address:
+        name: full_address
+        vn_name: Full Address
+        en_name: Full Address
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột full_address trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - full address
+        is_partition_or_dist: false
+      postal_code:
+        name: postal_code
+        vn_name: Postal Code
+        en_name: Postal Code
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột postal_code trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - postal code
+        is_partition_or_dist: false
+      region_state:
+        name: region_state
+        vn_name: Region State
+        en_name: Region State
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột region_state trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - region state
+        is_partition_or_dist: false
+      city_town:
+        name: city_town
+        vn_name: City Town
+        en_name: City Town
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột city_town trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - city town
+        is_partition_or_dist: false
+      district:
+        name: district
+        vn_name: District
+        en_name: District
+        data_type: NVARCHAR(30) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột district trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - district
+        is_partition_or_dist: false
+      product_name:
+        name: product_name
+        vn_name: Product Name
+        en_name: Product Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_name trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - product name
+        is_partition_or_dist: false
+      sku_name:
+        name: sku_name
+        vn_name: Sku Name
+        en_name: Sku Name
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột sku_name trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - sku name
+        is_partition_or_dist: false
+      seller_sku:
+        name: seller_sku
+        vn_name: Seller Sku
+        en_name: Seller Sku
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột seller_sku trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - seller sku
+        is_partition_or_dist: false
+      quantity:
+        name: quantity
+        vn_name: Quantity
+        en_name: Quantity
+        data_type: INTEGER
+        description: Cột quantity trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - quantity
+        is_partition_or_dist: false
+      item_status:
+        name: item_status
+        vn_name: Item Status
+        en_name: Item Status
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột item_status trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - item status
+        is_partition_or_dist: false
+      item_sale_price:
+        name: item_sale_price
+        vn_name: Item Sale Price
+        en_name: Item Sale Price
+        data_type: DECIMAL(18, 2)
+        description: Cột item_sale_price trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - item sale price
+        is_partition_or_dist: false
+      item_original_price:
+        name: item_original_price
+        vn_name: Item Original Price
+        en_name: Item Original Price
+        data_type: DECIMAL(18, 2)
+        description: Cột item_original_price trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - item original price
+        is_partition_or_dist: false
+      item_platform_disc:
+        name: item_platform_disc
+        vn_name: Item Platform Disc
+        en_name: Item Platform Disc
+        data_type: DECIMAL(18, 2)
+        description: Cột item_platform_disc trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - item platform disc
+        is_partition_or_dist: false
+      item_seller_disc:
+        name: item_seller_disc
+        vn_name: Item Seller Disc
+        en_name: Item Seller Disc
+        data_type: DECIMAL(18, 2)
+        description: Cột item_seller_disc trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - item seller disc
+        is_partition_or_dist: false
+      product_id:
+        name: product_id
+        vn_name: Product Id
+        en_name: Product Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_id trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - product id
+        is_partition_or_dist: false
+      sku_id:
+        name: sku_id
+        vn_name: Sku Id
+        en_name: Sku Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột sku_id trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - sku id
+        is_partition_or_dist: false
+      package_id:
+        name: package_id
+        vn_name: Package Id
+        en_name: Package Id
+        data_type: NVARCHAR(20) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột package_id trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - package id
+        is_partition_or_dist: false
+      package_status:
+        name: package_status
+        vn_name: Package Status
+        en_name: Package Status
+        data_type: NVARCHAR(10) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột package_status trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - package status
+        is_partition_or_dist: false
+      item_cancel_reason:
+        name: item_cancel_reason
+        vn_name: Item Cancel Reason
+        en_name: Item Cancel Reason
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột item_cancel_reason trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - item cancel reason
+        is_partition_or_dist: false
+      sku_image:
+        name: sku_image
+        vn_name: Sku Image
+        en_name: Sku Image
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột sku_image trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - sku image
+        is_partition_or_dist: false
+      row_idx:
+        name: row_idx
+        vn_name: Row Idx
+        en_name: Row Idx
+        data_type: INTEGER
+        description: Cột row_idx trong bảng vietnam_ecommerce.tiktok_orders
+        synonyms:
+        - row idx
+        is_partition_or_dist: false
 relationships: []

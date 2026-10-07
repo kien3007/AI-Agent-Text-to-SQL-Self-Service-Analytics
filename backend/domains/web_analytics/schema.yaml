@@ -1,0 +1,374 @@
+tables:
+  web_analytics.order_item_refunds:
+    table_name: web_analytics.order_item_refunds
+    vn_name: Order Item Refunds
+    description: Bảng/View web_analytics.order_item_refunds
+    primary_key:
+    - order_item_refund_id
+    partition_key: null
+    columns:
+      order_item_refund_id:
+        name: order_item_refund_id
+        vn_name: Order Item Refund Id
+        en_name: Order Item Refund Id
+        data_type: INTEGER
+        description: Cột order_item_refund_id trong bảng web_analytics.order_item_refunds
+        synonyms:
+        - order item refund id
+        is_partition_or_dist: false
+      created_at:
+        name: created_at
+        vn_name: Created At
+        en_name: Created At
+        data_type: DATETIME
+        description: Cột created_at trong bảng web_analytics.order_item_refunds
+        synonyms:
+        - created at
+        is_partition_or_dist: false
+      order_item_id:
+        name: order_item_id
+        vn_name: Order Item Id
+        en_name: Order Item Id
+        data_type: INTEGER
+        description: Cột order_item_id trong bảng web_analytics.order_item_refunds
+        synonyms:
+        - order item id
+        is_partition_or_dist: false
+      order_id:
+        name: order_id
+        vn_name: Order Id
+        en_name: Order Id
+        data_type: INTEGER
+        description: Cột order_id trong bảng web_analytics.order_item_refunds
+        synonyms:
+        - order id
+        is_partition_or_dist: false
+      refund_amount_usd:
+        name: refund_amount_usd
+        vn_name: Refund Amount Usd
+        en_name: Refund Amount Usd
+        data_type: DECIMAL(10, 2)
+        description: Cột refund_amount_usd trong bảng web_analytics.order_item_refunds
+        synonyms:
+        - refund amount usd
+        is_partition_or_dist: false
+  web_analytics.order_items:
+    table_name: web_analytics.order_items
+    vn_name: Order Items
+    description: Bảng/View web_analytics.order_items
+    primary_key:
+    - order_item_id
+    partition_key: null
+    columns:
+      order_item_id:
+        name: order_item_id
+        vn_name: Order Item Id
+        en_name: Order Item Id
+        data_type: INTEGER
+        description: Cột order_item_id trong bảng web_analytics.order_items
+        synonyms:
+        - order item id
+        is_partition_or_dist: false
+      created_at:
+        name: created_at
+        vn_name: Created At
+        en_name: Created At
+        data_type: DATETIME
+        description: Cột created_at trong bảng web_analytics.order_items
+        synonyms:
+        - created at
+        is_partition_or_dist: false
+      order_id:
+        name: order_id
+        vn_name: Order Id
+        en_name: Order Id
+        data_type: INTEGER
+        description: Cột order_id trong bảng web_analytics.order_items
+        synonyms:
+        - order id
+        is_partition_or_dist: false
+      product_id:
+        name: product_id
+        vn_name: Product Id
+        en_name: Product Id
+        data_type: INTEGER
+        description: Cột product_id trong bảng web_analytics.order_items
+        synonyms:
+        - product id
+        is_partition_or_dist: false
+      is_primary_item:
+        name: is_primary_item
+        vn_name: Is Primary Item
+        en_name: Is Primary Item
+        data_type: INTEGER
+        description: Cột is_primary_item trong bảng web_analytics.order_items
+        synonyms:
+        - is primary item
+        is_partition_or_dist: false
+      price_usd:
+        name: price_usd
+        vn_name: Price Usd
+        en_name: Price Usd
+        data_type: DECIMAL(10, 2)
+        description: Cột price_usd trong bảng web_analytics.order_items
+        synonyms:
+        - price usd
+        is_partition_or_dist: false
+      cogs_usd:
+        name: cogs_usd
+        vn_name: Cogs Usd
+        en_name: Cogs Usd
+        data_type: DECIMAL(10, 2)
+        description: Cột cogs_usd trong bảng web_analytics.order_items
+        synonyms:
+        - cogs usd
+        is_partition_or_dist: false
+  web_analytics.orders:
+    table_name: web_analytics.orders
+    vn_name: Orders
+    description: Bảng/View web_analytics.orders
+    primary_key:
+    - order_id
+    partition_key: null
+    columns:
+      order_id:
+        name: order_id
+        vn_name: Order Id
+        en_name: Order Id
+        data_type: INTEGER
+        description: Cột order_id trong bảng web_analytics.orders
+        synonyms:
+        - order id
+        is_partition_or_dist: false
+      created_at:
+        name: created_at
+        vn_name: Created At
+        en_name: Created At
+        data_type: DATETIME
+        description: Cột created_at trong bảng web_analytics.orders
+        synonyms:
+        - created at
+        is_partition_or_dist: false
+      website_session_id:
+        name: website_session_id
+        vn_name: Website Session Id
+        en_name: Website Session Id
+        data_type: INTEGER
+        description: Cột website_session_id trong bảng web_analytics.orders
+        synonyms:
+        - website session id
+        is_partition_or_dist: false
+      user_id:
+        name: user_id
+        vn_name: User Id
+        en_name: User Id
+        data_type: INTEGER
+        description: Cột user_id trong bảng web_analytics.orders
+        synonyms:
+        - user id
+        is_partition_or_dist: false
+      primary_product_id:
+        name: primary_product_id
+        vn_name: Primary Product Id
+        en_name: Primary Product Id
+        data_type: INTEGER
+        description: Cột primary_product_id trong bảng web_analytics.orders
+        synonyms:
+        - primary product id
+        is_partition_or_dist: false
+      items_purchased:
+        name: items_purchased
+        vn_name: Items Purchased
+        en_name: Items Purchased
+        data_type: INTEGER
+        description: Cột items_purchased trong bảng web_analytics.orders
+        synonyms:
+        - items purchased
+        is_partition_or_dist: false
+      price_usd:
+        name: price_usd
+        vn_name: Price Usd
+        en_name: Price Usd
+        data_type: DECIMAL(10, 2)
+        description: Cột price_usd trong bảng web_analytics.orders
+        synonyms:
+        - price usd
+        is_partition_or_dist: false
+      cogs_usd:
+        name: cogs_usd
+        vn_name: Cogs Usd
+        en_name: Cogs Usd
+        data_type: DECIMAL(10, 2)
+        description: Cột cogs_usd trong bảng web_analytics.orders
+        synonyms:
+        - cogs usd
+        is_partition_or_dist: false
+  web_analytics.products:
+    table_name: web_analytics.products
+    vn_name: Products
+    description: Bảng/View web_analytics.products
+    primary_key:
+    - product_id
+    partition_key: null
+    columns:
+      product_id:
+        name: product_id
+        vn_name: Product Id
+        en_name: Product Id
+        data_type: INTEGER
+        description: Cột product_id trong bảng web_analytics.products
+        synonyms:
+        - product id
+        is_partition_or_dist: false
+      created_at:
+        name: created_at
+        vn_name: Created At
+        en_name: Created At
+        data_type: DATETIME
+        description: Cột created_at trong bảng web_analytics.products
+        synonyms:
+        - created at
+        is_partition_or_dist: false
+      product_name:
+        name: product_name
+        vn_name: Product Name
+        en_name: Product Name
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột product_name trong bảng web_analytics.products
+        synonyms:
+        - product name
+        is_partition_or_dist: false
+  web_analytics.website_pageviews:
+    table_name: web_analytics.website_pageviews
+    vn_name: Website Pageviews
+    description: Bảng/View web_analytics.website_pageviews
+    primary_key:
+    - website_pageview_id
+    partition_key: null
+    columns:
+      website_pageview_id:
+        name: website_pageview_id
+        vn_name: Website Pageview Id
+        en_name: Website Pageview Id
+        data_type: INTEGER
+        description: Cột website_pageview_id trong bảng web_analytics.website_pageviews
+        synonyms:
+        - website pageview id
+        is_partition_or_dist: false
+      created_at:
+        name: created_at
+        vn_name: Created At
+        en_name: Created At
+        data_type: DATETIME
+        description: Cột created_at trong bảng web_analytics.website_pageviews
+        synonyms:
+        - created at
+        is_partition_or_dist: false
+      website_session_id:
+        name: website_session_id
+        vn_name: Website Session Id
+        en_name: Website Session Id
+        data_type: INTEGER
+        description: Cột website_session_id trong bảng web_analytics.website_pageviews
+        synonyms:
+        - website session id
+        is_partition_or_dist: false
+      pageview_url:
+        name: pageview_url
+        vn_name: Pageview Url
+        en_name: Pageview Url
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột pageview_url trong bảng web_analytics.website_pageviews
+        synonyms:
+        - pageview url
+        is_partition_or_dist: false
+  web_analytics.website_sessions:
+    table_name: web_analytics.website_sessions
+    vn_name: Website Sessions
+    description: Bảng/View web_analytics.website_sessions
+    primary_key:
+    - website_session_id
+    partition_key: null
+    columns:
+      website_session_id:
+        name: website_session_id
+        vn_name: Website Session Id
+        en_name: Website Session Id
+        data_type: INTEGER
+        description: Cột website_session_id trong bảng web_analytics.website_sessions
+        synonyms:
+        - website session id
+        is_partition_or_dist: false
+      created_at:
+        name: created_at
+        vn_name: Created At
+        en_name: Created At
+        data_type: DATETIME
+        description: Cột created_at trong bảng web_analytics.website_sessions
+        synonyms:
+        - created at
+        is_partition_or_dist: false
+      user_id:
+        name: user_id
+        vn_name: User Id
+        en_name: User Id
+        data_type: INTEGER
+        description: Cột user_id trong bảng web_analytics.website_sessions
+        synonyms:
+        - user id
+        is_partition_or_dist: false
+      is_repeat_session:
+        name: is_repeat_session
+        vn_name: Is Repeat Session
+        en_name: Is Repeat Session
+        data_type: INTEGER
+        description: Cột is_repeat_session trong bảng web_analytics.website_sessions
+        synonyms:
+        - is repeat session
+        is_partition_or_dist: false
+      utm_source:
+        name: utm_source
+        vn_name: Utm Source
+        en_name: Utm Source
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột utm_source trong bảng web_analytics.website_sessions
+        synonyms:
+        - utm source
+        is_partition_or_dist: false
+      utm_campaign:
+        name: utm_campaign
+        vn_name: Utm Campaign
+        en_name: Utm Campaign
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột utm_campaign trong bảng web_analytics.website_sessions
+        synonyms:
+        - utm campaign
+        is_partition_or_dist: false
+      utm_content:
+        name: utm_content
+        vn_name: Utm Content
+        en_name: Utm Content
+        data_type: NVARCHAR(100) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột utm_content trong bảng web_analytics.website_sessions
+        synonyms:
+        - utm content
+        is_partition_or_dist: false
+      device_type:
+        name: device_type
+        vn_name: Device Type
+        en_name: Device Type
+        data_type: NVARCHAR(50) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột device_type trong bảng web_analytics.website_sessions
+        synonyms:
+        - device type
+        is_partition_or_dist: false
+      http_referer:
+        name: http_referer
+        vn_name: Http Referer
+        en_name: Http Referer
+        data_type: NVARCHAR(255) COLLATE "SQL_LATIN1_GENERAL_CP1_CI_AS"
+        description: Cột http_referer trong bảng web_analytics.website_sessions
+        synonyms:
+        - http referer
+        is_partition_or_dist: false
+relationships: []
